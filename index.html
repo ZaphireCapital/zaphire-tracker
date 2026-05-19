@@ -437,31 +437,54 @@ input[type=file]{display:none}
 const BASE = ''; // same origin
 
 
-// JSONBIN SYNC
-const JSONBIN_KEY = '$2a$10$WVVJyC0mvXvHZl8mIT150OWp9lTEW1Xce926GjrWYjT3GgFEPJdEq';
-const JSONBIN_BIN = '6a0c98ae6877513b279b20df';
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN;
+// SUPABASE SYNC
+const SB_URL = 'https://fyntplwgqriliygxxhnf.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5bnRwbHdncXJpbGl5Z3h4aG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMDc4MTcsImV4cCI6MjA5NDc4MzgxN30.lsvbNeGEYsyJ4PI62Sln35X1v4ESgsTQTvhuxAVt33o';
+const SB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY
+};
+
+async function sbGet(key) {
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/zc_data?key=eq.' + encodeURIComponent(key) + '&select=value', {
+      headers: SB_HEADERS
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data.length > 0 ? data[0].value : null;
+  } catch(e) { return null; }
+}
+
+async function sbSet(key, value) {
+  try {
+    await fetch(SB_URL + '/rest/v1/zc_data', {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
+    });
+  } catch(e) { console.warn('sbSet failed:', e); }
+}
 
 async function syncFromCloud() {
   try {
     setSync('syncing');
-    const r = await fetch(JSONBIN_URL + '/latest', {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
-    });
-    if (!r.ok) throw new Error('Fetch failed');
-    const data = await r.json();
-    const d = data.record;
-    if (d.files) cache.files = d.files;
-    if (d.conditions) cache.conditions = d.conditions;
-    if (d.settings) cache.settings = { ...DEFAULTS, ...d.settings };
-    if (d.customFields) cache.customFields = d.customFields;
-    // Save to localStorage as backup
-    lsSet('cloud_cache', d);
+    const [files, conditions, settings, customFields] = await Promise.all([
+      sbGet('files'),
+      sbGet('conditions'),
+      sbGet('settings'),
+      sbGet('customFields')
+    ]);
+    if (files) cache.files = files;
+    if (conditions) cache.conditions = conditions;
+    if (settings) cache.settings = { ...DEFAULTS, ...settings };
+    if (customFields) cache.customFields = customFields;
+    lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
     return true;
   } catch(e) {
     console.warn('Cloud sync failed, using local:', e);
-    // Fall back to local cache
     const local = lsGet('cloud_cache');
     if (local) {
       if (local.files) cache.files = local.files;
@@ -477,22 +500,13 @@ async function syncFromCloud() {
 async function syncToCloud() {
   try {
     setSync('syncing');
-    const payload = {
-      files: cache.files,
-      conditions: cache.conditions,
-      settings: cache.settings,
-      customFields: cache.customFields
-    };
-    const r = await fetch(JSONBIN_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(payload)
-    });
-    if (!r.ok) throw new Error('Sync failed');
-    lsSet('cloud_cache', payload);
+    await Promise.all([
+      sbSet('files', cache.files),
+      sbSet('conditions', cache.conditions),
+      sbSet('settings', cache.settings),
+      sbSet('customFields', cache.customFields)
+    ]);
+    lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
   } catch(e) {
     console.warn('Cloud save failed:', e);
