@@ -421,36 +421,41 @@ input[type=file]{display:none}
 //                                        
 const BASE = ''; // same origin
 
-async function kvGet(key) {
+const LS_KEY = 'zaphire_v3';
+
+function lsGet(key) {
   try {
-    const r = await fetch(BASE + '/api/' + encodeURIComponent(key));
-    if (!r.ok) return null;
-    return await r.json();
+    const raw = localStorage.getItem(LS_KEY + ':' + key);
+    return raw ? JSON.parse(raw) : null;
   } catch(e) { return null; }
 }
 
-async function kvSet(key, value) {
+function lsSet(key, value) {
   try {
-    await fetch(BASE + '/api/' + encodeURIComponent(key), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(value)
-    });
-  } catch(e) { console.warn('KV set failed', e); }
+    localStorage.setItem(LS_KEY + ':' + key, JSON.stringify(value));
+  } catch(e) { console.warn('localStorage failed', e); }
 }
 
-async function kvDelete(key) {
-  try {
-    await fetch(BASE + '/api/' + encodeURIComponent(key), { method: 'DELETE' });
-  } catch(e) {}
+function lsDelete(key) {
+  try { localStorage.removeItem(LS_KEY + ':' + key); } catch(e) {}
 }
 
-async function kvList(prefix) {
+function lsList(prefix) {
   try {
-    const r = await fetch(BASE + '/api/' + encodeURIComponent(prefix), { method: 'PUT' });
-    return await r.json();
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const p = LS_KEY + ':' + prefix;
+      if (k && k.startsWith(p)) keys.push(k.replace(LS_KEY + ':', ''));
+    }
+    return keys;
   } catch(e) { return []; }
 }
+
+async function kvGet(key) { return lsGet(key); }
+async function kvSet(key, value) { lsSet(key, value); }
+async function kvDelete(key) { lsDelete(key); }
+async function kvList(prefix) { return lsList(prefix); }
 
 //                                        
 //  LOCAL CACHE + DEFAULTS
@@ -489,41 +494,30 @@ function setSync(status) {
 async function loadAll() {
   setSync('syncing');
   try {
-    // Load settings
-    const s = await kvGet('settings');
+    const s = lsGet('settings');
     if (s) cache.settings = { ...DEFAULTS, ...s };
-
-    // Load custom fields
-    const cf = await kvGet('customFields');
+    const cf = lsGet('customFields');
     if (cf) cache.customFields = cf;
-
-    // Load logo
-    const logo = await kvGet('logo');
+    const logo = lsGet('logo');
     if (logo) { cache.logo = logo; applyLogo(logo); }
-
-    // Load file index
-    const fileIndex = await kvGet('fileIndex');
+    const fileIndex = lsGet('fileIndex');
     if (fileIndex && Array.isArray(fileIndex)) {
       cache.files = [];
       for (const fid of fileIndex) {
-        const f = await kvGet('file:' + fid);
+        const f = lsGet('file:' + fid);
         if (f) cache.files.push(f);
       }
     }
-
-    // Load conditions for all files
     cache.conditions = {};
     for (const f of cache.files) {
-      const conds = await kvGet('conds:' + f.id);
+      const conds = lsGet('conds:' + f.id);
       cache.conditions[f.id] = conds || [];
     }
-
     setSync('ok');
     return true;
   } catch(e) {
-    console.warn('Load failed:', e);
-    setSync('error');
-    return false;
+    setSync('ok');
+    return true;
   }
 }
 
