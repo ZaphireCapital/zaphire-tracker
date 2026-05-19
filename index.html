@@ -814,7 +814,10 @@ async function saveFile() {
   renderDashboard();
 }
 
-async function saveFile_kv(f) { await saveFile(f); }
+async function saveFile_kv(f) {
+  lsSet('file:' + f.id, f);
+  lsSet('fileIndex', cache.files.map(x => x.id));
+}
 
 async function deleteCurrentFile() {
   if (!confirm('Delete this file and all its conditions? This cannot be undone.')) return;
