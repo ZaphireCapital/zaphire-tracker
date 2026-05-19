@@ -522,41 +522,36 @@ async function loadAll() {
 }
 
 async function saveSettings() {
-  setSync('syncing');
-  await kvSet('settings', cache.settings);
+  lsSet('settings', cache.settings);
   setSync('ok');
 }
 
-async function saveFileIndex() {
-  await kvSet('fileIndex', cache.files.map(f => f.id));
+function saveFileIndex() {
+  lsSet('fileIndex', cache.files.map(f => f.id));
 }
 
-async function saveFile(f) {
-  setSync('syncing');
-  await kvSet('file:' + f.id, f);
-  await saveFileIndex();
+function saveFile_direct(f) {
+  lsSet('file:' + f.id, f);
+  lsSet('fileIndex', cache.files.map(x => x.id));
   setSync('ok');
 }
 
 async function deleteFile(fid) {
-  setSync('syncing');
-  await kvDelete('file:' + fid);
-  await kvDelete('conds:' + fid);
+  lsDelete('file:' + fid);
+  lsDelete('conds:' + fid);
   cache.files = cache.files.filter(f => f.id !== fid);
   delete cache.conditions[fid];
-  await saveFileIndex();
+  lsSet('fileIndex', cache.files.map(x => x.id));
   setSync('ok');
 }
 
 async function saveConditions(fid) {
-  setSync('syncing');
-  await kvSet('conds:' + fid, cache.conditions[fid] || []);
+  lsSet('conds:' + fid, cache.conditions[fid] || []);
   setSync('ok');
 }
 
 async function saveCustomFields() {
-  setSync('syncing');
-  await kvSet('customFields', cache.customFields);
+  lsSet('customFields', cache.customFields);
   setSync('ok');
 }
 
@@ -814,7 +809,7 @@ async function saveFile() {
   renderDashboard();
 }
 
-async function saveFile_kv(f) {
+function saveFile_kv(f) {
   lsSet('file:' + f.id, f);
   lsSet('fileIndex', cache.files.map(x => x.id));
 }
@@ -945,7 +940,7 @@ async function saveCRM() {
   const f = cache.files.find(x=>x.id===currentFileId);
   if (!f) return;
   f.crm = { firstContact:v('crm_firstContact'), leadSource:v('crm_leadSource'), referredBy:v('crm_referredBy'), appDate:v('crm_appDate'), closeDate:v('crm_closeDate'), fileStatus:v('crm_fileStatus'), processor:v('crm_processor'), phone:v('crm_phone'), email:v('crm_email'), notes:v('crm_notes') };
-  await saveFile(f);
+  saveFile_kv(f);
   toast('Client info saved');
 }
 
@@ -988,11 +983,9 @@ async function saveCustomValues() {
     if (!el) return;
     f.customValues[cf.id] = cf.ft==='checkbox' ? String(el.checked) : el.value;
   });
-  await saveFile(f);
+  await saveFile_kv(f);
   toast('Additional info saved');
-}
-
-function renderCFList() {
+} {
   const el = document.getElementById('cfList');
   if (!cache.customFields.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-title">No custom fields yet</div><div class="empty-state-sub">Click "+ Add Field" to create your first custom field.</div></div>'; return; }
   el.innerHTML = cache.customFields.map(cf=>`<div class="custom-field-row"><div class="custom-field-info"><div class="custom-field-name">${esc(cf.label)}</div><div class="custom-field-meta">${esc(cf.ft)}   ${esc(cf.section)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="openEditCFModal('${cf.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteCF('${cf.id}')">Delete</button></div></div>`).join('');
