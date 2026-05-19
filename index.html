@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zaphire Capital">
+<title>Zaphire Capital   Underwriting Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--navy-mid:#112240;--gold:#c9a84c;--gold-light:#e8c97a;--gold-pale:#f5ecd4;--cream:#faf8f3;--white:#ffffff;--slate:#4a5568;--slate-light:#718096;--border:#e2ddd4;--border-strong:#c9c0b0;--success:#2d6a4f;--success-bg:#d8f3dc;--warning:#7b4f12;--warning-bg:#fef3c7;--danger:#922b21;--danger-bg:#fde8e8;--info:#1a3155;--info-bg:#dbeafe;--radius:10px;--radius-lg:16px;--shadow:0 1px 3px rgba(10,22,40,.08),0 4px 16px rgba(10,22,40,.05);--shadow-md:0 4px 12px rgba(10,22,40,.12),0 8px 32px rgba(10,22,40,.08);--font-display:'Playfair Display',Georgia,serif;--font-body:'DM Sans',-apple-system,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-height:100vh;font-size:14px;line-height:1.6}
+#app{display:flex;min-height:100vh}
+#sidebar{width:260px;min-width:260px;background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.sidebar-brand{padding:28px 24px 20px;border-bottom:1px solid rgba(201,168,76,.2)}
+.brand-logo{width:48px;height:48px;border-radius:12px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden;cursor:pointer}
+.brand-logo img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.brand-logo-placeholder{font-family:var(--font-display);font-size:20px;color:var(--gold);font-weight:600}
+.brand-name{font-family:var(--font-display);font-size:16px;color:var(--gold);font-weight:500;letter-spacing:.02em}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{padding:16px 12px;flex:1}
+.nav-section-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:8px 12px 6px;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;font-size:13.5px;font-weight:400;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(201,168,76,.12);color:var(--gold)}
+.nav-icon{font-size:16px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:rgba(201,168,76,.2);color:var(--gold-light);font-size:10px;padding:1px 7px;border-radius:20px;font-weight:500}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.06)}
+.user-pill{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.04)}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:rgba(201,168,76,.2);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.user-name{font-size:13px;color:rgba(255,255,255,.8);font-weight:500}
+.user-role{font-size:11px;color:rgba(255,255,255,.35);cursor:pointer}
+.user-role:hover{color:var(--gold)}
+.sync-status{display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:11px;color:rgba(255,255,255,.4);margin-top:6px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
+.sync-dot.syncing{background:var(--gold);animation:pulse 1s infinite}
+.sync-dot.error{background:#ef4444}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:17px;font-weight:500;color:var(--navy)}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.btn-gold{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;color:var(--slate);border-color:var(--border-strong)}
+.btn-outline:hover{background:var(--cream)}
+.btn-ghost{background:transparent;color:var(--slate);border-color:transparent;padding:8px 10px}
+.btn-ghost:hover{background:var(--cream)}
+.btn-sm{padding:5px 12px;font-size:12.5px}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:#f5c6c6}
+.btn-danger:hover{background:#f5c6c6}
+.page{padding:32px;display:none}
+.page.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.gold::before{background:var(--gold)}
+.stat-card.blue::before{background:#2563eb}
+.stat-card.green::before{background:#16a34a}
+.stat-card.amber::before{background:#d97706}
+.stat-label{font-size:11.5px;color:var(--slate-light);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.stat-value{font-size:28px;font-weight:300;color:var(--navy);font-family:var(--font-display)}
+.stat-sub{font-size:12px;color:var(--slate-light);margin-top:4px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:16px;font-weight:500;color:var(--navy)}
+.files-table-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.files-table{width:100%;border-collapse:collapse}
+.files-table th{background:#f8f6f1;padding:11px 16px;text-align:left;font-size:11.5px;font-weight:600;color:var(--slate);letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.files-table td{padding:13px 16px;border-bottom:1px solid #f0ece4;color:var(--navy);font-size:13.5px;vertical-align:middle}
+.files-table tr:last-child td{border-bottom:none}
+.files-table tr:hover td{background:#fdf9f2;cursor:pointer}
+.borrower-name{font-weight:500}
+.borrower-sub{font-size:12px;color:var(--slate-light);margin-top:1px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.badge-navy{background:#e8edf5;color:var(--navy)}
+.badge-gold{background:var(--gold-pale);color:#7b5c12}
+.badge-green{background:var(--success-bg);color:var(--success)}
+.badge-amber{background:var(--warning-bg);color:var(--warning)}
+.badge-gray{background:#f0ece4;color:var(--slate)}
+.badge-blue{background:var(--info-bg);color:var(--info)}
+.conditions-summary{display:flex;gap:6px;flex-wrap:wrap}
+.cond-dot{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--slate-light)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot-open{background:#2563eb}.dot-submitted{background:#d97706}.dot-cleared{background:#16a34a}
+.file-detail-header{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:20px;box-shadow:var(--shadow)}
+.file-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.file-main-title{font-family:var(--font-display);font-size:22px;font-weight:500}
+.file-subtitle{font-size:13.5px;color:var(--slate-light);margin-top:4px}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.info-cell{padding:14px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.info-cell:nth-child(3n){border-right:none}
+.info-cell:nth-last-child(-n+3){border-bottom:none}
+.info-label{font-size:11px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px}
+.info-value{font-size:14px;font-weight:500}
+.tab-bar{display:flex;border-bottom:2px solid var(--border);margin-bottom:24px}
+.tab-btn{padding:10px 20px;font-family:var(--font-body);font-size:13.5px;font-weight:500;color:var(--slate-light);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;transition:all .15s}
+.tab-btn:hover{color:var(--navy)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.bucket{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
+.bucket-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.bucket-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.bucket-open .bucket-icon{background:var(--info-bg);color:#1d4ed8}
+.bucket-submitted .bucket-icon{background:var(--warning-bg);color:#b45309}
+.bucket-cleared .bucket-icon{background:var(--success-bg);color:#15803d}
+.bucket-title{font-size:14.5px;font-weight:600;flex:1}
+.bucket-open .bucket-title{color:#1e3a8a}
+.bucket-submitted .bucket-title{color:#92400e}
+.bucket-cleared .bucket-title{color:#14532d}
+.bucket-count{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;margin-right:8px}
+.bucket-open .bucket-count{background:var(--info-bg);color:#1d4ed8}
+.bucket-submitted .bucket-count{background:var(--warning-bg);color:#b45309}
+.bucket-cleared .bucket-count{background:var(--success-bg);color:#15803d}
+.bucket-chevron{font-size:16px;color:var(--slate-light);transition:transform .2s}
+.bucket-chevron.open{transform:rotate(180deg)}
+.bucket-body{display:none}
+.bucket-body.open{display:block}
+.condition-card{border-bottom:1px solid #f0ece4;padding:16px 20px}
+.condition-card:last-child{border-bottom:none}
+.condition-card:hover{background:#fdf9f2}
+.condition-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.condition-num{width:28px;height:28px;border-radius:6px;background:#f0ece4;color:var(--slate);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:1px}
+.condition-main{flex:1}
+.condition-desc{font-size:14px;font-weight:500;line-height:1.4}
+.condition-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.condition-actions{display:flex;gap:6px;flex-shrink:0}
+.notes-list{margin-top:10px;padding-left:40px}
+.note-item{background:#f8f6f1;border-left:2px solid var(--gold);border-radius:0 6px 6px 0;padding:9px 12px;margin-bottom:6px}
+.note-stamp{font-size:11px;color:var(--slate-light);margin-bottom:4px;display:flex;gap:8px;align-items:center}
+.note-stamp-user{font-weight:600;color:var(--gold);background:rgba(201,168,76,.1);padding:1px 6px;border-radius:4px}
+.note-text{font-size:13px;line-height:1.5}
+.add-note-btn{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--slate-light);cursor:pointer;padding:6px 0;background:none;border:none;font-family:var(--font-body);transition:color .15s;margin-left:40px}
+.add-note-btn:hover{color:var(--gold)}
+.note-add-inline{background:#f8f6f1;border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin:8px 0 8px 40px;display:none}
+.note-add-inline.open{display:block}
+.note-add-inline textarea{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:8px;font-family:var(--font-body);font-size:13px;resize:vertical;min-height:60px;background:var(--white);outline:none;margin-bottom:8px}
+.note-add-inline textarea:focus{border-color:var(--gold)}
+.note-add-actions{display:flex;justify-content:flex-end;gap:8px}
+.status-select{border:none;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:500;cursor:pointer;outline:none;border-radius:20px;padding:3px 8px}
+.status-open{background:var(--info-bg);color:var(--info)}
+.status-submitted{background:var(--warning-bg);color:var(--warning)}
+.status-cleared{background:var(--success-bg);color:var(--success)}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,.5);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;transform:translateY(8px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);border-radius:var(--radius-lg) var(--radius-lg) 0 0;z-index:1}
+.modal-title{font-family:var(--font-display);font-size:18px;font-weight:500}
+.modal-body{padding:22px 26px}
+.modal-footer{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.form-section{margin-bottom:24px}
+.form-section-title{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate-light);font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:500;color:var(--slate)}
+.form-input,.form-select,.form-textarea{padding:9px 12px;border:1px solid var(--border-strong);border-radius:var(--radius);font-family:var(--font-body);font-size:13.5px;color:var(--navy);background:var(--white);outline:none;transition:border-color .15s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,.12)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-checkbox-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.form-checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.settings-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow)}
+.settings-card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.settings-card-sub{font-size:12px;color:var(--slate-light);margin-bottom:16px}
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tag{display:inline-flex;align-items:center;gap:5px;background:#f0ece4;color:var(--slate);padding:4px 10px;border-radius:6px;font-size:12.5px}
+.tag-remove{cursor:pointer;color:var(--slate-light);font-size:13px;background:none;border:none;padding:0;display:flex}
+.tag-remove:hover{color:var(--danger)}
+.tag-add-row{display:flex;gap:8px}
+.tag-add-row input{flex:1}
+.custom-field-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.custom-field-row:last-child{border-bottom:none}
+.custom-field-info{flex:1}
+.custom-field-name{font-size:13.5px;font-weight:500}
+.custom-field-meta{font-size:12px;color:var(--slate-light);margin-top:2px}
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:20px;font-size:12.5px;font-weight:500;border:1px solid var(--border-strong);background:var(--white);color:var(--slate);cursor:pointer;transition:all .15s;font-family:var(--font-body)}
+.filter-btn:hover{border-color:var(--gold);color:var(--navy)}
+.filter-btn.active{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+.search-bar{display:flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius);padding:8px 14px;margin-bottom:20px}
+.search-bar input{border:none;outline:none;font-family:var(--font-body);font-size:13.5px;color:var(--navy);background:transparent;flex:1}
+.search-bar input::placeholder{color:var(--slate-light)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--slate-light)}
+.empty-state-icon{font-size:40px;margin-bottom:12px}
+.empty-state-title{font-size:16px;font-weight:500;color:var(--slate);margin-bottom:6px}
+.empty-state-sub{font-size:13.5px}
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--navy);color:var(--white);padding:11px 16px;border-radius:var(--radius);font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-md);animation:slideIn .2s ease;max-width:320px}
+.toast.success{border-left:3px solid #22c55e}
+.toast.error{border-left:3px solid #ef4444}
+.toast.info{border-left:3px solid var(--gold)}
+@keyframes slideIn{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+.loading-screen{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s}
+.loading-screen.hidden{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:32px;color:var(--gold);margin-bottom:12px}
+.loading-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:32px}
+.loading-bar{width:200px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.loading-bar-fill{height:100%;background:var(--gold);border-radius:2px;animation:loadBar 1.5s ease-in-out infinite}
+@keyframes loadBar{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--slate-light);font-size:13px;cursor:pointer;background:none;border:none;font-family:var(--font-body);padding:0;margin-bottom:20px;transition:color .15s}
+.back-btn:hover{color:var(--navy)}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.logo-upload-area{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:#fdf9f2}
+.logo-upload-area:hover{border-color:var(--gold);background:var(--gold-pale)}
+input[type=file]{display:none}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">Zaphire Capital</div>
+  <div class="loading-sub">Loading your workspace...</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+<div id="app">
+  <nav id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo" onclick="document.getElementById('logoInput').click()" title="Click to upload logo">
+        <div class="brand-logo-placeholder" id="logoPlaceholder">Z</div>
+        <img id="logoImg" style="display:none" src="" alt="Logo">
+      </div>
+      <input type="file" id="logoInput" accept="image/*">
+      <div class="brand-name">Zaphire Capital</div>
+      <div class="brand-sub">Underwriting Tracker</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Menu</div>
+      <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"> </span>Dashboard<span class="nav-badge" id="navBadge">0</span></button>
+      <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"> </span>All Files</button>
+      <div class="nav-section-label" style="margin-top:16px">Admin</div>
+      <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"> </span>Settings & Dropdowns</button>
+      <button class="nav-item" onclick="showPage('customfields')"><span class="nav-icon"> </span>Custom Fields</button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="userAvatar">D</div>
+        <div>
+          <div class="user-name" id="userName">Deric</div>
+          <div class="user-role" onclick="showUserSwitch()">Switch user  </div>
+        </div>
+      </div>
+      <div class="sync-status"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">Synced</span></div>
+    </div>
+  </nav>
+  <main id="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions" id="topbarActions"><button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button></div>
+    </div>
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card gold"><div class="stat-label">Active Files</div><div class="stat-value" id="statActive">0</div><div class="stat-sub">In underwriting</div></div>
+        <div class="stat-card blue"><div class="stat-label">Open Conditions</div><div class="stat-value" id="statOpen">0</div><div class="stat-sub">Awaiting resolution</div></div>
+        <div class="stat-card amber"><div class="stat-label">Submitted to Lender</div><div class="stat-value" id="statSubmitted">0</div><div class="stat-sub">Pending review</div></div>
+        <div class="stat-card green"><div class="stat-label">Cleared</div><div class="stat-value" id="statCleared">0</div><div class="stat-sub">Conditions resolved</div></div>
+      </div>
+      <div class="section-header"><div class="section-title">Recent Files</div><button class="btn btn-outline btn-sm" onclick="showPage('files')">View all</button></div>
+      <div class="files-table-wrap"><table class="files-table"><thead><tr><th>Borrower(s)</th><th>Property</th><th>Loan Type</th><th>Bank</th><th>Loan Amount</th><th>Conditions</th></tr></thead><tbody id="dashTbody"></tbody></table></div>
+    </div>
+    <!-- ALL FILES -->
+    <div class="page" id="page-files">
+      <div class="search-bar"><span style="color:var(--slate-light)"> </span><input type="text" id="filesSearch" placeholder="Search by borrower, property, or bank..." oninput="renderFiles()"></div>
+      <div class="section-header"><div class="section-title">All Files</div><button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button></div>
+      <div class="files-table-wrap"><table class="files-table"><thead><tr><th>Borrower(s)</th><th>Property</th><th>Loan Type</th><th>Occupancy</th><th>Bank</th><th>Loan Amount</th><th>Conditions</th><th></th></tr></thead><tbody id="filesTbody"></tbody></table></div>
+    </div>
+    <!-- FILE DETAIL -->
+    <div class="page" id="page-filedetail">
+      <button class="back-btn" onclick="showPage('files')">  Back to Files</button>
+      <div class="file-detail-header">
+        <div class="file-title-row">
+          <div><div class="file-main-title" id="detailTitle"> </div><div class="file-subtitle" id="detailSubtitle"> </div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="openEditFileModal()">Edit Info</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">Delete File</button>
+          </div>
+        </div>
+        <div class="info-grid" id="detailGrid"></div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
+        <button class="tab-btn" onclick="switchTab('crm',this)">Client & CRM</button>
+        <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+      </div>
+      <div class="tab-content active" id="tab-conditions">
+        <div class="section-header"><div class="section-title">Conditions</div><button class="btn btn-gold btn-sm" onclick="openNewConditionModal()">+ Add Condition</button></div>
+        <div class="filter-bar" id="condFilterBar">
+          <button class="filter-btn active" onclick="setCondFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setCondFilter('Open',this)">Open</button>
+          <button class="filter-btn" onclick="setCondFilter('Submitted to Lender',this)">Submitted to Lender</button>
+          <button class="filter-btn" onclick="setCondFilter('Cleared',this)">Cleared</button>
+        </div>
+        <div id="condBuckets"></div>
+      </div>
+      <div class="tab-content" id="tab-crm">
+        <div class="section-header"><div class="section-title">Client & CRM</div><button class="btn btn-gold btn-sm" onclick="saveCRM()">Save Changes</button></div>
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)">
+          <div class="form-grid" style="margin-bottom:20px">
+            <div class="form-group"><label class="form-label">First Contact Date</label><input class="form-input" type="date" id="crm_firstContact"></div>
+            <div class="form-group"><label class="form-label">Lead Source</label><select class="form-select" id="crm_leadSource"><option value="">Select...</option><option>Referral</option><option>Website</option><option>Repeat Client</option><option>Social Media</option><option>Real Estate Agent</option><option>Cold Call</option><option>Other</option></select></div>
+            <div class="form-group"><label class="form-label">Referred By</label><input class="form-input" type="text" id="crm_referredBy" placeholder="Name of referral source"></div>
+            <div class="form-group"><label class="form-label">Application Date</label><input class="form-input" type="date" id="crm_appDate"></div>
+            <div class="form-group"><label class="form-label">Expected Close Date</label><input class="form-input" type="date" id="crm_closeDate"></div>
+            <div class="form-group"><label class="form-label">File Status</label><select class="form-select" id="crm_fileStatus"><option value="">Select...</option><option>Pre-Application</option><option>Application Submitted</option><option>In Underwriting</option><option>Conditional Approval</option><option>Clear to Close</option><option>Closed</option><option>Withdrawn</option><option>Denied</option></select></div>
+            <div class="form-group"><label class="form-label">Processor Assigned</label><select class="form-select" id="crm_processor"></select></div>
+            <div class="form-group"><label class="form-label">Borrower Phone</label><input class="form-input" type="text" id="crm_phone" placeholder="(000) 000-0000"></div>
+            <div class="form-group"><label class="form-label">Borrower Email</label><input class="form-input" type="text" id="crm_email" placeholder="email@example.com"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Communication Log / Internal Notes</label><textarea class="form-textarea" id="crm_notes" style="min-height:120px" placeholder="Log calls, emails, and key conversations here..."></textarea></div>
+        </div>
+      </div>
+      <div class="tab-content" id="tab-custom">
+        <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
+        <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
+      </div>
+    </div>
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="section-header"><div class="section-title">Settings & Dropdown Management</div></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:24px">Changes sync to all team members automatically.</p>
+      <div class="settings-grid" id="settingsGrid"></div>
+      <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Team Members</div></div>
+      <div class="settings-card" style="max-width:400px">
+        <div class="tag-list" id="userTags"></div>
+        <div class="tag-add-row"><input class="form-input" type="text" id="addUserInput" placeholder="Add team member..." onkeydown="if(event.key==='Enter')addUser()"><button class="btn btn-outline btn-sm" onclick="addUser()">Add</button></div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Logo</div></div>
+      <div class="logo-upload-area" onclick="document.getElementById('logoInput').click()">
+        <div style="font-size:28px;margin-bottom:8px"> </div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px">Upload Company Logo</div>
+        <div style="font-size:12.5px;color:var(--slate-light)">PNG or JPG. Appears in the sidebar on all devices.</div>
+      </div>
+    </div>
+    <!-- CUSTOM FIELDS -->
+    <div class="page" id="page-customfields">
+      <div class="section-header"><div class="section-title">Custom Fields</div><button class="btn btn-gold" onclick="openNewCFModal()">+ Add Field</button></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:24px">Add any field you want to track. Appears on every file under "Additional Info".</p>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)"><div id="cfList" style="padding:8px 20px"></div></div>
+    </div>
+  </main>
+</div>
+<!-- FILE MODAL -->
+<div class="modal-overlay" id="fileModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="fileModalTitle">New File</div><button class="btn btn-ghost" onclick="closeModal('fileModal')" style="padding:6px 8px;font-size:18px"> </button></div>
+    <div class="modal-body">
+      <div class="form-section"><div class="form-section-title">Borrower Information</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Borrower 1 Name *</label><input class="form-input" type="text" id="f_b1" placeholder="Full name"></div>
+          <div class="form-group"><label class="form-label">Borrower 2 Name</label><input class="form-input" type="text" id="f_b2" placeholder="Full name (if applicable)"></div>
+        </div>
+      </div>
+      <div class="form-section"><div class="form-section-title">Property & Loan Details</div>
+        <div class="form-group form-full" style="margin-bottom:14px"><label class="form-label">Subject Property Address *</label><input class="form-input" type="text" id="f_prop" placeholder="Full property address"></div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Number of Units</label><select class="form-select" id="f_units"><option value="1">1 Unit</option><option value="2">2 Units</option><option value="3">3 Units</option><option value="4">4 Units</option></select></div>
+          <div class="form-group"><label class="form-label">Loan Type</label><select class="form-select" id="f_loanType"></select></div>
+          <div class="form-group"><label class="form-label">Occupancy</label><select class="form-select" id="f_occupancy"></select></div>
+          <div class="form-group"><label class="form-label">Bank / Lender</label><input class="form-input" type="text" id="f_bank" placeholder="e.g. Chase, Wells Fargo"></div>
+          <div class="form-group"><label class="form-label">Purchase Price</label><input class="form-input" type="text" id="f_pp" placeholder="$0.00"></div>
+          <div class="form-group"><label class="form-label">Loan Amount</label><input class="form-input" type="text" id="f_la" placeholder="$0.00"></div>
+          <div class="form-group"><label class="form-label">Note Rate</label><input class="form-input" type="text" id="f_rate" placeholder="e.g. 6.875%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('fileModal')">Cancel</button><button class="btn btn-gold" onclick="saveFile()">Save File</button></div>
+  </div>
+</div>
+<!-- CONDITION MODAL -->
+<div class="modal-overlay" id="condModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="condModalTitle">Add Condition</div><button class="btn btn-ghost" onclick="closeModal('condModal')" style="padding:6px 8px;font-size:18px"> </button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="c_cat"></select></div>
+        <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="c_type"></select></div>
+        <div class="form-group"><label class="form-label">Condition Number</label><input class="form-input" type="text" id="c_num" placeholder="e.g. 1, 2a, PTD-3"></div>
+        <div class="form-group"><label class="form-label">Responsible Party</label><select class="form-select" id="c_resp"></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="c_status"><option value="Open">Open</option><option value="Submitted to Lender">Submitted to Lender</option><option value="Cleared">Cleared</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description *</label><textarea class="form-textarea" id="c_desc" placeholder="Describe the condition in full..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('condModal')">Cancel</button><button class="btn btn-gold" onclick="saveCondition()">Save Condition</button></div>
+  </div>
+</div>
+<!-- CUSTOM FIELD MODAL -->
+<div class="modal-overlay" id="cfModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header"><div class="modal-title" id="cfModalTitle">Add Custom Field</div><button class="btn btn-ghost" onclick="closeModal('cfModal')" style="padding:6px 8px;font-size:18px"> </button></div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px"><label class="form-label">Field Label *</label><input class="form-input" type="text" id="cf_label" placeholder="e.g. HOA Name, Rate Lock Expiry, Title Company"></div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group"><label class="form-label">Field Type</label><select class="form-select" id="cf_type" onchange="toggleCFOpts()"><option value="text">Text (single line)</option><option value="textarea">Text (multi-line)</option><option value="date">Date</option><option value="number">Number</option><option value="checkbox">Yes / No Checkbox</option><option value="select">Dropdown</option></select></div>
+        <div class="form-group"><label class="form-label">Section</label><select class="form-select" id="cf_section"><option>Additional Info</option><option>Loan Details</option><option>Closing Info</option><option>Compliance</option></select></div>
+      </div>
+      <div class="form-group" id="cf_optsGroup" style="display:none"><label class="form-label">Dropdown Options (one per line)</label><textarea class="form-textarea" id="cf_opts" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('cfModal')">Cancel</button><button class="btn btn-gold" onclick="saveCF()">Save Field</button></div>
+  </div>
+</div>
+<!-- USER SWITCH MODAL -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-header"><div class="modal-title">Switch User</div><button class="btn btn-ghost" onclick="closeModal('userModal')" style="padding:6px 8px;font-size:18px"> </button></div>
+    <div class="modal-body" id="userModalBody"></div>
+  </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+//                                        
+//  KV API   talks to the Worker backend
+//                                        
+const BASE = ''; // same origin
+
+async function kvGet(key) {
+  try {
+    const r = await fetch(BASE + '/api/' + encodeURIComponent(key));
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+async function kvSet(key, value) {
+  try {
+    await fetch(BASE + '/api/' + encodeURIComponent(key), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(value)
+    });
+  } catch(e) { console.warn('KV set failed', e); }
+}
+
+async function kvDelete(key) {
+  try {
+    await fetch(BASE + '/api/' + encodeURIComponent(key), { method: 'DELETE' });
+  } catch(e) {}
+}
+
+async function kvList(prefix) {
+  try {
+    const r = await fetch(BASE + '/api/' + encodeURIComponent(prefix), { method: 'PUT' });
+    return await r.json();
+  } catch(e) { return []; }
+}
+
+//                                        
+//  LOCAL CACHE + DEFAULTS
+//                                        
+const DEFAULTS = {
+  loanTypes: ['Conventional','DSCR','FHA','HELOC','VA','Jumbo','Non-QM'],
+  occupancyTypes: ['Primary Residence','Investment','2nd Home'],
+  conditionCategories: ['Prior to Close','At Closing','Internal to Lender'],
+  conditionTypes: ['Appraisal','Asset','Closing Disclosure','Disclosures','Title','Credit','Insurance','Employment','Income','Legal','Flood','HOA','Survey','Other'],
+  users: ['Deric','Stephan','Jules']
+};
+
+let cache = {
+  files: [], conditions: {}, settings: {...DEFAULTS},
+  customFields: [], logo: null
+};
+
+let currentFileId = null;
+let editingFileId = null;
+let editingCondId = null;
+let editingCFId = null;
+let condFilter = 'all';
+let currentUser = 'Deric';
+let syncTimer = null;
+
+//                                        
+//  SYNC ENGINE
+//                                        
+function setSync(status) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot' + (status==='syncing'?' syncing':status==='error'?' error':'');
+  lbl.textContent = status==='syncing'?'Syncing...':status==='error'?'Offline':' Synced';
+}
+
+async function loadAll() {
+  setSync('syncing');
+  try {
+    // Load settings
+    const s = await kvGet('settings');
+    if (s) cache.settings = { ...DEFAULTS, ...s };
+
+    // Load custom fields
+    const cf = await kvGet('customFields');
+    if (cf) cache.customFields = cf;
+
+    // Load logo
+    const logo = await kvGet('logo');
+    if (logo) { cache.logo = logo; applyLogo(logo); }
+
+    // Load file index
+    const fileIndex = await kvGet('fileIndex');
+    if (fileIndex && Array.isArray(fileIndex)) {
+      cache.files = [];
+      for (const fid of fileIndex) {
+        const f = await kvGet('file:' + fid);
+        if (f) cache.files.push(f);
+      }
+    }
+
+    // Load conditions for all files
+    cache.conditions = {};
+    for (const f of cache.files) {
+      const conds = await kvGet('conds:' + f.id);
+      cache.conditions[f.id] = conds || [];
+    }
+
+    setSync('ok');
+    return true;
+  } catch(e) {
+    console.warn('Load failed:', e);
+    setSync('error');
+    return false;
+  }
+}
+
+async function saveSettings() {
+  setSync('syncing');
+  await kvSet('settings', cache.settings);
+  setSync('ok');
+}
+
+async function saveFileIndex() {
+  await kvSet('fileIndex', cache.files.map(f => f.id));
+}
+
+async function saveFile(f) {
+  setSync('syncing');
+  await kvSet('file:' + f.id, f);
+  await saveFileIndex();
+  setSync('ok');
+}
+
+async function deleteFile(fid) {
+  setSync('syncing');
+  await kvDelete('file:' + fid);
+  await kvDelete('conds:' + fid);
+  cache.files = cache.files.filter(f => f.id !== fid);
+  delete cache.conditions[fid];
+  await saveFileIndex();
+  setSync('ok');
+}
+
+async function saveConditions(fid) {
+  setSync('syncing');
+  await kvSet('conds:' + fid, cache.conditions[fid] || []);
+  setSync('ok');
+}
+
+async function saveCustomFields() {
+  setSync('syncing');
+  await kvSet('customFields', cache.customFields);
+  setSync('ok');
+}
+
+function startPolling() {
+  if (syncTimer) clearInterval(syncTimer);
+  syncTimer = setInterval(async () => {
+    await loadAll();
+    const page = document.querySelector('.page.active')?.id;
+    if (page === 'page-dashboard') renderDashboard();
+    else if (page === 'page-files') renderFiles();
+    else if (page === 'page-filedetail') renderFileDetail();
+    updateStats();
+  }, 20000);
+}
+
+//                                        
+//  NAVIGATION
+//                                        
+function showPage(page, fid) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields'};
+  document.getElementById('topbarTitle').textContent = titles[page] || page;
+  const navItems = document.querySelectorAll('.nav-item');
+  const nm = {dashboard:0,files:1,settings:2,customfields:3};
+  if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
+  document.getElementById('topbarActions').innerHTML = page === 'page-filedetail'
+    ? '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>'
+    : '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'files') renderFiles();
+  if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); }
+  if (page === 'settings') renderSettings();
+  if (page === 'customfields') renderCFList();
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'crm') loadCRM();
+  if (tab === 'custom') loadCustomValues();
+}
+
+//                                        
+//  STATS
+//                                        
+function updateStats() {
+  let open=0,sub=0,clr=0;
+  Object.values(cache.conditions).forEach(cs => cs.forEach(c => {
+    if(c.status==='Open') open++;
+    else if(c.status==='Submitted to Lender') sub++;
+    else if(c.status==='Cleared') clr++;
+  }));
+  document.getElementById('statActive').textContent = cache.files.length;
+  document.getElementById('statOpen').textContent = open;
+  document.getElementById('statSubmitted').textContent = sub;
+  document.getElementById('statCleared').textContent = clr;
+  document.getElementById('navBadge').textContent = cache.files.length;
+}
+
+//                                        
+//  DASHBOARD
+//                                        
+function renderDashboard() {
+  updateStats();
+  const tbody = document.getElementById('dashTbody');
+  const files = [...cache.files].reverse().slice(0,10);
+  if (!files.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"> </div><div class="empty-state-title">No files yet</div><div class="empty-state-sub">Click "New File" to get started</div></div></td></tr>'; return; }
+  tbody.innerHTML = files.map(f => fileRow(f, 6)).join('');
+}
+
+function fileRow(f, cols) {
+  const cs = cache.conditions[f.id] || [];
+  const open=cs.filter(c=>c.status==='Open').length, sub=cs.filter(c=>c.status==='Submitted to Lender').length, clr=cs.filter(c=>c.status==='Cleared').length;
+  const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+  const amt = fmtCur(f.la);
+  const extraCol = cols===8 ? `<td><span class="badge badge-gray">${esc(f.occupancy||' ')}</span></td><td>${esc(f.bank||' ')}</td>` : `<td>${esc(f.bank||' ')}</td>`;
+  const editCol = cols===8 ? `<td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openEditFileModal('${f.id}')">Edit</button></td>` : '';
+  return `<tr onclick="showPage('filedetail','${f.id}')">
+    <td><div class="borrower-name">${esc(names)}</div><div class="borrower-sub">${esc(f.bank||'')}</div></td>
+    <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(f.prop||' ')}</td>
+    <td><span class="badge badge-navy">${esc(f.loanType||' ')}</span></td>
+    ${extraCol}
+    <td><strong>${amt}</strong></td>
+    <td><div class="conditions-summary">
+      ${open?`<span class="cond-dot"><span class="dot dot-open"></span>${open} Open</span>`:''}
+      ${sub?`<span class="cond-dot"><span class="dot dot-submitted"></span>${sub} Sub</span>`:''}
+      ${clr?`<span class="cond-dot"><span class="dot dot-cleared"></span>${clr} Clr</span>`:''}
+      ${!open&&!sub&&!clr?'<span style="color:var(--slate-light);font-size:12px"> </span>':''}
+    </div></td>
+    ${editCol}
+  </tr>`;
+}
+
+//                                        
+//  FILES PAGE
+//                                        
+function renderFiles() {
+  const q = (document.getElementById('filesSearch')?.value||'').toLowerCase();
+  const files = [...cache.files].reverse().filter(f => !q || (f.b1+' '+f.b2+' '+f.prop+' '+f.bank).toLowerCase().includes(q));
+  const tbody = document.getElementById('filesTbody');
+  if (!files.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-title">${q?'No matching files':'No files yet'}</div></div></td></tr>`; return; }
+  tbody.innerHTML = files.map(f => fileRow(f, 8)).join('');
+}
+
+//                                        
+//  FILE DETAIL
+//                                        
+function renderFileDetail() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) { showPage('files'); return; }
+  const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+  document.getElementById('detailTitle').textContent = names;
+  document.getElementById('detailSubtitle').textContent = f.prop || ' ';
+  document.getElementById('detailGrid').innerHTML = `
+    <div class="info-cell"><div class="info-label">Loan Type</div><div class="info-value">${esc(f.loanType||' ')}</div></div>
+    <div class="info-cell"><div class="info-label">Occupancy</div><div class="info-value">${esc(f.occupancy||' ')}</div></div>
+    <div class="info-cell"><div class="info-label">Units</div><div class="info-value">${esc(f.units||' ')}</div></div>
+    <div class="info-cell"><div class="info-label">Bank / Lender</div><div class="info-value">${esc(f.bank||' ')}</div></div>
+    <div class="info-cell"><div class="info-label">Purchase Price</div><div class="info-value">${fmtCur(f.pp)}</div></div>
+    <div class="info-cell"><div class="info-label">Loan Amount</div><div class="info-value">${fmtCur(f.la)}</div></div>
+    <div class="info-cell"><div class="info-label">Note Rate</div><div class="info-value">${esc(f.rate||' ')}</div></div>
+  `;
+  renderConditions(f);
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===0));
+}
+
+//                                        
+//  CONDITIONS
+//                                        
+function setCondFilter(val, btn) {
+  condFilter = val;
+  document.querySelectorAll('#condFilterBar .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+}
+
+function renderConditions(f) {
+  const all = cache.conditions[f.id] || [];
+  const filtered = condFilter==='all' ? all : all.filter(c=>c.status===condFilter);
+  const el = document.getElementById('condBuckets');
+  if (!all.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">  </div><div class="empty-state-title">No conditions yet</div><div class="empty-state-sub">Click "+ Add Condition" to begin tracking</div></div>'; return; }
+  const buckets = [{key:'Open',label:'Open Conditions',icon:' ',cls:'bucket-open'},{key:'Submitted to Lender',label:'Submitted to Lender',icon:' ',cls:'bucket-submitted'},{key:'Cleared',label:'Cleared',icon:' ',cls:'bucket-cleared'}];
+  el.innerHTML = buckets.map(b => {
+    if (condFilter!=='all' && condFilter!==b.key) return '';
+    const items = filtered.filter(c=>c.status===b.key);
+    return `<div class="bucket ${b.cls}">
+      <div class="bucket-header" onclick="toggleBucket(this)">
+        <div class="bucket-icon">${b.icon}</div>
+        <div class="bucket-title">${b.label}</div>
+        <span class="bucket-count">${items.length}</span>
+        <span class="bucket-chevron open"> </span>
+      </div>
+      <div class="bucket-body open">
+        ${items.length ? items.map(c=>condCard(c)).join('') : '<div style="padding:20px;text-align:center;color:var(--slate-light);font-size:13px">No conditions here</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function condCard(c) {
+  const notes = (c.notes||[]).map(n=>`<div class="note-item"><div class="note-stamp"><span class="note-stamp-user">${esc(n.user)}</span><span>${esc(n.ts)}</span></div><div class="note-text">${esc(n.text)}</div></div>`).join('');
+  const sc = c.status==='Open'?'status-open':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
+  return `<div class="condition-card">
+    <div class="condition-top">
+      <div class="condition-num">${esc(c.num||'?')}</div>
+      <div class="condition-main">
+        <div class="condition-desc">${esc(c.desc)}</div>
+        <div class="condition-meta">
+          <span class="badge badge-navy" style="font-size:11px">${esc(c.cat||' ')}</span>
+          <span class="badge badge-gray" style="font-size:11px">${esc(c.type||' ')}</span>
+          ${c.resp?`<span class="badge badge-gold" style="font-size:11px">  ${esc(c.resp)}</span>`:''}
+          <select class="${sc} status-select" onchange="updateCondStatus('${c.id}',this.value)">
+            <option value="Open" ${c.status==='Open'?'selected':''}>Open</option>
+            <option value="Submitted to Lender" ${c.status==='Submitted to Lender'?'selected':''}>Submitted to Lender</option>
+            <option value="Cleared" ${c.status==='Cleared'?'selected':''}>Cleared</option>
+          </select>
+        </div>
+      </div>
+      <div class="condition-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEditCondModal('${c.id}')"> </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCond('${c.id}')"> </button>
+      </div>
+    </div>
+    <div class="notes-list">${notes}</div>
+    <div class="note-add-inline" id="ni-${c.id}">
+      <textarea id="nt-${c.id}" placeholder="Type your note..."></textarea>
+      <div class="note-add-actions">
+        <button class="btn btn-ghost btn-sm" onclick="closeNote('${c.id}')">Cancel</button>
+        <button class="btn btn-gold btn-sm" onclick="saveNote('${c.id}')">Save Note</button>
+      </div>
+    </div>
+    <button class="add-note-btn" onclick="openNote('${c.id}')">+ Add Note</button>
+  </div>`;
+}
+
+function toggleBucket(h) {
+  h.nextElementSibling.classList.toggle('open');
+  h.querySelector('.bucket-chevron').classList.toggle('open');
+}
+
+//                                        
+//  FILE CRUD
+//                                        
+function openNewFileModal() {
+  editingFileId = null;
+  document.getElementById('fileModalTitle').textContent = 'New File';
+  ['f_b1','f_b2','f_prop','f_bank','f_pp','f_la','f_rate'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_units').value = '1';
+  pop('f_loanType', cache.settings.loanTypes);
+  pop('f_occupancy', cache.settings.occupancyTypes);
+  openModal('fileModal');
+}
+
+function openEditFileModal(fid) {
+  editingFileId = fid || currentFileId;
+  const f = cache.files.find(x=>x.id===editingFileId);
+  if (!f) return;
+  document.getElementById('fileModalTitle').textContent = 'Edit File';
+  document.getElementById('f_b1').value = f.b1||'';
+  document.getElementById('f_b2').value = f.b2||'';
+  document.getElementById('f_prop').value = f.prop||'';
+  document.getElementById('f_bank').value = f.bank||'';
+  document.getElementById('f_pp').value = f.pp||'';
+  document.getElementById('f_la').value = f.la||'';
+  document.getElementById('f_rate').value = f.rate||'';
+  document.getElementById('f_units').value = f.units||'1';
+  pop('f_loanType', cache.settings.loanTypes, f.loanType);
+  pop('f_occupancy', cache.settings.occupancyTypes, f.occupancy);
+  openModal('fileModal');
+}
+
+async function saveFile() {
+  const b1 = document.getElementById('f_b1').value.trim();
+  const prop = document.getElementById('f_prop').value.trim();
+  if (!b1) { toast('Borrower 1 name is required','error'); return; }
+  const data = { b1, b2:document.getElementById('f_b2').value.trim(), prop, units:document.getElementById('f_units').value, loanType:document.getElementById('f_loanType').value, occupancy:document.getElementById('f_occupancy').value, bank:document.getElementById('f_bank').value.trim(), pp:document.getElementById('f_pp').value.trim(), la:document.getElementById('f_la').value.trim(), rate:document.getElementById('f_rate').value.trim() };
+  if (editingFileId) {
+    const i = cache.files.findIndex(x=>x.id===editingFileId);
+    if (i>-1) { Object.assign(cache.files[i], data); await saveFile_kv(cache.files[i]); }
+    toast('File updated');
+  } else {
+    const f = { id:uid(), ...data, crm:{}, customValues:{}, createdAt:new Date().toISOString() };
+    cache.files.push(f);
+    cache.conditions[f.id] = [];
+    await saveFile_kv(f);
+    toast('File created');
+  }
+  closeModal('fileModal');
+  renderDashboard();
+}
+
+async function saveFile_kv(f) { await saveFile(f); }
+
+async function deleteCurrentFile() {
+  if (!confirm('Delete this file and all its conditions? This cannot be undone.')) return;
+  await deleteFile(currentFileId);
+  toast('File deleted');
+  showPage('files');
+}
+
+//                                        
+//  CONDITION CRUD
+//                                        
+function openNewConditionModal() {
+  editingCondId = null;
+  document.getElementById('condModalTitle').textContent = 'Add Condition';
+  document.getElementById('c_desc').value = '';
+  document.getElementById('c_num').value = '';
+  document.getElementById('c_status').value = 'Open';
+  pop('c_cat', cache.settings.conditionCategories);
+  pop('c_type', cache.settings.conditionTypes);
+  pop('c_resp', cache.settings.users);
+  openModal('condModal');
+}
+
+function openEditCondModal(cid) {
+  editingCondId = cid;
+  const cs = cache.conditions[currentFileId] || [];
+  const c = cs.find(x=>x.id===cid);
+  if (!c) return;
+  document.getElementById('condModalTitle').textContent = 'Edit Condition';
+  document.getElementById('c_desc').value = c.desc||'';
+  document.getElementById('c_num').value = c.num||'';
+  document.getElementById('c_status').value = c.status||'Open';
+  pop('c_cat', cache.settings.conditionCategories, c.cat);
+  pop('c_type', cache.settings.conditionTypes, c.type);
+  pop('c_resp', cache.settings.users, c.resp);
+  openModal('condModal');
+}
+
+async function saveCondition() {
+  const desc = document.getElementById('c_desc').value.trim();
+  if (!desc) { toast('Description is required','error'); return; }
+  const data = { cat:document.getElementById('c_cat').value, type:document.getElementById('c_type').value, num:document.getElementById('c_num').value.trim(), resp:document.getElementById('c_resp').value, status:document.getElementById('c_status').value, desc };
+  if (!cache.conditions[currentFileId]) cache.conditions[currentFileId] = [];
+  if (editingCondId) {
+    const i = cache.conditions[currentFileId].findIndex(x=>x.id===editingCondId);
+    if (i>-1) Object.assign(cache.conditions[currentFileId][i], data);
+    toast('Condition updated');
+  } else {
+    cache.conditions[currentFileId].push({ id:uid(), ...data, notes:[], createdAt:new Date().toISOString() });
+    toast('Condition added');
+  }
+  await saveConditions(currentFileId);
+  closeModal('condModal');
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  updateStats();
+}
+
+async function updateCondStatus(cid, status) {
+  const cs = cache.conditions[currentFileId] || [];
+  const c = cs.find(x=>x.id===cid);
+  if (!c) return;
+  c.status = status;
+  await saveConditions(currentFileId);
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  updateStats();
+}
+
+async function deleteCond(cid) {
+  if (!confirm('Delete this condition and all its notes?')) return;
+  cache.conditions[currentFileId] = (cache.conditions[currentFileId]||[]).filter(c=>c.id!==cid);
+  await saveConditions(currentFileId);
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  updateStats();
+  toast('Condition deleted');
+}
+
+//                                        
+//  NOTES
+//                                        
+function openNote(cid) {
+  document.querySelectorAll('.note-add-inline').forEach(el=>el.classList.remove('open'));
+  document.getElementById('ni-'+cid).classList.add('open');
+  document.getElementById('nt-'+cid).focus();
+}
+
+function closeNote(cid) {
+  document.getElementById('ni-'+cid).classList.remove('open');
+  document.getElementById('nt-'+cid).value = '';
+}
+
+async function saveNote(cid) {
+  const text = document.getElementById('nt-'+cid).value.trim();
+  if (!text) { toast('Please enter a note','error'); return; }
+  const cs = cache.conditions[currentFileId] || [];
+  const c = cs.find(x=>x.id===cid);
+  if (!c) return;
+  const now = new Date();
+  const ts = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  if (!c.notes) c.notes = [];
+  c.notes.push({ id:uid(), user:currentUser, ts, text });
+  await saveConditions(currentFileId);
+  closeNote(cid);
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  toast('Note saved');
+}
+
+//                                        
+//  CRM
+//                                        
+function loadCRM() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  const crm = f.crm || {};
+  ['firstContact','leadSource','referredBy','appDate','closeDate','fileStatus','phone','email','notes'].forEach(k => {
+    const el = document.getElementById('crm_'+k); if (el) el.value = crm[k]||'';
+  });
+  pop('crm_processor', cache.settings.users, crm.processor);
+}
+
+async function saveCRM() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  f.crm = { firstContact:v('crm_firstContact'), leadSource:v('crm_leadSource'), referredBy:v('crm_referredBy'), appDate:v('crm_appDate'), closeDate:v('crm_closeDate'), fileStatus:v('crm_fileStatus'), processor:v('crm_processor'), phone:v('crm_phone'), email:v('crm_email'), notes:v('crm_notes') };
+  await saveFile(f);
+  toast('Client info saved');
+}
+
+//                                        
+//  CUSTOM FIELDS
+//                                        
+function loadCustomValues() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  const vals = f.customValues || {};
+  const container = document.getElementById('customForm');
+  if (!cache.customFields.length) { container.innerHTML = '<div class="empty-state"><div class="empty-state-title">No custom fields yet</div><div class="empty-state-sub">Go to "Custom Fields" in the sidebar to add fields.</div></div>'; return; }
+  const sections = {};
+  cache.customFields.forEach(cf => { if (!sections[cf.section]) sections[cf.section]=[]; sections[cf.section].push(cf); });
+  container.innerHTML = Object.entries(sections).map(([sec,fields])=>`
+    <div class="form-section"><div class="form-section-title">${esc(sec)}</div><div class="form-grid">
+    ${fields.map(cf=>`<div class="form-group ${cf.ft==='textarea'?'form-full':''}"><label class="form-label">${esc(cf.label)}</label>${cfInput(cf,vals[cf.id])}</div>`).join('')}
+    </div></div>`).join('');
+}
+
+function cfInput(cf, val) {
+  const v = val||'';
+  switch(cf.ft) {
+    case 'text': return `<input class="form-input" type="text" id="cfv_${cf.id}" value="${esc(v)}">`;
+    case 'textarea': return `<textarea class="form-textarea" id="cfv_${cf.id}">${esc(v)}</textarea>`;
+    case 'date': return `<input class="form-input" type="date" id="cfv_${cf.id}" value="${esc(v)}">`;
+    case 'number': return `<input class="form-input" type="number" id="cfv_${cf.id}" value="${esc(v)}">`;
+    case 'checkbox': return `<div class="form-checkbox-row"><input type="checkbox" id="cfv_${cf.id}" ${v==='true'?'checked':''}><label for="cfv_${cf.id}">Yes</label></div>`;
+    case 'select': return `<select class="form-select" id="cfv_${cf.id}"><option value="">Select...</option>${(cf.opts||[]).map(o=>`<option value="${esc(o)}" ${o===v?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+    default: return `<input class="form-input" type="text" id="cfv_${cf.id}" value="${esc(v)}">`;
+  }
+}
+
+async function saveCustomValues() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  f.customValues = {};
+  cache.customFields.forEach(cf => {
+    const el = document.getElementById('cfv_'+cf.id);
+    if (!el) return;
+    f.customValues[cf.id] = cf.ft==='checkbox' ? String(el.checked) : el.value;
+  });
+  await saveFile(f);
+  toast('Additional info saved');
+}
+
+function renderCFList() {
+  const el = document.getElementById('cfList');
+  if (!cache.customFields.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-title">No custom fields yet</div><div class="empty-state-sub">Click "+ Add Field" to create your first custom field.</div></div>'; return; }
+  el.innerHTML = cache.customFields.map(cf=>`<div class="custom-field-row"><div class="custom-field-info"><div class="custom-field-name">${esc(cf.label)}</div><div class="custom-field-meta">${esc(cf.ft)}   ${esc(cf.section)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="openEditCFModal('${cf.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteCF('${cf.id}')">Delete</button></div></div>`).join('');
+}
+
+function openNewCFModal() {
+  editingCFId = null;
+  document.getElementById('cfModalTitle').textContent = 'Add Custom Field';
+  document.getElementById('cf_label').value = '';
+  document.getElementById('cf_type').value = 'text';
+  document.getElementById('cf_section').value = 'Additional Info';
+  document.getElementById('cf_opts').value = '';
+  document.getElementById('cf_optsGroup').style.display = 'none';
+  openModal('cfModal');
+}
+
+function openEditCFModal(cfid) {
+  editingCFId = cfid;
+  const cf = cache.customFields.find(x=>x.id===cfid);
+  if (!cf) return;
+  document.getElementById('cfModalTitle').textContent = 'Edit Custom Field';
+  document.getElementById('cf_label').value = cf.label||'';
+  document.getElementById('cf_type').value = cf.ft||'text';
+  document.getElementById('cf_section').value = cf.section||'Additional Info';
+  document.getElementById('cf_opts').value = (cf.opts||[]).join('\n');
+  toggleCFOpts();
+  openModal('cfModal');
+}
+
+function toggleCFOpts() {
+  document.getElementById('cf_optsGroup').style.display = document.getElementById('cf_type').value==='select'?'flex':'none';
+}
+
+async function saveCF() {
+  const label = document.getElementById('cf_label').value.trim();
+  if (!label) { toast('Field label is required','error'); return; }
+  const ft = document.getElementById('cf_type').value;
+  const opts = ft==='select' ? document.getElementById('cf_opts').value.split('\n').map(s=>s.trim()).filter(Boolean) : [];
+  const data = { label, ft, section:document.getElementById('cf_section').value, opts };
+  if (editingCFId) {
+    const i = cache.customFields.findIndex(x=>x.id===editingCFId);
+    if (i>-1) Object.assign(cache.customFields[i], data);
+    toast('Field updated');
+  } else {
+    cache.customFields.push({ id:uid(), ...data });
+    toast('Field added');
+  }
+  await saveCustomFields();
+  closeModal('cfModal');
+  renderCFList();
+}
+
+async function deleteCF(cfid) {
+  if (!confirm('Delete this field?')) return;
+  cache.customFields = cache.customFields.filter(x=>x.id!==cfid);
+  await saveCustomFields();
+  renderCFList();
+  toast('Field deleted');
+}
+
+//                                        
+//  SETTINGS
+//                                        
+function renderSettings() {
+  const defs = [{key:'loanTypes',label:'Loan Types',sub:'Available loan type options'},{key:'occupancyTypes',label:'Occupancy Types',sub:'Occupancy classification options'},{key:'conditionCategories',label:'Condition Categories',sub:'e.g. Prior to Close, At Closing'},{key:'conditionTypes',label:'Condition Types',sub:'e.g. Appraisal, Asset, Title'}];
+  document.getElementById('settingsGrid').innerHTML = defs.map(s=>`<div class="settings-card"><div class="settings-card-title">${s.label}</div><div class="settings-card-sub">${s.sub}</div><div class="tag-list" id="tags-${s.key}"></div><div class="tag-add-row"><input class="form-input" type="text" id="addInput-${s.key}" placeholder="Add new option..." onkeydown="if(event.key==='Enter')addSetting('${s.key}')"><button class="btn btn-outline btn-sm" onclick="addSetting('${s.key}')">Add</button></div></div>`).join('');
+  renderAllTags();
+  renderUserTags();
+}
+
+function renderAllTags() {
+  ['loanTypes','occupancyTypes','conditionCategories','conditionTypes'].forEach(key => {
+    const el = document.getElementById('tags-'+key); if (!el) return;
+    el.innerHTML = (cache.settings[key]||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeSetting('${key}',${i})"> </button></span>`).join('');
+  });
+}
+
+function renderUserTags() {
+  const el = document.getElementById('userTags'); if (!el) return;
+  el.innerHTML = (cache.settings.users||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeUser(${i})"> </button></span>`).join('');
+}
+
+async function addSetting(key) {
+  const input = document.getElementById('addInput-'+key);
+  const val = input.value.trim(); if (!val) return;
+  if (!cache.settings[key].includes(val)) { cache.settings[key].push(val); await saveSettings(); renderAllTags(); toast('Option added'); }
+  else toast('Already exists','error');
+  input.value = '';
+}
+
+async function removeSetting(key, idx) {
+  cache.settings[key].splice(idx,1); await saveSettings(); renderAllTags();
+}
+
+async function addUser() {
+  const input = document.getElementById('addUserInput');
+  const val = input.value.trim(); if (!val) return;
+  if (!cache.settings.users.includes(val)) { cache.settings.users.push(val); await saveSettings(); renderUserTags(); toast('Team member added'); }
+  else toast('Already exists','error');
+  input.value = '';
+}
+
+async function removeUser(idx) {
+  cache.settings.users.splice(idx,1); await saveSettings(); renderUserTags();
+}
+
+//                                        
+//  USER SWITCH
+//                                        
+function showUserSwitch() {
+  document.getElementById('userModalBody').innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;padding-bottom:8px">` +
+    cache.settings.users.map(u=>`<button class="btn ${u===currentUser?'btn-gold':'btn-outline'}" onclick="switchUser('${esc(u)}')" style="justify-content:flex-start;gap:12px"><span style="width:28px;height:28px;border-radius:50%;background:${u===currentUser?'rgba(10,22,40,.1)':'#f0ece4'};display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">${u[0]}</span>${esc(u)}${u===currentUser?' <span style="margin-left:auto;font-size:11px;opacity:.7">Current</span>':''}</button>`).join('') + '</div>';
+  openModal('userModal');
+}
+
+function switchUser(name) {
+  currentUser = name;
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name[0];
+  closeModal('userModal');
+  toast('Switched to ' + name);
+}
+
+//                                        
+//  LOGO
+//                                        
+document.getElementById('logoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(ev) {
+    const data = ev.target.result;
+    cache.logo = data;
+    await kvSet('logo', data);
+    applyLogo(data);
+    toast('Logo updated');
+  };
+  reader.readAsDataURL(file);
+});
+
+function applyLogo(data) {
+  document.getElementById('logoImg').src = data;
+  document.getElementById('logoImg').style.display = 'block';
+  document.getElementById('logoPlaceholder').style.display = 'none';
+}
+
+//                                        
+//  MODALS
+//                                        
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(el=>closeModal(el.id)); });
+
+//                                        
+//  UTILS
+//                                        
+function pop(id, opts, selected) {
+  const el = document.getElementById(id); if (!el) return;
+  el.innerHTML = (opts||[]).map(o=>`<option value="${esc(o)}" ${o===selected?'selected':''}>${esc(o)}</option>`).join('');
+}
+function v(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtCur(val) { if(!val) return ' '; const n=parseFloat(String(val).replace(/[^0-9.]/g,'')); if(isNaN(n)) return val; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = 'toast '+type;
+  el.innerHTML = (type==='success'?'  ':type==='error'?'  ':'  ')+msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+
+//                                        
+//  INIT
+//                                        
+async function init() {
+  // Show app immediately   don't wait for data
+  currentUser = cache.settings.users[0] || 'Deric';
+  document.getElementById('userName').textContent = currentUser;
+  document.getElementById('userAvatar').textContent = currentUser[0];
+  renderDashboard();
+  updateStats();
+  document.getElementById('loadingScreen').classList.add('hidden');
+  // Load data in background
+  loadAll().then(() => {
+    renderDashboard();
+    updateStats();
+    currentUser = cache.settings.users[0] || 'Deric';
+    document.getElementById('userName').textContent = currentUser;
+    document.getElementById('userAvatar').textContent = currentUser[0];
+  });
+  startPolling();
+}
+
+init();
+</script>
+</body>
+</html>
