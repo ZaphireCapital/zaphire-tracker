@@ -985,7 +985,9 @@ async function saveCustomValues() {
   });
   await saveFile_kv(f);
   toast('Additional info saved');
-} {
+}
+
+function renderCFList() {
   const el = document.getElementById('cfList');
   if (!cache.customFields.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-title">No custom fields yet</div><div class="empty-state-sub">Click "+ Add Field" to create your first custom field.</div></div>'; return; }
   el.innerHTML = cache.customFields.map(cf=>`<div class="custom-field-row"><div class="custom-field-info"><div class="custom-field-name">${esc(cf.label)}</div><div class="custom-field-meta">${esc(cf.ft)}   ${esc(cf.section)}</div></div><div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="openEditCFModal('${cf.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteCF('${cf.id}')">Delete</button></div></div>`).join('');
