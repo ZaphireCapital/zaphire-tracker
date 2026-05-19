@@ -210,9 +210,41 @@ input[type=file]{display:none}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+
+  .login-screen{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999}
+  .login-screen.hidden{display:none}
+  .login-box{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius-lg);padding:40px;width:100%;max-width:360px;text-align:center}
+  .login-logo{font-family:var(--font-display);font-size:28px;color:var(--gold);margin-bottom:6px}
+  .login-sub{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:32px}
+  .login-label{font-size:12px;color:rgba(255,255,255,.5);text-align:left;display:block;margin-bottom:6px}
+  .login-input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);font-family:var(--font-body);font-size:14px;color:var(--white);outline:none;margin-bottom:8px}
+  .login-input:focus{border-color:var(--gold)}
+  .login-btn{width:100%;padding:12px;background:var(--gold);color:var(--navy);border:none;border-radius:var(--radius);font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;margin-top:8px}
+  .login-btn:hover{background:var(--gold-light)}
+  .login-error{color:#ef4444;font-size:12.5px;margin-top:8px;display:none}
+  .login-error.show{display:block}
 </style>
 </head>
 <body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Zaphire Capital</div>
+    <div class="login-sub">Underwriting Tracker</div>
+    <label class="login-label">Select your name</label>
+    <select class="login-input" id="loginUser">
+      <option value="">Choose...</option>
+      <option value="Deric">Deric</option>
+      <option value="Stephan">Stephan</option>
+      <option value="Jules">Jules</option>
+    </select>
+    <label class="login-label">Password</label>
+    <input class="login-input" type="password" id="loginPassword" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
 <div class="loading-screen" id="loadingScreen">
   <div class="loading-logo">Zaphire Capital</div>
   <div class="loading-sub">Loading your workspace...</div>
@@ -1148,7 +1180,49 @@ async function init() {
   startPolling();
 }
 
-init();
+
+// PASSWORD PROTECTION
+// To change the password, edit the value below
+const APP_PASSWORD = 'Zaphire2024!';
+const SESSION_KEY = 'zc_session';
+
+function checkSession() {
+  const s = sessionStorage.getItem(SESSION_KEY);
+  if (s) {
+    try {
+      const d = JSON.parse(s);
+      if (d.user && d.auth) {
+        currentUser = d.user;
+        document.getElementById('loginScreen').classList.add('hidden');
+        return true;
+      }
+    } catch(e) {}
+  }
+  return false;
+}
+
+function doLogin() {
+  const user = document.getElementById('loginUser').value;
+  const pass = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  if (!user) { err.textContent = 'Please select your name.'; err.classList.add('show'); return; }
+  if (pass !== APP_PASSWORD) { err.textContent = 'Incorrect password. Please try again.'; err.classList.add('show'); return; }
+  err.classList.remove('show');
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, auth: true }));
+  currentUser = user;
+  document.getElementById('userName').textContent = user;
+  document.getElementById('userAvatar').textContent = user[0];
+  document.getElementById('loginScreen').classList.add('hidden');
+  init();
+}
+
+
+// Check session on load
+if (!checkSession()) {
+  // Show login — init() called after successful login
+} else {
+  init();
+}
 </script>
 </body>
 </html>
