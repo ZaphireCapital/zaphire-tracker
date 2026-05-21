@@ -360,6 +360,21 @@ input[type=file]{display:none}
       <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:24px">Add any field you want to track. Appears on every file under "Additional Info".</p>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)"><div id="cfList" style="padding:8px 20px"></div></div>
     </div>
+
+    <!-- TRASH -->
+    <div class="page" id="page-trash">
+      <div class="section-header">
+        <div class="section-title">Trash</div>
+        <button class="btn btn-danger btn-sm" onclick="emptyTrash()">Empty Trash</button>
+      </div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:24px">Files are permanently deleted after 30 days. You can restore them or delete them immediately.</p>
+      <div class="files-table-wrap">
+        <table class="files-table">
+          <thead><tr><th>Borrower(s)</th><th>Property</th><th>Loan Type</th><th>Deleted By</th><th>Deleted On</th><th>Days Left</th><th></th></tr></thead>
+          <tbody id="trashTableBody"></tbody>
+        </table>
+      </div>
+    </div>
   </main>
 </div>
 <!-- FILE MODAL -->
@@ -480,6 +495,8 @@ async function syncFromCloud() {
     if (conditions) cache.conditions = conditions;
     if (settings) cache.settings = { ...DEFAULTS, ...settings };
     if (customFields) cache.customFields = customFields;
+    const trash = await sbGet('trash');
+    if (trash) cache.trash = trash;
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
     return true;
@@ -500,11 +517,17 @@ async function syncFromCloud() {
 async function syncToCloud() {
   try {
     setSync('syncing');
+    // Auto-purge files older than 30 days from trash
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    cache.trash = (cache.trash||[]).filter(f => {
+      return (new Date() - new Date(f.deletedAt)) < thirtyDays;
+    });
     await Promise.all([
       sbSet('files', cache.files),
       sbSet('conditions', cache.conditions),
       sbSet('settings', cache.settings),
-      sbSet('customFields', cache.customFields)
+      sbSet('customFields', cache.customFields),
+      sbSet('trash', cache.trash)
     ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
@@ -564,7 +587,7 @@ const DEFAULTS = {
 
 let cache = {
   files: [], conditions: {}, settings: {...DEFAULTS},
-  customFields: [], logo: null
+  customFields: [], logo: null, trash: []
 };
 
 let currentFileId = null;
@@ -636,10 +659,10 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields'};
+  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,files:1,settings:2,customfields:3};
+  const nm = {dashboard:0,files:1,settings:2,customfields:3,trash:4};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   document.getElementById('topbarActions').innerHTML = page === 'page-filedetail'
     ? '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>'
@@ -649,6 +672,7 @@ function showPage(page, fid) {
   if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); }
   if (page === 'settings') renderSettings();
   if (page === 'customfields') renderCFList();
+  if (page === 'trash') renderTrash();
 }
 
 function switchTab(tab, btn) {
@@ -681,6 +705,7 @@ function updateStats() {
 //                                        
 function renderDashboard() {
   updateStats();
+  updateTrashBadge();
   const tbody = document.getElementById('dashTbody');
   const files = [...cache.files].reverse().slice(0,10);
   if (!files.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"> </div><div class="empty-state-title">No files yet</div><div class="empty-state-sub">Click "New File" to get started</div></div></td></tr>'; return; }
@@ -875,10 +900,25 @@ function saveFile_kv(f) {
 }
 
 async function deleteCurrentFile() {
-  if (!confirm('Delete this file and all its conditions? This cannot be undone.')) return;
-  await deleteFile(currentFileId);
-  toast('File deleted');
+  if (!confirm('Move this file to Trash?')) return;
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  // Move to trash
+  if (!cache.trash) cache.trash = [];
+  cache.trash.push({
+    ...f,
+    deletedBy: currentUser,
+    deletedAt: new Date().toISOString(),
+    conditions: cache.conditions[currentFileId] || []
+  });
+  // Remove from active files
+  cache.files = cache.files.filter(x=>x.id!==currentFileId);
+  delete cache.conditions[currentFileId];
+  await syncToCloud();
+  toast('File moved to Trash');
   showPage('files');
+  updateStats();
+  updateTrashBadge();
 }
 
 //                                        
@@ -1264,6 +1304,74 @@ function doLogin() {
 
 
 // Check session on load
+// TRASH FUNCTIONS
+function updateTrashBadge() {
+  const count = (cache.trash||[]).length;
+  const badge = document.getElementById('trashBadge');
+  if (badge) badge.textContent = count;
+}
+
+function renderTrash() {
+  updateTrashBadge();
+  const tbody = document.getElementById('trashTableBody');
+  const trash = cache.trash || [];
+  if (!trash.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">x</div><div class="empty-state-title">Trash is empty</div></div></td></tr>';
+    return;
+  }
+  const now = new Date();
+  tbody.innerHTML = [...trash].reverse().map(f => {
+    const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+    const deletedDate = new Date(f.deletedAt);
+    const daysLeft = Math.max(0, 30 - Math.floor((now - deletedDate) / (24*60*60*1000)));
+    const dateStr = deletedDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const urgentStyle = daysLeft <= 7 ? 'color:var(--danger);font-weight:500' : 'color:var(--slate-light)';
+    return '<tr>' +
+      '<td><div class="borrower-name">' + esc(names) + '</div></td>' +
+      '<td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(f.prop||'--') + '</td>' +
+      '<td><span class="badge badge-navy">' + esc(f.loanType||'--') + '</span></td>' +
+      '<td>' + esc(f.deletedBy||'--') + '</td>' +
+      '<td>' + dateStr + '</td>' +
+      '<td style="' + urgentStyle + '">' + daysLeft + ' days</td>' +
+      '<td style="display:flex;gap:6px">' +
+        '<button class="btn btn-outline btn-sm" onclick="restoreFile('' + f.id + '')">Restore</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="permanentDelete('' + f.id + '')">Delete</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+async function restoreFile(fid) {
+  const item = (cache.trash||[]).find(x=>x.id===fid);
+  if (!item) return;
+  const { deletedBy, deletedAt, conditions, ...fileData } = item;
+  cache.files.push(fileData);
+  cache.conditions[fid] = conditions || [];
+  cache.trash = cache.trash.filter(x=>x.id!==fid);
+  await syncToCloud();
+  renderTrash();
+  updateStats();
+  toast('File restored');
+}
+
+async function permanentDelete(fid) {
+  if (!confirm('Permanently delete this file? This cannot be undone.')) return;
+  cache.trash = (cache.trash||[]).filter(x=>x.id!==fid);
+  await syncToCloud();
+  renderTrash();
+  toast('File permanently deleted');
+}
+
+async function emptyTrash() {
+  if (!cache.trash || !cache.trash.length) { toast('Trash is already empty'); return; }
+  if (!confirm('Permanently delete all ' + cache.trash.length + ' files in Trash? This cannot be undone.')) return;
+  cache.trash = [];
+  await syncToCloud();
+  renderTrash();
+  toast('Trash emptied');
+}
+
+
 if (!checkSession()) {
   // Show login — init() called after successful login
 } else {
