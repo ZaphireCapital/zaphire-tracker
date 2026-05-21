@@ -1309,9 +1309,7 @@ if (!checkSession()) {
 } else {
   init();
 }
-rashBadge() {
-  const count = (cache.trash||[]).length;
-  const badge = document.getElementById('trashBadge');
+function updateTrashBadge() {
   if (badge) badge.textContent = count;
 }
 
