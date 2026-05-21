@@ -1304,8 +1304,12 @@ function doLogin() {
 
 
 // Check session on load
-// TRASH FUNCTIONS
-function updateTrashBadge() {
+if (!checkSession()) {
+  // Show login — init() called after successful login
+} else {
+  init();
+}
+rashBadge() {
   const count = (cache.trash||[]).length;
   const badge = document.getElementById('trashBadge');
   if (badge) badge.textContent = count;
