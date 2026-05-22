@@ -1310,7 +1310,11 @@ if (!checkSession()) {
   init();
 }
 function updateTrashBadge() {
-  if (badge) badge.textContent = count;
+  try {
+    const count = (cache.trash||[]).length;
+    const el = document.getElementById('trashBadge');
+    if (el) el.textContent = count;
+  } catch(e) {}
 }
 
 function renderTrash() {
