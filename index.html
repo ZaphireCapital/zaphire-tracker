@@ -1318,30 +1318,31 @@ function renderTrash() {
   const tbody = document.getElementById('trashTableBody');
   const trash = cache.trash || [];
   if (!trash.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">x</div><div class="empty-state-title">Trash is empty</div></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-title">Trash is empty</div></div></td></tr>';
     return;
   }
   const now = new Date();
-  tbody.innerHTML = [...trash].reverse().map(f => {
-    const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+  const rows = [...trash].reverse().map(function(f) {
+    const names = [f.b1, f.b2].filter(Boolean).join(' & ');
     const deletedDate = new Date(f.deletedAt);
     const daysLeft = Math.max(0, 30 - Math.floor((now - deletedDate) / (24*60*60*1000)));
-    const dateStr = deletedDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    const urgentStyle = daysLeft <= 7 ? 'color:var(--danger);font-weight:500' : 'color:var(--slate-light)';
-    return '<tr>' +
-      '<td><div class="borrower-name">' + esc(names) + '</div></td>' +
-      '<td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(f.prop||'--') + '</td>' +
-      '<td><span class="badge badge-navy">' + esc(f.loanType||'--') + '</span></td>' +
-      '<td>' + esc(f.deletedBy||'--') + '</td>' +
-      '<td>' + dateStr + '</td>' +
-      '<td style="' + urgentStyle + '">' + daysLeft + ' days</td>' +
-      '<td style="display:flex;gap:6px">' +
-        '<button class="btn btn-outline btn-sm" onclick="restoreFile('' + f.id + '')">Restore</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="permanentDelete('' + f.id + '')">Delete</button>' +
-      '</td>' +
-    '</tr>';
-  }).join('');
+    const dateStr = deletedDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    const urgentColor = daysLeft <= 7 ? 'color:var(--danger);font-weight:500' : 'color:var(--slate-light)';
+    const tr = document.createElement('tr');
+    tr.innerHTML = [
+      '<td><div class="borrower-name">' + esc(names) + '</div></td>',
+      '<td>' + esc(f.prop||'--') + '</td>',
+      '<td><span class="badge badge-navy">' + esc(f.loanType||'--') + '</span></td>',
+      '<td>' + esc(f.deletedBy||'--') + '</td>',
+      '<td>' + dateStr + '</td>',
+      '<td style="' + urgentColor + '">' + daysLeft + ' days</td>',
+      '<td><button class="btn btn-outline btn-sm" style="margin-right:6px" onclick="restoreFile(\'' + f.id + '\')">Restore</button><button class="btn btn-danger btn-sm" onclick="permanentDelete(\'' + f.id + '\')">Delete</button></td>'
+    ].join('');
+    return tr.outerHTML;
+  });
+  tbody.innerHTML = rows.join('');
 }
+
 
 async function restoreFile(fid) {
   const item = (cache.trash||[]).find(x=>x.id===fid);
