@@ -641,7 +641,7 @@ async function syncFromCloud() {
     ]);
     if (files) cache.files = files;
     if (conditions) cache.conditions = conditions;
-    if (settings) cache.settings = { ...DEFAULTS, ...settings };
+    if (settings) cache.settings = { ...DEFAULTS, ...settings, requiredBy: (settings.requiredBy && settings.requiredBy.length) ? settings.requiredBy : DEFAULTS.requiredBy };
     if (customFields) cache.customFields = customFields;
     const trash = await sbGet('trash');
     if (trash) cache.trash = trash;
@@ -733,7 +733,8 @@ const DEFAULTS = {
   occupancyTypes: ['Primary Residence','Investment','2nd Home'],
   conditionCategories: ['Prior to Close','At Closing','Internal to Lender'],
   conditionTypes: ['Appraisal','Asset','Closing Disclosure','Disclosures','Title','Credit','Insurance','Employment','Income','Legal','Flood','HOA','Survey','Other'],
-  users: ['Deric','Stephan','Jules']
+  users: ['Deric','Stephan','Jules'],
+  requiredBy: ['NMLS','NYSDFS','CTDOB','DFS','CFPB','HUD','FHA','VA','Other']
 };
 
 let cache = {
