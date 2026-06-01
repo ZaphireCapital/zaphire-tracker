@@ -561,9 +561,21 @@ input[type=file]{display:none}
         <label class="form-label">Notes</label>
         <textarea class="form-textarea" id="dt_notes" placeholder="Any additional notes..."></textarea>
       </div>
-      <div class="form-checkbox-row">
-        <input type="checkbox" id="dt_completed">
+      <div class="form-checkbox-row" style="margin-bottom:14px">
+        <input type="checkbox" id="dt_completed" onchange="toggleCompletedFields()">
         <label for="dt_completed">Mark as completed</label>
+      </div>
+      <div id="completedFields" style="display:none">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Completed Date</label>
+            <input class="form-input" type="date" id="dt_completedDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Completed By</label>
+            <select class="form-select" id="dt_completedBy"></select>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1317,7 +1329,7 @@ async function deleteCF(cfid) {
 //  SETTINGS
 //                                        
 function renderSettings() {
-  const defs = [{key:'loanTypes',label:'Loan Types',sub:'Available loan type options'},{key:'occupancyTypes',label:'Occupancy Types',sub:'Occupancy classification options'},{key:'conditionCategories',label:'Condition Categories',sub:'e.g. Prior to Close, At Closing'},{key:'conditionTypes',label:'Condition Types',sub:'e.g. Appraisal, Asset, Title'}];
+  const defs = [{key:'loanTypes',label:'Loan Types',sub:'Available loan type options'},{key:'occupancyTypes',label:'Occupancy Types',sub:'Occupancy classification options'},{key:'conditionCategories',label:'Condition Categories',sub:'e.g. Prior to Close, At Closing'},{key:'conditionTypes',label:'Condition Types',sub:'e.g. Appraisal, Asset, Title'},{key:'requiredBy',label:'Required By (Important Dates)',sub:'e.g. NMLS, NYSDFS, DFS, CFPB'}];
   document.getElementById('settingsGrid').innerHTML = defs.map(s=>`<div class="settings-card"><div class="settings-card-title">${s.label}</div><div class="settings-card-sub">${s.sub}</div><div class="tag-list" id="tags-${s.key}"></div><div class="tag-add-row"><input class="form-input" type="text" id="addInput-${s.key}" placeholder="Add new option..." onkeydown="if(event.key==='Enter')addSetting('${s.key}')"><button class="btn btn-outline btn-sm" onclick="addSetting('${s.key}')">Add</button></div></div>`).join('');
   renderAllTags();
   renderUserTags();
@@ -1608,6 +1620,7 @@ function renderDateItem(d) {
     '</div>' +
     '<div class="date-due">' + dueStr + (label ? ' &mdash; <span>' + label + '</span>' : '') + '</div>' +
     (d.notes ? '<div style="font-size:12.5px;color:var(--slate-light);margin-top:4px">' + esc(d.notes) + '</div>' : '') +
+    (d.completed && d.completedDate ? '<div style="font-size:12px;color:var(--success);margin-top:4px">&#10003; Completed ' + new Date(d.completedDate + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + (d.completedBy ? ' by <strong>' + esc(d.completedBy) + '</strong>' : '') + '</div>' : '') +
     (d.filePath ? '<div style="font-size:12px;color:var(--slate-light);margin-top:2px">&#128193; ' + esc(d.filePath) + '</div>' : '') +
     '</div>' +
     '<div style="display:flex;gap:6px;flex-shrink:0">' +
@@ -1624,8 +1637,11 @@ function openNewDateModal() {
   document.getElementById('dateModalTitle').textContent = 'Add Important Date';
   ['dt_title','dt_due','dt_cost','dt_link','dt_filePath','dt_notes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   document.getElementById('dt_completed').checked = false;
+  document.getElementById('dt_completedDate').value = '';
   document.getElementById('dt_recurrence').value = 'none';
+  document.getElementById('completedFields').style.display = 'none';
   pop('dt_requiredBy', cache.settings.requiredBy || ['NMLS','NYSDFS','CTDOB','DFS','CFPB','Other'], '');
+  pop('dt_completedBy', cache.settings.users, currentUser);
   openModal('dateModal');
 }
 
@@ -1641,8 +1657,11 @@ function openEditDateModal(did) {
   document.getElementById('dt_filePath').value = d.filePath||'';
   document.getElementById('dt_notes').value = d.notes||'';
   document.getElementById('dt_completed').checked = !!d.completed;
+  document.getElementById('dt_completedDate').value = d.completedDate||'';
   document.getElementById('dt_recurrence').value = d.recurrence||'none';
+  document.getElementById('completedFields').style.display = d.completed ? 'block' : 'none';
   pop('dt_requiredBy', cache.settings.requiredBy || ['NMLS','NYSDFS','CTDOB','DFS','CFPB','Other'], d.requiredBy);
+  pop('dt_completedBy', cache.settings.users, d.completedBy||currentUser);
   openModal('dateModal');
 }
 
@@ -1650,6 +1669,7 @@ async function saveDateItem() {
   const title = document.getElementById('dt_title').value.trim();
   const due = document.getElementById('dt_due').value;
   if (!title) { toast('Title is required','error'); return; }
+  const isCompleted = document.getElementById('dt_completed').checked;
   const data = {
     title,
     due,
@@ -1658,9 +1678,11 @@ async function saveDateItem() {
     link: document.getElementById('dt_link').value.trim(),
     filePath: document.getElementById('dt_filePath').value.trim(),
     notes: document.getElementById('dt_notes').value.trim(),
-    completed: document.getElementById('dt_completed').checked,
+    completed: isCompleted,
+    completedDate: isCompleted ? (document.getElementById('dt_completedDate').value || new Date().toISOString().slice(0,10)) : '',
+    completedBy: isCompleted ? document.getElementById('dt_completedBy').value : '',
     recurrence: document.getElementById('dt_recurrence').value,
-    completedAt: document.getElementById('dt_completed').checked ? new Date().toISOString() : null
+    completedAt: isCompleted ? new Date().toISOString() : null
   };
   if (!cache.dates) cache.dates = [];
   if (editingDateId) {
@@ -1681,6 +1703,8 @@ async function toggleDateComplete(did, checked) {
   if (!d) return;
   d.completed = checked;
   d.completedAt = checked ? new Date().toISOString() : null;
+  d.completedDate = checked ? new Date().toISOString().slice(0,10) : '';
+  d.completedBy = checked ? currentUser : '';
   // Handle yearly recurrence - create next year's entry
   if (checked && d.recurrence === 'yearly' && d.due) {
     const next = new Date(d.due + 'T00:00:00');
@@ -1719,6 +1743,17 @@ async function deleteDateItem(did) {
   toast('Moved to Trash');
 }
 
+
+function toggleCompletedFields() {
+  const checked = document.getElementById('dt_completed').checked;
+  document.getElementById('completedFields').style.display = checked ? 'block' : 'none';
+  if (checked && !document.getElementById('dt_completedDate').value) {
+    document.getElementById('dt_completedDate').value = new Date().toISOString().slice(0,10);
+  }
+  if (checked) {
+    pop('dt_completedBy', cache.settings.users, currentUser);
+  }
+}
 
 // BACKUP FUNCTION
 async function downloadBackup() {
