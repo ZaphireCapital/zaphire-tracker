@@ -681,9 +681,26 @@ async function saveCustomFields() {
   await syncToCloud();
 }
 
+let userIsTyping = false;
+let typingTimer = null;
+
+function setTyping(isTyping) {
+  userIsTyping = isTyping;
+  if (!isTyping) {
+    if (typingTimer) clearTimeout(typingTimer);
+  }
+}
+
 function startPolling() {
   if (syncTimer) clearInterval(syncTimer);
   syncTimer = setInterval(async () => {
+    // Never interrupt the user while they are typing a note
+    if (userIsTyping) return;
+    // Also check if any note textarea has content being typed
+    const activeNotes = document.querySelectorAll('.note-add-inline.open textarea');
+    for (const ta of activeNotes) {
+      if (ta.value.trim().length > 0) return;
+    }
     await syncFromCloud();
     const page = document.querySelector('.page.active')?.id;
     if (page === 'page-dashboard') renderDashboard();
@@ -1039,15 +1056,19 @@ async function deleteCond(cid) {
 function openNote(cid) {
   document.querySelectorAll('.note-add-inline').forEach(el=>el.classList.remove('open'));
   document.getElementById('ni-'+cid).classList.add('open');
-  document.getElementById('nt-'+cid).focus();
+  const ta = document.getElementById('nt-'+cid);
+  ta.focus();
+  ta.addEventListener('input', function() { setTyping(this.value.trim().length > 0); });
 }
 
 function closeNote(cid) {
+  setTyping(false);
   document.getElementById('ni-'+cid).classList.remove('open');
   document.getElementById('nt-'+cid).value = '';
 }
 
 async function saveNote(cid) {
+  setTyping(false);
   const text = document.getElementById('nt-'+cid).value.trim();
   if (!text) { toast('Please enter a note','error'); return; }
   const cs = cache.conditions[currentFileId] || [];
