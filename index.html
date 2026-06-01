@@ -862,7 +862,7 @@ function renderConditions(f) {
 }
 
 function condCard(c) {
-  const notes = (c.notes||[]).map(n=>`<div class="note-item"><div class="note-stamp"><span class="note-stamp-user">${esc(n.user)}</span><span>${esc(n.ts)}</span></div><div class="note-text">${esc(n.text)}</div></div>`).join('');
+  const notes = (c.notes||[]).map((n,ni)=>`<div class="note-item"><div class="note-stamp"><span class="note-stamp-user">${esc(n.user)}</span><span>${esc(n.ts)}</span><button onclick="deleteNote('${c.id}',${ni})" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 4px" title="Delete this note">&#x2715; Delete</button></div><div class="note-text">${esc(n.text)}</div></div>`).join('');
   const sc = c.status==='Open'?'status-open':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
   return `<div class="condition-card">
     <div class="condition-top">
@@ -1067,13 +1067,19 @@ function closeNote(cid) {
   document.getElementById('nt-'+cid).value = '';
 }
 
+let savingNote = false;
+
 async function saveNote(cid) {
+  if (savingNote) return;
+  savingNote = true;
+  const btn = document.querySelector(`#ni-${cid} .btn-gold`);
+  if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
   setTyping(false);
   const text = document.getElementById('nt-'+cid).value.trim();
-  if (!text) { toast('Please enter a note','error'); return; }
+  if (!text) { savingNote = false; if (btn) { btn.textContent = 'Save Note'; btn.disabled = false; } toast('Please enter a note','error'); return; }
   const cs = cache.conditions[currentFileId] || [];
   const c = cs.find(x=>x.id===cid);
-  if (!c) return;
+  if (!c) { savingNote = false; return; }
   const now = new Date();
   const ts = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' at ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   if (!c.notes) c.notes = [];
@@ -1083,6 +1089,19 @@ async function saveNote(cid) {
   const f = cache.files.find(x=>x.id===currentFileId);
   if (f) renderConditions(f);
   toast('Note saved');
+  savingNote = false;
+}
+
+async function deleteNote(cid, noteIndex) {
+  if (!confirm('Delete this note? This cannot be undone.')) return;
+  const cs = cache.conditions[currentFileId] || [];
+  const c = cs.find(x=>x.id===cid);
+  if (!c || !c.notes) return;
+  c.notes.splice(noteIndex, 1);
+  await saveConditions(currentFileId);
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  toast('Note deleted');
 }
 
 //                                        
