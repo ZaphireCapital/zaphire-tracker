@@ -223,6 +223,26 @@ input[type=file]{display:none}
   .login-btn:hover{background:var(--gold-light)}
   .login-error{color:#ef4444;font-size:12.5px;margin-top:8px;display:none}
   .login-error.show{display:block}
+
+  .dates-month-header{font-family:var(--font-display);font-size:15px;font-weight:500;color:var(--navy);padding:14px 20px 10px;border-bottom:1px solid var(--border);background:#fdf9f2;display:flex;align-items:center;justify-content:space-between}
+  .date-item{border-bottom:1px solid #f0ece4;padding:16px 20px;transition:background .1s}
+  .date-item:last-child{border-bottom:none}
+  .date-item:hover{background:#fdf9f2}
+  .date-item.completed{opacity:.6}
+  .date-item.overdue .date-due{color:var(--danger);font-weight:600}
+  .date-item.due-soon .date-due{color:var(--warning);font-weight:600}
+  .date-due{font-size:12.5px;margin-top:4px}
+  .date-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-right:4px}
+  .badge-overdue{background:var(--danger-bg);color:var(--danger)}
+  .badge-soon{background:var(--warning-bg);color:var(--warning)}
+  .badge-upcoming{background:var(--info-bg);color:var(--info)}
+  .badge-done{background:var(--success-bg);color:var(--success)}
+  .next-up-banner{background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px;color:var(--white)}
+  .next-up-icon{font-size:28px;flex-shrink:0}
+  .next-up-title{font-size:12px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+  .next-up-name{font-size:17px;font-weight:500;color:var(--gold)}
+  .next-up-detail{font-size:13px;color:rgba(255,255,255,.6);margin-top:2px}
+  .dates-filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -268,6 +288,7 @@ input[type=file]{display:none}
       <div class="nav-section-label" style="margin-top:16px">Admin</div>
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"> </span>Settings & Dropdowns</button>
       <button class="nav-item" onclick="showPage('customfields')"><span class="nav-icon"> </span>Custom Fields</button>
+      <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon">📅</span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon">🗑</span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
     <div class="sidebar-footer">
@@ -395,6 +416,22 @@ input[type=file]{display:none}
 
       </div>
     </div>
+
+    <!-- IMPORTANT DATES -->
+    <div class="page" id="page-dates">
+      <div id="nextUpBanner"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="dates-filter-bar" id="datesFilterBar">
+          <button class="filter-btn active" onclick="setDateFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setDateFilter('overdue',this)">Overdue</button>
+          <button class="filter-btn" onclick="setDateFilter('soon',this)">Due Soon</button>
+          <button class="filter-btn" onclick="setDateFilter('upcoming',this)">Upcoming</button>
+          <button class="filter-btn" onclick="setDateFilter('completed',this)">Completed</button>
+        </div>
+        <button class="btn btn-gold" onclick="openNewDateModal()">+ Add Date</button>
+      </div>
+      <div id="datesContent"></div>
+    </div>
     <!-- CUSTOM FIELDS -->
     <div class="page" id="page-customfields">
       <div class="section-header"><div class="section-title">Custom Fields</div><button class="btn btn-gold" onclick="openNewCFModal()">+ Add Field</button></div>
@@ -477,6 +514,64 @@ input[type=file]{display:none}
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('cfModal')">Cancel</button><button class="btn btn-gold" onclick="saveCF()">Save Field</button></div>
   </div>
 </div>
+
+<!-- DATE MODAL -->
+<div class="modal-overlay" id="dateModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="dateModalTitle">Add Important Date</div>
+      <button class="btn btn-ghost" onclick="closeModal('dateModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group form-full">
+          <label class="form-label">Title / Description *</label>
+          <input class="form-input" type="text" id="dt_title" placeholder="e.g. VOOR Due, License Renewal, CE Credits">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date *</label>
+          <input class="form-input" type="date" id="dt_due">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Required By</label>
+          <select class="form-select" id="dt_requiredBy"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cost / Fee</label>
+          <input class="form-input" type="text" id="dt_cost" placeholder="e.g. $100, $0, N/A">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Website / Link</label>
+          <input class="form-input" type="text" id="dt_link" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">File Path (once completed)</label>
+          <input class="form-input" type="text" id="dt_filePath" placeholder="e.g. iCloud Drive/Zaphire/Licenses/...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recurs Every</label>
+          <select class="form-select" id="dt_recurrence">
+            <option value="none">No recurrence</option>
+            <option value="yearly">Every year</option>
+            <option value="biannual">Every 2 years</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="dt_notes" placeholder="Any additional notes..."></textarea>
+      </div>
+      <div class="form-checkbox-row">
+        <input type="checkbox" id="dt_completed">
+        <label for="dt_completed">Mark as completed</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('dateModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveDateItem()">Save</button>
+    </div>
+  </div>
+</div>
 <!-- USER SWITCH MODAL -->
 <div class="modal-overlay" id="userModal">
   <div class="modal" style="max-width:340px">
@@ -538,6 +633,8 @@ async function syncFromCloud() {
     if (customFields) cache.customFields = customFields;
     const trash = await sbGet('trash');
     if (trash) cache.trash = trash;
+    const dates = await sbGet('dates');
+    if (dates) cache.dates = dates;
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
     return true;
@@ -568,7 +665,8 @@ async function syncToCloud() {
       sbSet('conditions', cache.conditions),
       sbSet('settings', cache.settings),
       sbSet('customFields', cache.customFields),
-      sbSet('trash', cache.trash)
+      sbSet('trash', cache.trash),
+      sbSet('dates', cache.dates || [])
     ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
@@ -628,7 +726,7 @@ const DEFAULTS = {
 
 let cache = {
   files: [], conditions: {}, settings: {...DEFAULTS},
-  customFields: [], logo: null, trash: []
+  customFields: [], logo: null, trash: [], dates: []
 };
 
 let currentFileId = null;
@@ -717,10 +815,10 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash'};
+  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,files:1,settings:2,customfields:3,trash:4};
+  const nm = {dashboard:0,files:1,settings:2,customfields:3,trash:4,dates:5};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   document.getElementById('topbarActions').innerHTML = page === 'page-filedetail'
     ? '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>'
@@ -731,6 +829,7 @@ function showPage(page, fid) {
   if (page === 'settings') renderSettings();
   if (page === 'customfields') renderCFList();
   if (page === 'trash') renderTrash();
+  if (page === 'dates') renderDates();
 }
 
 function switchTab(tab, btn) {
@@ -764,6 +863,7 @@ function updateStats() {
 function renderDashboard() {
   updateStats();
   updateTrashBadge();
+  updateDatesBadge();
   const tbody = document.getElementById('dashTbody');
   const files = [...cache.files].reverse().slice(0,10);
   if (!files.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"> </div><div class="empty-state-title">No files yet</div><div class="empty-state-sub">Click "New File" to get started</div></div></td></tr>'; return; }
@@ -1381,6 +1481,242 @@ function doLogin() {
   document.getElementById('userAvatar').textContent = user[0];
   document.getElementById('loginScreen').classList.add('hidden');
   init();
+}
+
+
+
+// ═══════════════════════════════════════════
+//  IMPORTANT DATES
+// ═══════════════════════════════════════════
+let editingDateId = null;
+let dateFilter = 'all';
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function getDayStatus(dueDateStr) {
+  if (!dueDateStr) return 'upcoming';
+  const due = new Date(dueDateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.floor((due - today) / (1000*60*60*24));
+  if (diff < 0) return 'overdue';
+  if (diff <= 30) return 'soon';
+  return 'upcoming';
+}
+
+function getDaysLabel(dueDateStr) {
+  if (!dueDateStr) return '';
+  const due = new Date(dueDateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.floor((due - today) / (1000*60*60*24));
+  if (diff < 0) return Math.abs(diff) + ' day' + (Math.abs(diff)===1?'':'s') + ' overdue';
+  if (diff === 0) return 'Due today';
+  if (diff === 1) return 'Due tomorrow';
+  return 'Due in ' + diff + ' days';
+}
+
+function updateDatesBadge() {
+  const items = cache.dates || [];
+  const overdue = items.filter(d => !d.completed && getDayStatus(d.due) === 'overdue').length;
+  const soon = items.filter(d => !d.completed && getDayStatus(d.due) === 'soon').length;
+  const count = overdue + soon;
+  const el = document.getElementById('datesBadge');
+  if (el) el.textContent = count > 0 ? count : '0';
+}
+
+function setDateFilter(val, btn) {
+  dateFilter = val;
+  document.querySelectorAll('#datesFilterBar .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDates();
+}
+
+function renderDates() {
+  updateDatesBadge();
+  const all = cache.dates || [];
+
+  // Next up banner — find next incomplete non-overdue item
+  const banner = document.getElementById('nextUpBanner');
+  const upcoming = all
+    .filter(d => !d.completed && d.due)
+    .sort((a,b) => new Date(a.due) - new Date(b.due));
+  if (upcoming.length) {
+    const next = upcoming[0];
+    const status = getDayStatus(next.due);
+    const label = getDaysLabel(next.due);
+    const color = status === 'overdue' ? 'var(--danger)' : status === 'soon' ? '#d97706' : 'var(--gold)';
+    banner.innerHTML = '<div class="next-up-banner"><div class="next-up-icon">&#128197;</div><div style="flex:1"><div class="next-up-title">Next Up</div><div class="next-up-name">' + esc(next.title) + '</div><div class="next-up-detail">' + esc(next.requiredBy||'') + (next.requiredBy ? ' &bull; ' : '') + '<span style="color:' + color + '">' + label + '</span>' + (next.cost ? ' &bull; ' + esc(next.cost) : '') + '</div></div>' + (next.link ? '<a href="' + esc(next.link) + '" target="_blank" class="btn btn-gold btn-sm" style="flex-shrink:0">Open Link</a>' : '') + '</div>';
+  } else {
+    banner.innerHTML = '<div class="next-up-banner"><div class="next-up-icon">&#10003;</div><div><div class="next-up-title">All clear</div><div class="next-up-name">No upcoming dates</div></div></div>';
+  }
+
+  // Filter
+  let filtered = all;
+  if (dateFilter === 'overdue') filtered = all.filter(d => !d.completed && getDayStatus(d.due) === 'overdue');
+  else if (dateFilter === 'soon') filtered = all.filter(d => !d.completed && getDayStatus(d.due) === 'soon');
+  else if (dateFilter === 'upcoming') filtered = all.filter(d => !d.completed && getDayStatus(d.due) === 'upcoming');
+  else if (dateFilter === 'completed') filtered = all.filter(d => d.completed);
+
+  if (!filtered.length) {
+    document.getElementById('datesContent').innerHTML = '<div class="empty-state"><div class="empty-state-icon">&#128197;</div><div class="empty-state-title">No items here</div><div class="empty-state-sub">Click &ldquo;+ Add Date&rdquo; to get started</div></div>';
+    return;
+  }
+
+  // Group by month of due date
+  const byMonth = {};
+  filtered.forEach(d => {
+    const key = d.due ? new Date(d.due + 'T00:00:00').getMonth() + '_' + new Date(d.due + 'T00:00:00').getFullYear() : '12_9999';
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(d);
+  });
+
+  // Sort month keys chronologically
+  const sortedKeys = Object.keys(byMonth).sort((a,b) => {
+    const [am,ay] = a.split('_').map(Number);
+    const [bm,by] = b.split('_').map(Number);
+    return ay !== by ? ay - by : am - bm;
+  });
+
+  const html = sortedKeys.map(key => {
+    const [month, year] = key.split('_').map(Number);
+    const monthLabel = month < 12 ? MONTHS[month] + ' ' + year : 'No Date Set';
+    const items = byMonth[key].sort((a,b) => new Date(a.due||'9999') - new Date(b.due||'9999'));
+    return '<div class="files-table-wrap" style="margin-bottom:20px">' +
+      '<div class="dates-month-header">' + monthLabel +
+      '<span style="font-size:12px;color:var(--slate-light);font-weight:400">' + items.length + ' item' + (items.length===1?'':'s') + '</span></div>' +
+      items.map(d => renderDateItem(d)).join('') +
+      '</div>';
+  }).join('');
+
+  document.getElementById('datesContent').innerHTML = html;
+}
+
+function renderDateItem(d) {
+  const status = d.completed ? 'completed' : getDayStatus(d.due);
+  const label = d.completed ? '' : getDaysLabel(d.due);
+  const badgeClass = status === 'overdue' ? 'badge-overdue' : status === 'soon' ? 'badge-soon' : status === 'completed' ? 'badge-done' : 'badge-upcoming';
+  const badgeText = status === 'overdue' ? 'Overdue' : status === 'soon' ? 'Due Soon' : status === 'completed' ? 'Completed' : 'Upcoming';
+  const dueStr = d.due ? new Date(d.due + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'No date';
+
+  return '<div class="date-item ' + (d.completed ? 'completed' : status === 'overdue' ? 'overdue' : status === 'soon' ? 'due-soon' : '') + '">' +
+    '<div style="display:flex;align-items:flex-start;gap:12px">' +
+    '<input type="checkbox" ' + (d.completed?'checked':'') + ' onchange="toggleDateComplete(\''+d.id+'\',this.checked)" style="margin-top:4px;width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0">' +
+    '<div style="flex:1">' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">' +
+    '<span style="font-size:14px;font-weight:500;' + (d.completed?'text-decoration:line-through;color:var(--slate-light)':'') + '">' + esc(d.title) + '</span>' +
+    '<span class="date-badge ' + badgeClass + '">' + badgeText + '</span>' +
+    (d.requiredBy ? '<span class="badge badge-navy" style="font-size:11px">' + esc(d.requiredBy) + '</span>' : '') +
+    (d.cost && d.cost !== '$0' && d.cost.toLowerCase() !== 'n/a' ? '<span class="badge badge-gold" style="font-size:11px">' + esc(d.cost) + '</span>' : '') +
+    '</div>' +
+    '<div class="date-due">' + dueStr + (label ? ' &mdash; <span>' + label + '</span>' : '') + '</div>' +
+    (d.notes ? '<div style="font-size:12.5px;color:var(--slate-light);margin-top:4px">' + esc(d.notes) + '</div>' : '') +
+    (d.filePath ? '<div style="font-size:12px;color:var(--slate-light);margin-top:2px">&#128193; ' + esc(d.filePath) + '</div>' : '') +
+    '</div>' +
+    '<div style="display:flex;gap:6px;flex-shrink:0">' +
+    (d.link ? '<a href="' + esc(d.link) + '" target="_blank" class="btn btn-outline btn-sm">Open</a>' : '') +
+    '<button class="btn btn-outline btn-sm" onclick="openEditDateModal(\''+d.id+'\')">Edit</button>' +
+    '<button class="btn btn-danger btn-sm" onclick="deleteDateItem(\''+d.id+'\')">Delete</button>' +
+    '</div>' +
+    '</div>' +
+    '</div>';
+}
+
+function openNewDateModal() {
+  editingDateId = null;
+  document.getElementById('dateModalTitle').textContent = 'Add Important Date';
+  ['dt_title','dt_due','dt_cost','dt_link','dt_filePath','dt_notes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('dt_completed').checked = false;
+  document.getElementById('dt_recurrence').value = 'none';
+  pop('dt_requiredBy', cache.settings.requiredBy || ['NMLS','NYSDFS','CTDOB','DFS','CFPB','Other'], '');
+  openModal('dateModal');
+}
+
+function openEditDateModal(did) {
+  editingDateId = did;
+  const d = (cache.dates||[]).find(x=>x.id===did);
+  if (!d) return;
+  document.getElementById('dateModalTitle').textContent = 'Edit Date';
+  document.getElementById('dt_title').value = d.title||'';
+  document.getElementById('dt_due').value = d.due||'';
+  document.getElementById('dt_cost').value = d.cost||'';
+  document.getElementById('dt_link').value = d.link||'';
+  document.getElementById('dt_filePath').value = d.filePath||'';
+  document.getElementById('dt_notes').value = d.notes||'';
+  document.getElementById('dt_completed').checked = !!d.completed;
+  document.getElementById('dt_recurrence').value = d.recurrence||'none';
+  pop('dt_requiredBy', cache.settings.requiredBy || ['NMLS','NYSDFS','CTDOB','DFS','CFPB','Other'], d.requiredBy);
+  openModal('dateModal');
+}
+
+async function saveDateItem() {
+  const title = document.getElementById('dt_title').value.trim();
+  const due = document.getElementById('dt_due').value;
+  if (!title) { toast('Title is required','error'); return; }
+  const data = {
+    title,
+    due,
+    requiredBy: document.getElementById('dt_requiredBy').value,
+    cost: document.getElementById('dt_cost').value.trim(),
+    link: document.getElementById('dt_link').value.trim(),
+    filePath: document.getElementById('dt_filePath').value.trim(),
+    notes: document.getElementById('dt_notes').value.trim(),
+    completed: document.getElementById('dt_completed').checked,
+    recurrence: document.getElementById('dt_recurrence').value,
+    completedAt: document.getElementById('dt_completed').checked ? new Date().toISOString() : null
+  };
+  if (!cache.dates) cache.dates = [];
+  if (editingDateId) {
+    const i = cache.dates.findIndex(x=>x.id===editingDateId);
+    if (i>-1) Object.assign(cache.dates[i], data);
+    toast('Date updated');
+  } else {
+    cache.dates.push({ id:uid(), ...data, createdAt:new Date().toISOString() });
+    toast('Date added');
+  }
+  await syncToCloud();
+  closeModal('dateModal');
+  renderDates();
+}
+
+async function toggleDateComplete(did, checked) {
+  const d = (cache.dates||[]).find(x=>x.id===did);
+  if (!d) return;
+  d.completed = checked;
+  d.completedAt = checked ? new Date().toISOString() : null;
+  // Handle yearly recurrence - create next year's entry
+  if (checked && d.recurrence === 'yearly' && d.due) {
+    const next = new Date(d.due + 'T00:00:00');
+    next.setFullYear(next.getFullYear() + 1);
+    const nextDue = next.toISOString().slice(0,10);
+    const exists = cache.dates.some(x => x.title === d.title && x.due === nextDue);
+    if (!exists) {
+      cache.dates.push({ id:uid(), title:d.title, due:nextDue, requiredBy:d.requiredBy, cost:d.cost, link:d.link, filePath:'', notes:'', completed:false, recurrence:d.recurrence, createdAt:new Date().toISOString() });
+      toast('Marked complete. Next year added automatically.');
+    }
+  }
+  if (checked && d.recurrence === 'biannual' && d.due) {
+    const next = new Date(d.due + 'T00:00:00');
+    next.setFullYear(next.getFullYear() + 2);
+    const nextDue = next.toISOString().slice(0,10);
+    const exists = cache.dates.some(x => x.title === d.title && x.due === nextDue);
+    if (!exists) {
+      cache.dates.push({ id:uid(), title:d.title, due:nextDue, requiredBy:d.requiredBy, cost:d.cost, link:d.link, filePath:'', notes:'', completed:false, recurrence:d.recurrence, createdAt:new Date().toISOString() });
+      toast('Marked complete. Next renewal added automatically.');
+    }
+  }
+  await syncToCloud();
+  renderDates();
+}
+
+async function deleteDateItem(did) {
+  if (!confirm('Move this item to Trash?')) return;
+  const d = (cache.dates||[]).find(x=>x.id===did);
+  if (!d) return;
+  if (!cache.trash) cache.trash = [];
+  cache.trash.push({ ...d, _type:'date', deletedBy:currentUser, deletedAt:new Date().toISOString() });
+  cache.dates = cache.dates.filter(x=>x.id!==did);
+  await syncToCloud();
+  renderDates();
+  updateTrashBadge();
+  toast('Moved to Trash');
 }
 
 
