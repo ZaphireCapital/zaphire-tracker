@@ -1336,15 +1336,15 @@ function renderSettings() {
 }
 
 function renderAllTags() {
-  ['loanTypes','occupancyTypes','conditionCategories','conditionTypes'].forEach(key => {
+  ['loanTypes','occupancyTypes','conditionCategories','conditionTypes','requiredBy'].forEach(key => {
     const el = document.getElementById('tags-'+key); if (!el) return;
-    el.innerHTML = (cache.settings[key]||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeSetting('${key}',${i})"> </button></span>`).join('');
+    el.innerHTML = (cache.settings[key]||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeSetting('${key}',${i})" title="Remove">&#x2715;</button></span>`).join('');
   });
 }
 
 function renderUserTags() {
   const el = document.getElementById('userTags'); if (!el) return;
-  el.innerHTML = (cache.settings.users||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeUser(${i})"> </button></span>`).join('');
+  el.innerHTML = (cache.settings.users||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeUser(${i})" title="Remove">&#x2715;</button></span>`).join('');
 }
 
 async function addSetting(key) {
