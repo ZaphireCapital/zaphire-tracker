@@ -956,7 +956,12 @@ function renderConditions(f) {
   const filtered = condFilter==='all' ? all : all.filter(c=>c.status===condFilter);
   const el = document.getElementById('condBuckets');
   if (!all.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">  </div><div class="empty-state-title">No conditions yet</div><div class="empty-state-sub">Click "+ Add Condition" to begin tracking</div></div>'; return; }
-  const buckets = [{key:'Open',label:'Open Conditions',icon:' ',cls:'bucket-open'},{key:'Submitted to Lender',label:'Submitted to Lender',icon:' ',cls:'bucket-submitted'},{key:'Cleared',label:'Cleared',icon:' ',cls:'bucket-cleared'}];
+  const buckets = [
+    {key:'Open',label:'Open Conditions',icon:'●',cls:'bucket-open'},
+    {key:'Open (Ready to Submit)',label:'Open (Ready to Submit)',icon:'★',cls:'bucket-ready'},
+    {key:'Submitted to Lender',label:'Submitted to Lender',icon:'↑',cls:'bucket-submitted'},
+    {key:'Cleared',label:'Cleared',icon:'✓',cls:'bucket-cleared'}
+  ];
   el.innerHTML = buckets.map(b => {
     if (condFilter!=='all' && condFilter!==b.key) return '';
     const items = filtered.filter(c=>c.status===b.key);
