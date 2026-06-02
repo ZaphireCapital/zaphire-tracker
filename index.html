@@ -103,7 +103,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .bucket{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
 .bucket-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
 .bucket-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.bucket-open .bucket-icon{background:var(--info-bg);color:#1d4ed8}
+.bucket-open .bucket-icon{background:var(--info-bg);color:#1d4ed8}.bucket-ready .bucket-icon{background:#ede9fe;color:#6d28d9}.bucket-ready .bucket-title{color:#5b21b6}.bucket-ready .bucket-count{background:#ede9fe;color:#6d28d9}
 .bucket-submitted .bucket-icon{background:var(--warning-bg);color:#b45309}
 .bucket-cleared .bucket-icon{background:var(--success-bg);color:#15803d}
 .bucket-title{font-size:14.5px;font-weight:600;flex:1}
@@ -140,7 +140,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .note-add-inline textarea:focus{border-color:var(--gold)}
 .note-add-actions{display:flex;justify-content:flex-end;gap:8px}
 .status-select{border:none;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:500;cursor:pointer;outline:none;border-radius:20px;padding:3px 8px}
-.status-open{background:var(--info-bg);color:var(--info)}
+.status-open{background:var(--info-bg);color:var(--info)}.status-ready{background:#ede9fe;color:#6d28d9}
 .status-submitted{background:var(--warning-bg);color:var(--warning)}
 .status-cleared{background:var(--success-bg);color:var(--success)}
 .modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,.5);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px}
@@ -492,7 +492,7 @@ input[type=file]{display:none}
         <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="c_type"></select></div>
         <div class="form-group"><label class="form-label">Condition Number</label><input class="form-input" type="text" id="c_num" placeholder="e.g. 1, 2a, PTD-3"></div>
         <div class="form-group"><label class="form-label">Responsible Party</label><select class="form-select" id="c_resp"></select></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="c_status"><option value="Open">Open</option><option value="Submitted to Lender">Submitted to Lender</option><option value="Cleared">Cleared</option></select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="c_status"><option value="Open">Open</option><option value="Open (Ready to Submit)">Open (Ready to Submit)</option><option value="Submitted to Lender">Submitted to Lender</option><option value="Cleared">Cleared</option></select></div>
       </div>
       <div class="form-group"><label class="form-label">Description *</label><textarea class="form-textarea" id="c_desc" placeholder="Describe the condition in full..."></textarea></div>
     </div>
@@ -859,7 +859,7 @@ function switchTab(tab, btn) {
 function updateStats() {
   let open=0,sub=0,clr=0;
   Object.values(cache.conditions).forEach(cs => cs.forEach(c => {
-    if(c.status==='Open') open++;
+    if(c.status==='Open'||c.status==='Open (Ready to Submit)') open++;
     else if(c.status==='Submitted to Lender') sub++;
     else if(c.status==='Cleared') clr++;
   }));
@@ -976,7 +976,7 @@ function renderConditions(f) {
 
 function condCard(c) {
   const notes = (c.notes||[]).map((n,ni)=>`<div class="note-item"><div class="note-stamp"><span class="note-stamp-user">${esc(n.user)}</span><span>${esc(n.ts)}</span><button onclick="deleteNote('${c.id}',${ni})" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 4px" title="Delete this note">&#x2715; Delete</button></div><div class="note-text">${esc(n.text)}</div></div>`).join('');
-  const sc = c.status==='Open'?'status-open':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
+  const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
   return `<div class="condition-card">
     <div class="condition-top">
       <div class="condition-num">${esc(c.num||'?')}</div>
@@ -988,6 +988,7 @@ function condCard(c) {
           ${c.resp?`<span class="badge badge-gold" style="font-size:11px">  ${esc(c.resp)}</span>`:''}
           <select class="${sc} status-select" onchange="updateCondStatus('${c.id}',this.value)">
             <option value="Open" ${c.status==='Open'?'selected':''}>Open</option>
+            <option value="Open (Ready to Submit)" ${c.status==='Open (Ready to Submit)'?'selected':''}>Open (Ready to Submit)</option>
             <option value="Submitted to Lender" ${c.status==='Submitted to Lender'?'selected':''}>Submitted to Lender</option>
             <option value="Cleared" ${c.status==='Cleared'?'selected':''}>Cleared</option>
           </select>
@@ -1443,7 +1444,12 @@ function toast(msg, type='success') {
 //                                        
 async function init() {
   // Show app immediately   don't wait for data
-  currentUser = cache.settings.users[0] || 'Deric';
+  // Read user from session set by doLogin — don't overwrite it
+  try {
+    const s = JSON.parse(sessionStorage.getItem('zc_session') || '{}');
+    if (s.user) currentUser = s.user;
+  } catch(e) {}
+  if (!currentUser) currentUser = cache.settings.users[0] || 'Deric';
   document.getElementById('userName').textContent = currentUser;
   document.getElementById('userAvatar').textContent = currentUser[0];
   renderDashboard();
