@@ -243,6 +243,71 @@ input[type=file]{display:none}
   .next-up-name{font-size:17px;font-weight:500;color:var(--gold)}
   .next-up-detail{font-size:13px;color:rgba(255,255,255,.6);margin-top:2px}
   .dates-filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+
+  /* ── LENDER DIRECTORY ── */
+  .lender-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px)}
+  .lender-left{width:260px;min-width:260px;border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
+  .lender-search-wrap{padding:12px 14px;border-bottom:1px solid var(--border)}
+  .lender-search-inner{display:flex;align-items:center;gap:8px;background:var(--cream);border:1px solid var(--border-strong);border-radius:var(--radius);padding:7px 11px}
+  .lender-search-inner input{border:none;outline:none;background:transparent;font-size:13px;color:var(--navy);width:100%;font-family:var(--font-body)}
+  .lender-filter-bar{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px}
+  .lender-list{flex:1;overflow-y:auto}
+  .lender-list-item{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+  .lender-list-item:hover{background:var(--cream)}
+  .lender-list-item.active{background:var(--gold-pale);border-left:3px solid var(--gold);padding-left:11px}
+  .lender-list-item.active .litem-name{color:#7b5c12}
+  .litem-name{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:2px}
+  .litem-sub{font-size:11.5px;color:var(--slate-light)}
+  .litem-row{display:flex;align-items:center;justify-content:space-between;margin-top:5px}
+  .litem-specbadges{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .litem-specbadge{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:500}
+  .lender-right{flex:1;overflow-y:auto;background:var(--cream)}
+  .lender-right-inner{padding:24px 28px}
+  .lender-detail-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .ld-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .ld-name{font-family:var(--font-display);font-size:21px;font-weight:500;color:var(--navy)}
+  .ld-sub{font-size:12.5px;color:var(--slate-light);margin-top:3px}
+  .ld-acts{display:flex;gap:7px;align-items:center;flex-shrink:0}
+  .ld-qs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .ld-qs{background:var(--cream);border-radius:8px;padding:10px 14px;border:1px solid var(--border)}
+  .ld-qs-label{font-size:10.5px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .ld-qs-val{font-size:22px;font-weight:300;color:var(--navy);font-family:var(--font-display)}
+  .ld-sec-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+  .ld-contact-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .ld-contact-row:last-child{border-bottom:none}
+  .ld-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+  .ld-av-0{background:rgba(201,168,76,.18);color:#7b5c12}
+  .ld-av-1{background:#dbeafe;color:#1a3155}
+  .ld-av-2{background:#d8f3dc;color:#2d6a4f}
+  .ld-av-3{background:#ede9fe;color:#4c1d95}
+  .ld-av-4{background:#fce7f3;color:#9d174d}
+  .ld-cinfo{flex:1}
+  .ld-cname{font-size:13.5px;font-weight:600;color:var(--navy)}
+  .ld-crole{font-size:11.5px;color:var(--slate-light);margin-top:1px}
+  .ld-cdetails{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+  .ld-cdet{display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--slate)}
+  .ld-note-block{background:#f8f6f1;border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:10px 13px;margin-bottom:8px}
+  .ld-note-block:last-child{margin-bottom:0}
+  .ld-note-meta{font-size:11px;color:var(--slate-light);margin-bottom:4px;display:flex;gap:8px;align-items:center}
+  .ld-note-user{font-weight:600;color:var(--gold);background:rgba(201,168,76,.1);padding:1px 6px;border-radius:3px;font-size:11px}
+  .ld-note-text{font-size:13px;color:var(--slate);line-height:1.6}
+  .lender-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:60px 30px;text-align:center;color:var(--slate-light)}
+  .lender-empty-icon{font-size:42px;margin-bottom:14px;opacity:.4}
+  .lender-empty-title{font-size:16px;font-weight:500;color:var(--slate);margin-bottom:6px}
+  .lender-empty-sub{font-size:13.5px}
+  .spec-badge-b{background:#dbeafe;color:#1a3155}
+  .spec-badge-p{background:#ede9fe;color:#4c1d95}
+  .spec-badge-g{background:#d8f3dc;color:#2d6a4f}
+  .spec-badge-a{background:#fef3c7;color:#7b4f12}
+  .spec-badge-t{background:#ccfbf1;color:#0f766e}
+  .spec-badge-r{background:#fde8e8;color:#922b21}
+  .spec-badge-n{background:#e8edf5;color:#0a1628}
+  .spec-badge-k{background:#fce7f3;color:#9d174d}
+  .spec-badge-i{background:#e0e7ff;color:#3730a3}
+  .spec-badge-y{background:#f0ece4;color:#4a5568}
+  .litem-cnt{font-size:10.5px;color:var(--slate-light);background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:1px 7px}
+  #page-lenders{padding:0;overflow:hidden}
+  #page-lenders .lender-body{height:calc(100vh - 60px)}
 </style>
 </head>
 <body>
@@ -288,6 +353,7 @@ input[type=file]{display:none}
       <div class="nav-section-label" style="margin-top:16px">Admin</div>
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"> </span>Settings & Dropdowns</button>
       <button class="nav-item" onclick="showPage('customfields')"><span class="nav-icon"> </span>Custom Fields</button>
+      <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon">🏦</span>Lenders</button>
       <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon">📅</span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon">🗑</span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
@@ -418,6 +484,32 @@ input[type=file]{display:none}
       </div>
     </div>
 
+    <!-- LENDERS -->
+    <div class="page" id="page-lenders">
+      <div class="lender-body">
+        <div class="lender-left">
+          <div class="lender-search-wrap">
+            <div class="lender-search-inner">
+              <span style="color:var(--slate-light);font-size:15px">🔍</span>
+              <input type="text" id="lenderSearch" placeholder="Search lenders…" oninput="renderLenderList()">
+            </div>
+          </div>
+          <div class="lender-filter-bar">
+            <button class="filter-btn active" onclick="setLenderFilter('all',this)">All</button>
+            <button class="filter-btn" onclick="setLenderFilter('active',this)">Active</button>
+            <button class="filter-btn" onclick="setLenderFilter('inactive',this)">Inactive</button>
+          </div>
+          <div class="lender-list" id="lenderList"></div>
+        </div>
+        <div class="lender-right" id="lenderRight">
+          <div class="lender-empty">
+            <div class="lender-empty-icon">🏦</div>
+            <div class="lender-empty-title">Select a lender</div>
+            <div class="lender-empty-sub">Click any lender on the left to view details, or add a new one above.</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- IMPORTANT DATES -->
     <div class="page" id="page-dates">
       <div id="nextUpBanner"></div>
@@ -594,6 +686,104 @@ input[type=file]{display:none}
 </div>
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- LENDER MODAL -->
+<div class="modal-overlay" id="lenderModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="lenderModalTitle">Add Lender</div>
+      <button class="btn btn-ghost" onclick="closeModal('lenderModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Lender Info</div>
+        <div class="form-grid">
+          <div class="form-group form-full"><label class="form-label">Lender Name *</label><input class="form-input" type="text" id="ln_name" placeholder="e.g. United Wholesale Mortgage"></div>
+          <div class="form-group"><label class="form-label">Lender Type</label><input class="form-input" type="text" id="ln_type" placeholder="e.g. Wholesale, Non-QM, Retail"></div>
+          <div class="form-group"><label class="form-label">Location</label><input class="form-input" type="text" id="ln_location" placeholder="e.g. Pontiac, MI"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Status</div>
+        <div class="form-checkbox-row">
+          <input type="checkbox" id="ln_active" checked>
+          <label for="ln_active">We are currently approved / active with this lender</label>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Loan Specialties</div>
+        <div id="lnSpecGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('lenderModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLender()">Save Lender</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title" id="contactModalTitle">Add Contact</div>
+      <button class="btn btn-ghost" onclick="closeModal('contactModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="ct_name" placeholder="Full name"></div>
+        <div class="form-group"><label class="form-label">Role / Title *</label><input class="form-input" type="text" id="ct_role" placeholder="e.g. Bank Rep, Underwriter, Processor"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000) 000-0000"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="ct_email" placeholder="name@lender.com"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('contactModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveContact()">Save Contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE SPECIALTIES MODAL -->
+<div class="modal-overlay" id="specialtiesModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">Manage Loan Specialties</div>
+      <button class="btn btn-ghost" onclick="closeModal('specialtiesModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These are the specialty options available when adding or editing a lender. Changes apply to all team members.</p>
+      <div class="tag-list" id="specTagList"></div>
+      <div class="tag-add-row">
+        <input class="form-input" type="text" id="addSpecInput" placeholder="Add specialty..." onkeydown="if(event.key==='Enter')addSpecialty()">
+        <button class="btn btn-outline btn-sm" onclick="addSpecialty()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gold" onclick="closeModal('specialtiesModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- LENDER NOTE MODAL -->
+<div class="modal-overlay" id="lenderNoteModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Add Note</div>
+      <button class="btn btn-ghost" onclick="closeModal('lenderNoteModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Note *</label>
+        <textarea class="form-textarea" id="ln_note_text" placeholder="Enter your note..." style="min-height:100px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('lenderNoteModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLenderNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
 <script>
 //                                        
 //  KV API   talks to the Worker backend
@@ -648,6 +838,8 @@ async function syncFromCloud() {
     if (trash) cache.trash = trash;
     const dates = await sbGet('dates');
     if (dates) cache.dates = dates;
+    const lenders = await sbGet('lenders');
+    if (lenders) cache.lenders = lenders;
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
     return true;
@@ -679,7 +871,8 @@ async function syncToCloud() {
       sbSet('settings', cache.settings),
       sbSet('customFields', cache.customFields),
       sbSet('trash', cache.trash),
-      sbSet('dates', cache.dates || [])
+      sbSet('dates', cache.dates || []),
+      sbSet('lenders', cache.lenders || [])
     ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
@@ -735,12 +928,13 @@ const DEFAULTS = {
   conditionCategories: ['Prior to Close','At Closing','Internal to Lender'],
   conditionTypes: ['Appraisal','Asset','Closing Disclosure','Disclosures','Title','Credit','Insurance','Employment','Income','Legal','Flood','HOA','Survey','Other'],
   users: ['Deric','Stephan','Jules'],
-  requiredBy: ['NMLS','NYSDFS','CTDOB','DFS','CFPB','HUD','FHA','VA','Other']
+  requiredBy: ['NMLS','NYSDFS','CTDOB','DFS','CFPB','HUD','FHA','VA','Other'],
+  lenderSpecialties: ['Conventional','VA','FHA','DSCR','Non-QM','Purchase','Refinance','Jumbo','1-4 Units','2-4 Units','5+ Units','HELOC','Reverse Mortgage','Construction','Construction (Ground Up)','Commercial','Mixed Use','Co-ops','Condos']
 };
 
 let cache = {
   files: [], conditions: {}, settings: {...DEFAULTS},
-  customFields: [], logo: null, trash: [], dates: []
+  customFields: [], logo: null, trash: [], dates: [], lenders: []
 };
 
 let currentFileId = null;
@@ -829,14 +1023,18 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates'};
+  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,files:1,settings:2,customfields:3,trash:4,dates:5};
+  const nm = {dashboard:0,files:1,settings:2,customfields:3,lenders:4,dates:5,trash:6};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
-  document.getElementById('topbarActions').innerHTML = page === 'page-filedetail'
-    ? '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>'
-    : '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
+  if (page === 'lenders') {
+    document.getElementById('topbarActions').innerHTML = '<button class="btn btn-outline btn-sm" onclick="openSpecialtiesModal()" style="margin-right:6px">⚙ Manage Specialties</button><button class="btn btn-gold" onclick="openLenderModal()">+ Add Lender</button>';
+  } else if (page === 'filedetail') {
+    document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>';
+  } else {
+    document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
+  }
   if (page === 'dashboard') renderDashboard();
   if (page === 'files') renderFiles();
   if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); }
@@ -844,6 +1042,7 @@ function showPage(page, fid) {
   if (page === 'customfields') renderCFList();
   if (page === 'trash') renderTrash();
   if (page === 'dates') renderDates();
+  if (page === 'lenders') renderLenderList();
 }
 
 function switchTab(tab, btn) {
@@ -1822,6 +2021,321 @@ if (!checkSession()) {
 } else {
   init();
 }
+
+// ─────────────────────────────────────────────
+//  LENDER DIRECTORY
+// ─────────────────────────────────────────────
+
+let currentLenderId = null;
+let editingLenderId = null;
+let editingContactId = null;
+let lenderFilter = 'all';
+let lenderNoteTargetId = null;
+
+const SPEC_COLORS = ['b','p','g','a','t','r','n','k','i','y'];
+function specColor(name) {
+  const map = {
+    'Conventional':'b','VA':'p','FHA':'g','DSCR':'t','Non-QM':'r',
+    'Purchase':'n','Refinance':'n','Jumbo':'i','1-4 Units':'a','2-4 Units':'a',
+    '5+ Units':'a','HELOC':'k','Reverse Mortgage':'r','Construction':'y',
+    'Construction (Ground Up)':'y','Commercial':'i','Mixed Use':'i',
+    'Co-ops':'k','Condos':'k'
+  };
+  return map[name] || SPEC_COLORS[Math.abs(name.split('').reduce((a,c)=>a+c.charCodeAt(0),0)) % SPEC_COLORS.length];
+}
+
+function getLenderSpecialties() {
+  if (!cache.settings.lenderSpecialties || !cache.settings.lenderSpecialties.length) {
+    cache.settings.lenderSpecialties = [...DEFAULTS.lenderSpecialties];
+  }
+  return cache.settings.lenderSpecialties;
+}
+
+function setLenderFilter(val, btn) {
+  lenderFilter = val;
+  document.querySelectorAll('.lender-filter-bar .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLenderList();
+}
+
+function renderLenderList() {
+  const q = (document.getElementById('lenderSearch')?.value||'').toLowerCase();
+  let lenders = (cache.lenders||[]);
+  if (lenderFilter === 'active') lenders = lenders.filter(l=>l.active);
+  if (lenderFilter === 'inactive') lenders = lenders.filter(l=>!l.active);
+  if (q) lenders = lenders.filter(l => (l.name+' '+l.type+' '+(l.specialties||[]).join(' ')).toLowerCase().includes(q));
+  lenders = [...lenders].sort((a,b)=>a.name.localeCompare(b.name));
+  const el = document.getElementById('lenderList');
+  if (!lenders.length) {
+    el.innerHTML = '<div style="padding:30px 16px;text-align:center;color:var(--slate-light);font-size:13px">' + (q||lenderFilter!=='all' ? 'No lenders match your filter.' : 'No lenders yet. Click "+ Add Lender" to get started.') + '</div>';
+    return;
+  }
+  el.innerHTML = lenders.map(l => {
+    const specs = (l.specialties||[]).slice(0,3);
+    const specHtml = specs.map(s=>`<span class="litem-specbadge spec-badge-${specColor(s)}">${esc(s)}</span>`).join('');
+    const more = (l.specialties||[]).length > 3 ? `<span class="litem-specbadge spec-badge-y">+${(l.specialties||[]).length-3}</span>` : '';
+    const pill = l.active
+      ? `<span class="pill-on" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 8px;border-radius:20px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--success);display:inline-block"></span>Active</span>`
+      : `<span class="pill-off" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 8px;border-radius:20px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--danger);display:inline-block"></span>Inactive</span>`;
+    const cnt = (l.specialties||[]).length;
+    return `<div class="lender-list-item${currentLenderId===l.id?' active':''}" onclick="selectLender('${l.id}')">
+      <div class="litem-name">${esc(l.name)}</div>
+      <div class="litem-sub">${esc(l.type||'')}</div>
+      <div class="litem-row">${pill}<span class="litem-cnt">${cnt} spec${cnt!==1?'s':''}</span></div>
+      ${specHtml||more ? `<div class="litem-specbadges">${specHtml}${more}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectLender(lid) {
+  currentLenderId = lid;
+  renderLenderList();
+  renderLenderDetail(lid);
+}
+
+function renderLenderDetail(lid) {
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  const el = document.getElementById('lenderRight');
+  if (!l) { el.innerHTML = '<div class="lender-empty"><div class="lender-empty-icon">🏦</div><div class="lender-empty-title">Lender not found</div></div>'; return; }
+  const contacts = l.contacts||[];
+  const notes = l.notes||[];
+  const specs = l.specialties||[];
+  const statusPill = l.active
+    ? `<span class="pill-on" style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:4px 12px;border-radius:20px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block"></span>Active</span>`
+    : `<span class="pill-off" style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:4px 12px;border-radius:20px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--danger);display:inline-block"></span>Inactive</span>`;
+  const toggleBtn = l.active
+    ? `<button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:#f5c6c6" onclick="toggleLenderStatus('${l.id}')">Mark Inactive</button>`
+    : `<button class="btn btn-outline btn-sm" style="color:var(--success);border-color:#b7efc5" onclick="toggleLenderStatus('${l.id}')">Reactivate</button>`;
+  const specsHtml = specs.length
+    ? specs.map(s=>`<span class="badge spec-badge-${specColor(s)}" style="font-size:12px;padding:4px 11px;border-radius:6px;font-weight:500;display:inline-flex;align-items:center;">${esc(s)}</span>`).join('')
+    : '<span style="color:var(--slate-light);font-size:13px">No specialties set — click Edit to add some.</span>';
+  const contactsHtml = contacts.length ? contacts.map((c,i) => {
+    const cls = `ld-av-${i%5}`;
+    const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const phone = c.phone ? `<div class="ld-cdet">📞 ${esc(c.phone)}</div>` : '';
+    const email = c.email ? `<div class="ld-cdet">✉ ${esc(c.email)}</div>` : '';
+    return `<div class="ld-contact-row">
+      <div class="ld-av ${cls}">${initials}</div>
+      <div class="ld-cinfo">
+        <div class="ld-cname">${esc(c.name)}</div>
+        <div class="ld-crole">${esc(c.role||'')}</div>
+        <div class="ld-cdetails">${phone}${email}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn btn-outline btn-sm" onclick="openContactModal('${l.id}','${c.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteContact('${l.id}','${c.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('') : '<div style="padding:10px 0;color:var(--slate-light);font-size:13px">No contacts yet. Add one below.</div>';
+  const notesHtml = notes.length ? [...notes].reverse().map((n,i)=>`<div class="ld-note-block">
+    <div class="ld-note-meta"><span class="ld-note-user">${esc(n.user)}</span>${esc(n.ts)}
+      <button onclick="deleteLenderNote('${l.id}','${n.id}')" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 4px" title="Delete note">✕ Delete</button>
+    </div>
+    <div class="ld-note-text">${esc(n.text)}</div>
+  </div>`).join('') : '<div style="color:var(--slate-light);font-size:13px">No notes yet.</div>';
+  el.innerHTML = `<div class="lender-right-inner">
+    <div class="lender-detail-card">
+      <div class="ld-title-row">
+        <div>
+          <div class="ld-name">${esc(l.name)}</div>
+          <div class="ld-sub">${[l.type,l.location].filter(Boolean).map(esc).join(' · ')}</div>
+        </div>
+        <div class="ld-acts">
+          ${statusPill}
+          <button class="btn btn-outline btn-sm" onclick="openLenderModal('${l.id}')">Edit</button>
+          ${toggleBtn}
+        </div>
+      </div>
+      <div class="ld-qs-grid">
+        <div class="ld-qs"><div class="ld-qs-label">Contacts</div><div class="ld-qs-val">${contacts.length}</div></div>
+        <div class="ld-qs"><div class="ld-qs-label">Specialties</div><div class="ld-qs-val">${specs.length}</div></div>
+        <div class="ld-qs"><div class="ld-qs-label">Notes</div><div class="ld-qs-val">${notes.length}</div></div>
+      </div>
+    </div>
+    <div class="lender-detail-card">
+      <div class="ld-sec-title"><span>🏷 Loan Specialties</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px">${specsHtml}</div>
+    </div>
+    <div class="lender-detail-card">
+      <div class="ld-sec-title"><span>👥 Contacts</span><button class="btn btn-outline btn-sm" onclick="openContactModal('${l.id}')">+ Add Contact</button></div>
+      ${contactsHtml}
+    </div>
+    <div class="lender-detail-card">
+      <div class="ld-sec-title"><span>📝 Notes</span><button class="btn btn-outline btn-sm" onclick="openLenderNoteModal('${l.id}')">+ Add Note</button></div>
+      ${notesHtml}
+    </div>
+  </div>`;
+}
+
+function openLenderModal(lid) {
+  editingLenderId = lid || null;
+  const l = lid ? (cache.lenders||[]).find(x=>x.id===lid) : null;
+  document.getElementById('lenderModalTitle').textContent = l ? 'Edit Lender' : 'Add Lender';
+  document.getElementById('ln_name').value = l?.name||'';
+  document.getElementById('ln_type').value = l?.type||'';
+  document.getElementById('ln_location').value = l?.location||'';
+  document.getElementById('ln_active').checked = l ? l.active : true;
+  const specs = getLenderSpecialties();
+  const selectedSpecs = l?.specialties||[];
+  document.getElementById('lnSpecGrid').innerHTML = specs.map(s=>`
+    <div class="form-checkbox-row">
+      <input type="checkbox" id="spec_${s.replace(/\s+/g,'_')}" value="${esc(s)}" ${selectedSpecs.includes(s)?'checked':''}>
+      <label for="spec_${s.replace(/\s+/g,'_')}" style="font-size:13px">${esc(s)}</label>
+    </div>`).join('');
+  document.getElementById('lenderModal').classList.add('open');
+}
+
+async function saveLender() {
+  const name = document.getElementById('ln_name').value.trim();
+  if (!name) { toast('Lender name is required','error'); return; }
+  const checked = [...document.querySelectorAll('#lnSpecGrid input[type=checkbox]:checked')].map(cb=>cb.value);
+  const data = {
+    name,
+    type: document.getElementById('ln_type').value.trim(),
+    location: document.getElementById('ln_location').value.trim(),
+    active: document.getElementById('ln_active').checked,
+    specialties: checked
+  };
+  if (!cache.lenders) cache.lenders = [];
+  if (editingLenderId) {
+    const i = cache.lenders.findIndex(x=>x.id===editingLenderId);
+    if (i>-1) Object.assign(cache.lenders[i], data);
+    toast('Lender updated');
+  } else {
+    const newL = { id:uid(), ...data, contacts:[], notes:[], createdAt:new Date().toISOString() };
+    cache.lenders.push(newL);
+    currentLenderId = newL.id;
+    toast('Lender added');
+  }
+  await syncToCloud();
+  closeModal('lenderModal');
+  renderLenderList();
+  if (currentLenderId) renderLenderDetail(currentLenderId);
+}
+
+async function toggleLenderStatus(lid) {
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l) return;
+  l.active = !l.active;
+  await syncToCloud();
+  renderLenderList();
+  renderLenderDetail(lid);
+  toast(l.active ? 'Lender marked active' : 'Lender marked inactive');
+}
+
+function openContactModal(lid, cid) {
+  editingContactId = cid||null;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  const c = cid ? (l?.contacts||[]).find(x=>x.id===cid) : null;
+  document.getElementById('contactModalTitle').textContent = c ? 'Edit Contact' : 'Add Contact';
+  document.getElementById('ct_name').value = c?.name||'';
+  document.getElementById('ct_role').value = c?.role||'';
+  document.getElementById('ct_phone').value = c?.phone||'';
+  document.getElementById('ct_email').value = c?.email||'';
+  document.getElementById('contactModal').dataset.lenderId = lid;
+  document.getElementById('contactModal').classList.add('open');
+}
+
+async function saveContact() {
+  const name = document.getElementById('ct_name').value.trim();
+  const role = document.getElementById('ct_role').value.trim();
+  if (!name) { toast('Contact name is required','error'); return; }
+  const lid = document.getElementById('contactModal').dataset.lenderId;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l) return;
+  if (!l.contacts) l.contacts = [];
+  const data = { name, role, phone: document.getElementById('ct_phone').value.trim(), email: document.getElementById('ct_email').value.trim() };
+  if (editingContactId) {
+    const i = l.contacts.findIndex(x=>x.id===editingContactId);
+    if (i>-1) Object.assign(l.contacts[i], data);
+    toast('Contact updated');
+  } else {
+    l.contacts.push({ id:uid(), ...data });
+    toast('Contact added');
+  }
+  await syncToCloud();
+  closeModal('contactModal');
+  renderLenderDetail(lid);
+}
+
+async function deleteContact(lid, cid) {
+  if (!confirm('Remove this contact?')) return;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l) return;
+  l.contacts = (l.contacts||[]).filter(c=>c.id!==cid);
+  await syncToCloud();
+  renderLenderDetail(lid);
+  toast('Contact removed');
+}
+
+function openLenderNoteModal(lid) {
+  lenderNoteTargetId = lid;
+  document.getElementById('ln_note_text').value = '';
+  document.getElementById('lenderNoteModal').classList.add('open');
+}
+
+async function saveLenderNote() {
+  const text = document.getElementById('ln_note_text').value.trim();
+  if (!text) { toast('Note cannot be empty','error'); return; }
+  const l = (cache.lenders||[]).find(x=>x.id===lenderNoteTargetId);
+  if (!l) return;
+  if (!l.notes) l.notes = [];
+  const now = new Date();
+  const ts = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  l.notes.push({ id:uid(), text, user:currentUser, ts, createdAt:now.toISOString() });
+  await syncToCloud();
+  closeModal('lenderNoteModal');
+  renderLenderDetail(lenderNoteTargetId);
+  toast('Note added');
+}
+
+async function deleteLenderNote(lid, nid) {
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l) return;
+  l.notes = (l.notes||[]).filter(n=>n.id!==nid);
+  await syncToCloud();
+  renderLenderDetail(lid);
+  toast('Note deleted');
+}
+
+function openSpecialtiesModal() {
+  renderSpecTags();
+  document.getElementById('addSpecInput').value = '';
+  document.getElementById('specialtiesModal').classList.add('open');
+}
+
+function renderSpecTags() {
+  const specs = getLenderSpecialties();
+  document.getElementById('specTagList').innerHTML = specs.map((s,i)=>`
+    <div class="tag">
+      <span>${esc(s)}</span>
+      <button class="tag-remove" onclick="removeSpecialty(${i})" title="Remove">&#x2715;</button>
+    </div>`).join('');
+}
+
+async function addSpecialty() {
+  const val = document.getElementById('addSpecInput').value.trim();
+  if (!val) return;
+  const specs = getLenderSpecialties();
+  if (specs.includes(val)) { toast('Already exists','error'); return; }
+  specs.push(val);
+  cache.settings.lenderSpecialties = specs;
+  document.getElementById('addSpecInput').value = '';
+  await syncToCloud();
+  renderSpecTags();
+  toast('Specialty added');
+}
+
+async function removeSpecialty(idx) {
+  const specs = getLenderSpecialties();
+  if (!confirm('Remove "' + specs[idx] + '"? This will not remove it from existing lenders.')) return;
+  specs.splice(idx, 1);
+  cache.settings.lenderSpecialties = specs;
+  await syncToCloud();
+  renderSpecTags();
+  toast('Specialty removed');
+}
+
 function updateTrashBadge() {
   try {
     const count = (cache.trash||[]).length;
@@ -1889,13 +2403,6 @@ async function emptyTrash() {
   await syncToCloud();
   renderTrash();
   toast('Trash emptied');
-}
-
-
-if (!checkSession()) {
-  // Show login — init() called after successful login
-} else {
-  init();
 }
 </script>
 </body>
