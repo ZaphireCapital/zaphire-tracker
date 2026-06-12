@@ -499,6 +499,16 @@ input[type=file]{display:none}
             <button class="filter-btn" onclick="setLenderFilter('active',this)">Active</button>
             <button class="filter-btn" onclick="setLenderFilter('inactive',this)">Inactive</button>
           </div>
+          <div style="padding:8px 12px;border-bottom:1px solid var(--border);position:relative;">
+            <div class="lender-search-inner">
+              <span style="color:var(--slate-light);font-size:13px">🏷</span>
+              <input type="text" id="specFilterInput" placeholder="Filter by specialty…" autocomplete="off"
+                oninput="onSpecFilterInput()" onfocus="onSpecFilterInput()" onblur="setTimeout(hideSpecDropdown,180)">
+              <button id="specFilterClear" onclick="clearSpecFilter()" style="display:none;background:none;border:none;cursor:pointer;color:var(--slate-light);font-size:14px;padding:0 2px;line-height:1" title="Clear">&#x2715;</button>
+            </div>
+            <div id="specFilterDropdown" style="display:none;position:absolute;left:12px;right:12px;top:calc(100% + 2px);background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:200;max-height:200px;overflow-y:auto;"></div>
+            <div id="specFilterActive" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;min-height:0;"></div>
+          </div>
           <div class="lender-list" id="lenderList"></div>
         </div>
         <div class="lender-right" id="lenderRight">
@@ -729,11 +739,25 @@ input[type=file]{display:none}
       <button class="btn btn-ghost" onclick="closeModal('contactModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="ct_name" placeholder="Full name"></div>
-        <div class="form-group"><label class="form-label">Role / Title *</label><input class="form-input" type="text" id="ct_role" placeholder="e.g. Bank Rep, Underwriter, Processor"></div>
-        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000) 000-0000"></div>
-        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="ct_email" placeholder="name@lender.com"></div>
+      <div class="form-section">
+        <div class="form-section-title">Contact Info</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="ct_name" placeholder="Full name"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000) 000-0000"></div>
+          <div class="form-group form-full"><label class="form-label">Email</label><input class="form-input" type="email" id="ct_email" placeholder="name@lender.com"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Titles / Positions</span>
+          <button class="btn btn-outline btn-sm" onclick="openManageContactTitles()" type="button" style="font-size:11px;">⚙ Manage Titles</button>
+        </div>
+        <div id="ctTitleGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px;"></div>
+      </div>
+      <div class="form-section" style="border-bottom:none;padding-bottom:0">
+        <div class="form-section-title">Notes for this Contact</div>
+        <div id="ctExistingNotes" style="margin-bottom:8px;"></div>
+        <textarea class="form-textarea" id="ct_note" placeholder="Add a note about this contact (optional)…" style="min-height:70px"></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -760,6 +784,27 @@ input[type=file]{display:none}
     </div>
     <div class="modal-footer">
       <button class="btn btn-gold" onclick="closeModal('specialtiesModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE CONTACT TITLES MODAL -->
+<div class="modal-overlay" id="contactTitlesModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Manage Contact Titles</div>
+      <button class="btn btn-ghost" onclick="closeContactTitlesModal()" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">Add or remove position titles for lender contacts. Changes apply to all team members.</p>
+      <div class="tag-list" id="contactTitleTagList"></div>
+      <div class="tag-add-row">
+        <input class="form-input" type="text" id="addContactTitleInput" placeholder="Add title..." onkeydown="if(event.key==='Enter')addContactTitle()">
+        <button class="btn btn-outline btn-sm" onclick="addContactTitle()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gold" onclick="closeContactTitlesModal()">Done</button>
     </div>
   </div>
 </div>
@@ -1180,7 +1225,25 @@ function renderConditions(f) {
 }
 
 function condCard(c) {
-  const notes = (c.notes||[]).map((n,ni)=>`<div class="note-item"><div class="note-stamp"><span class="note-stamp-user">${esc(n.user)}</span><span>${esc(n.ts)}</span><button onclick="deleteNote('${c.id}',${ni})" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 4px" title="Delete this note">&#x2715; Delete</button></div><div class="note-text">${esc(n.text)}</div></div>`).join('');
+  const notes = (c.notes||[]).map((n,ni)=>`
+    <div class="note-item" id="note-item-${c.id}-${ni}">
+      <div class="note-stamp">
+        <span class="note-stamp-user">${esc(n.user)}</span>
+        <span>${esc(n.ts)}</span>
+        <div style="margin-left:auto;display:flex;gap:4px;">
+          <button onclick="openEditNote('${c.id}',${ni})" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 4px">✏ Edit</button>
+          <button onclick="deleteNote('${c.id}',${ni})" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 4px">&#x2715; Delete</button>
+        </div>
+      </div>
+      <div class="note-text" id="note-text-${c.id}-${ni}">${esc(n.text)}</div>
+      <div class="note-edit-inline" id="note-edit-${c.id}-${ni}" style="display:none;margin-top:6px;">
+        <textarea class="form-textarea" id="note-edit-ta-${c.id}-${ni}" style="min-height:60px;font-size:13px;">${esc(n.text)}</textarea>
+        <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end;">
+          <button class="btn btn-ghost btn-sm" onclick="cancelEditNote('${c.id}',${ni})">Cancel</button>
+          <button class="btn btn-gold btn-sm" onclick="saveEditNote('${c.id}',${ni})">Save</button>
+        </div>
+      </div>
+    </div>`).join('');
   const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
   return `<div class="condition-card">
     <div class="condition-top">
@@ -1421,6 +1484,38 @@ async function deleteNote(cid, noteIndex) {
   const f = cache.files.find(x=>x.id===currentFileId);
   if (f) renderConditions(f);
   toast('Note deleted');
+}
+
+function openEditNote(cid, ni) {
+  document.getElementById('note-text-'+cid+'-'+ni).style.display = 'none';
+  document.getElementById('note-edit-'+cid+'-'+ni).style.display = 'block';
+  const ta = document.getElementById('note-edit-ta-'+cid+'-'+ni);
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+}
+
+function cancelEditNote(cid, ni) {
+  const cs = cache.conditions[currentFileId] || [];
+  const c = cs.find(x=>x.id===cid);
+  if (c && c.notes && c.notes[ni]) {
+    document.getElementById('note-edit-ta-'+cid+'-'+ni).value = c.notes[ni].text;
+  }
+  document.getElementById('note-text-'+cid+'-'+ni).style.display = '';
+  document.getElementById('note-edit-'+cid+'-'+ni).style.display = 'none';
+}
+
+async function saveEditNote(cid, ni) {
+  const text = document.getElementById('note-edit-ta-'+cid+'-'+ni).value.trim();
+  if (!text) { toast('Note cannot be empty','error'); return; }
+  const cs = cache.conditions[currentFileId] || [];
+  const c = cs.find(x=>x.id===cid);
+  if (!c || !c.notes || !c.notes[ni]) return;
+  c.notes[ni].text = text;
+  c.notes[ni].editedAt = new Date().toISOString();
+  await saveConditions(currentFileId);
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  toast('Note updated');
 }
 
 //                                        
@@ -2051,6 +2146,123 @@ function getLenderSpecialties() {
   return cache.settings.lenderSpecialties;
 }
 
+// ── Specialty typeahead filter ──
+let activeSpecFilters = [];
+
+function onSpecFilterInput() {
+  const q = (document.getElementById('specFilterInput').value||'').toLowerCase().trim();
+  const specs = getLenderSpecialties().filter(s => !activeSpecFilters.includes(s));
+  const matches = q ? specs.filter(s=>s.toLowerCase().includes(q)) : specs;
+  const dd = document.getElementById('specFilterDropdown');
+  if (!matches.length) { dd.style.display = 'none'; return; }
+  dd.style.display = 'block';
+  dd.innerHTML = matches.map(s=>`<div onclick="addSpecFilter(${JSON.stringify(s)})" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--navy);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">${esc(s)}</div>`).join('');
+}
+
+function hideSpecDropdown() {
+  const dd = document.getElementById('specFilterDropdown');
+  if (dd) dd.style.display = 'none';
+}
+
+function addSpecFilter(spec) {
+  if (!activeSpecFilters.includes(spec)) {
+    activeSpecFilters.push(spec);
+  }
+  document.getElementById('specFilterInput').value = '';
+  document.getElementById('specFilterClear').style.display = activeSpecFilters.length ? 'inline' : 'none';
+  hideSpecDropdown();
+  renderSpecFilterActive();
+  renderLenderList();
+}
+
+function removeSpecFilter(spec) {
+  activeSpecFilters = activeSpecFilters.filter(s=>s!==spec);
+  document.getElementById('specFilterClear').style.display = activeSpecFilters.length ? 'inline' : 'none';
+  renderSpecFilterActive();
+  renderLenderList();
+}
+
+function clearSpecFilter() {
+  activeSpecFilters = [];
+  document.getElementById('specFilterInput').value = '';
+  document.getElementById('specFilterClear').style.display = 'none';
+  renderSpecFilterActive();
+  renderLenderList();
+}
+
+function renderSpecFilterActive() {
+  const el = document.getElementById('specFilterActive');
+  if (!el) return;
+  el.innerHTML = activeSpecFilters.map(s=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--navy);color:var(--gold);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;">${esc(s)}<button onclick="removeSpecFilter(${JSON.stringify(s)})" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:11px;padding:0;line-height:1;margin-left:2px;">&#x2715;</button></span>`).join('');
+}
+
+// ── Contact Titles ──
+const DEFAULT_CONTACT_TITLES = ['Bank Rep / AE','Senior Account Executive','Internal Processor','Underwriter','Closing Team','Realtor','Loan Officer','Operations Manager'];
+
+function getContactTitles() {
+  if (!cache.settings.contactTitles || !cache.settings.contactTitles.length) {
+    cache.settings.contactTitles = [...DEFAULT_CONTACT_TITLES];
+  }
+  return cache.settings.contactTitles;
+}
+
+function openManageContactTitles() {
+  renderContactTitleTags();
+  document.getElementById('addContactTitleInput').value = '';
+  document.getElementById('contactTitlesModal').classList.add('open');
+}
+
+function closeContactTitlesModal() {
+  document.getElementById('contactTitlesModal').classList.remove('open');
+  // Re-render the title grid in the contact modal so new titles appear
+  const lid = document.getElementById('contactModal').dataset.lenderId;
+  const cid = editingContactId;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  const c = cid ? (l?.contacts||[]).find(x=>x.id===cid) : null;
+  renderContactTitleGrid(c?.titles||[]);
+}
+
+function renderContactTitleTags() {
+  const titles = getContactTitles();
+  document.getElementById('contactTitleTagList').innerHTML = titles.map((t,i)=>`
+    <div class="tag">
+      <span>${esc(t)}</span>
+      <button class="tag-remove" onclick="removeContactTitle(${i})" title="Remove">&#x2715;</button>
+    </div>`).join('');
+}
+
+async function addContactTitle() {
+  const val = document.getElementById('addContactTitleInput').value.trim();
+  if (!val) return;
+  const titles = getContactTitles();
+  if (titles.includes(val)) { toast('Already exists','error'); return; }
+  titles.push(val);
+  cache.settings.contactTitles = titles;
+  document.getElementById('addContactTitleInput').value = '';
+  await syncToCloud();
+  renderContactTitleTags();
+  toast('Title added');
+}
+
+async function removeContactTitle(idx) {
+  const titles = getContactTitles();
+  if (!confirm('Remove "' + titles[idx] + '"? Existing contacts keep their titles.')) return;
+  titles.splice(idx, 1);
+  cache.settings.contactTitles = titles;
+  await syncToCloud();
+  renderContactTitleTags();
+  toast('Title removed');
+}
+
+function renderContactTitleGrid(selected) {
+  const titles = getContactTitles();
+  document.getElementById('ctTitleGrid').innerHTML = titles.map(t=>`
+    <div class="form-checkbox-row">
+      <input type="checkbox" id="ct_title_${t.replace(/\s+/g,'_')}" value="${esc(t)}" ${(selected||[]).includes(t)?'checked':''}>
+      <label for="ct_title_${t.replace(/\s+/g,'_')}" style="font-size:13px">${esc(t)}</label>
+    </div>`).join('');
+}
+
 function setLenderFilter(val, btn) {
   lenderFilter = val;
   document.querySelectorAll('.lender-filter-bar .filter-btn').forEach(b=>b.classList.remove('active'));
@@ -2063,6 +2275,7 @@ function renderLenderList() {
   let lenders = (cache.lenders||[]);
   if (lenderFilter === 'active') lenders = lenders.filter(l=>l.active);
   if (lenderFilter === 'inactive') lenders = lenders.filter(l=>!l.active);
+  if (activeSpecFilters.length) lenders = lenders.filter(l => activeSpecFilters.every(s=>(l.specialties||[]).includes(s)));
   if (q) lenders = lenders.filter(l => (l.name+' '+l.type+' '+(l.specialties||[]).join(' ')).toLowerCase().includes(q));
   lenders = [...lenders].sort((a,b)=>a.name.localeCompare(b.name));
   const el = document.getElementById('lenderList');
@@ -2114,14 +2327,28 @@ function renderLenderDetail(lid) {
     const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const phone = c.phone ? `<div class="ld-cdet">📞 ${esc(c.phone)}</div>` : '';
     const email = c.email ? `<div class="ld-cdet">✉ ${esc(c.email)}</div>` : '';
+    const titles = (c.titles||[]).length ? c.titles.map(t=>`<span class="badge b-navy" style="font-size:11px;padding:2px 8px;border-radius:5px;background:#e8edf5;color:#0a1628;">${esc(t)}</span>`).join('') : (c.role ? `<span class="badge" style="font-size:11px;padding:2px 8px;border-radius:5px;background:#f0ece4;color:#4a5568;">${esc(c.role)}</span>` : '');
+    const cNotes = (c.notes||[]);
+    const cNotesHtml = cNotes.length ? cNotes.map((n,ni)=>`<div style="background:#f8f6f1;border-left:2px solid var(--gold);border-radius:0 4px 4px 0;padding:6px 10px;margin-top:6px;font-size:12px;color:var(--slate);">
+      <div style="font-size:10.5px;color:var(--slate-light);margin-bottom:2px;display:flex;justify-content:space-between;"><span><strong style="color:var(--gold)">${esc(n.user)}</strong> · ${esc(n.ts)}</span><button onclick="deleteLenderContactNote('${l.id}','${c.id}',${ni})" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px;">✕</button></div>
+      ${esc(n.text)}</div>`).join('') : '';
     return `<div class="ld-contact-row">
       <div class="ld-av ${cls}">${initials}</div>
       <div class="ld-cinfo">
         <div class="ld-cname">${esc(c.name)}</div>
-        <div class="ld-crole">${esc(c.role||'')}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;">${titles}</div>
         <div class="ld-cdetails">${phone}${email}</div>
+        ${cNotesHtml}
+        <button onclick="openAddContactNoteInline('${l.id}','${c.id}')" style="margin-top:6px;background:none;border:1px dashed var(--border-strong);color:var(--slate-light);font-size:11.5px;padding:3px 9px;border-radius:6px;cursor:pointer;font-family:var(--font-body);">+ Note</button>
+        <div id="contact-note-inline-${c.id}" style="display:none;margin-top:6px;">
+          <textarea class="form-textarea" id="contact-note-ta-${c.id}" style="min-height:56px;font-size:12.5px;" placeholder="Note for ${esc(c.name)}…"></textarea>
+          <div style="display:flex;gap:6px;margin-top:5px;justify-content:flex-end;">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contact-note-inline-${c.id}').style.display='none'">Cancel</button>
+            <button class="btn btn-gold btn-sm" onclick="saveContactNoteInline('${l.id}','${c.id}')">Save</button>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
+      <div style="display:flex;gap:6px;flex-shrink:0;align-self:flex-start;">
         <button class="btn btn-outline btn-sm" onclick="openContactModal('${l.id}','${c.id}')">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteContact('${l.id}','${c.id}')">✕</button>
       </div>
@@ -2229,28 +2456,55 @@ function openContactModal(lid, cid) {
   const c = cid ? (l?.contacts||[]).find(x=>x.id===cid) : null;
   document.getElementById('contactModalTitle').textContent = c ? 'Edit Contact' : 'Add Contact';
   document.getElementById('ct_name').value = c?.name||'';
-  document.getElementById('ct_role').value = c?.role||'';
   document.getElementById('ct_phone').value = c?.phone||'';
   document.getElementById('ct_email').value = c?.email||'';
+  document.getElementById('ct_note').value = '';
   document.getElementById('contactModal').dataset.lenderId = lid;
+  renderContactTitleGrid(c?.titles||[]);
+  // Show existing notes for this contact
+  const existingNotes = c?.notes||[];
+  document.getElementById('ctExistingNotes').innerHTML = existingNotes.length
+    ? existingNotes.map((n,ni)=>`<div style="background:#f8f6f1;border-left:2px solid var(--gold);border-radius:0 4px 4px 0;padding:6px 10px;margin-bottom:5px;font-size:12.5px;color:var(--slate);">
+        <div style="font-size:10.5px;color:var(--slate-light);margin-bottom:2px;"><strong style="color:var(--gold-light)">${esc(n.user)}</strong> · ${esc(n.ts)}</div>${esc(n.text)}</div>`).join('')
+    : '';
   document.getElementById('contactModal').classList.add('open');
 }
 
 async function saveContact() {
   const name = document.getElementById('ct_name').value.trim();
-  const role = document.getElementById('ct_role').value.trim();
   if (!name) { toast('Contact name is required','error'); return; }
   const lid = document.getElementById('contactModal').dataset.lenderId;
   const l = (cache.lenders||[]).find(x=>x.id===lid);
   if (!l) return;
   if (!l.contacts) l.contacts = [];
-  const data = { name, role, phone: document.getElementById('ct_phone').value.trim(), email: document.getElementById('ct_email').value.trim() };
+  const checkedTitles = [...document.querySelectorAll('#ctTitleGrid input[type=checkbox]:checked')].map(cb=>cb.value);
+  const noteText = document.getElementById('ct_note').value.trim();
+  const data = {
+    name,
+    titles: checkedTitles,
+    role: checkedTitles[0]||'',
+    phone: document.getElementById('ct_phone').value.trim(),
+    email: document.getElementById('ct_email').value.trim()
+  };
   if (editingContactId) {
     const i = l.contacts.findIndex(x=>x.id===editingContactId);
-    if (i>-1) Object.assign(l.contacts[i], data);
+    if (i>-1) {
+      const existing = l.contacts[i];
+      Object.assign(existing, data);
+      if (noteText) {
+        if (!existing.notes) existing.notes = [];
+        const now = new Date();
+        existing.notes.push({ id:uid(), text:noteText, user:currentUser, ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), createdAt:now.toISOString() });
+      }
+    }
     toast('Contact updated');
   } else {
-    l.contacts.push({ id:uid(), ...data });
+    const newC = { id:uid(), ...data, notes:[] };
+    if (noteText) {
+      const now = new Date();
+      newC.notes.push({ id:uid(), text:noteText, user:currentUser, ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), createdAt:now.toISOString() });
+    }
+    l.contacts.push(newC);
     toast('Contact added');
   }
   await syncToCloud();
@@ -2287,6 +2541,37 @@ async function saveLenderNote() {
   closeModal('lenderNoteModal');
   renderLenderDetail(lenderNoteTargetId);
   toast('Note added');
+}
+
+function openAddContactNoteInline(lid, cid) {
+  document.getElementById('contact-note-inline-'+cid).style.display = 'block';
+  document.getElementById('contact-note-ta-'+cid).focus();
+}
+
+async function saveContactNoteInline(lid, cid) {
+  const ta = document.getElementById('contact-note-ta-'+cid);
+  const text = ta ? ta.value.trim() : '';
+  if (!text) { toast('Note cannot be empty','error'); return; }
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  const c = l?.contacts?.find(x=>x.id===cid);
+  if (!c) return;
+  if (!c.notes) c.notes = [];
+  const now = new Date();
+  c.notes.push({ id:uid(), text, user:currentUser, ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), createdAt:now.toISOString() });
+  await syncToCloud();
+  renderLenderDetail(lid);
+  toast('Note added');
+}
+
+async function deleteLenderContactNote(lid, cid, ni) {
+  if (!confirm('Delete this note?')) return;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  const c = l?.contacts?.find(x=>x.id===cid);
+  if (!c || !c.notes) return;
+  c.notes.splice(ni, 1);
+  await syncToCloud();
+  renderLenderDetail(lid);
+  toast('Note deleted');
 }
 
 async function deleteLenderNote(lid, nid) {
