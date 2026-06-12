@@ -2156,7 +2156,7 @@ function onSpecFilterInput() {
   const dd = document.getElementById('specFilterDropdown');
   if (!matches.length) { dd.style.display = 'none'; return; }
   dd.style.display = 'block';
-  dd.innerHTML = matches.map(s=>`<div onclick="addSpecFilter(${JSON.stringify(s)})" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--navy);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">${esc(s)}</div>`).join('');
+  dd.innerHTML = matches.map(s=>`<div onmousedown="event.preventDefault();addSpecFilter(${JSON.stringify(s)})" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--navy);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">${esc(s)}</div>`).join('');
 }
 
 function hideSpecDropdown() {
