@@ -2169,7 +2169,7 @@ function onSpecFilterInput() {
   dd.style.width = rect.width + 'px';
   dd.style.top = (rect.bottom + 2) + 'px';
   dd.style.display = 'block';
-  dd.innerHTML = matches.map(s=>`<div onclick="addSpecFilter(${JSON.stringify(s)})" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--navy);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">${esc(s)}</div>`).join('');
+  dd.innerHTML = matches.map(s=>`<div onclick='addSpecFilter(${JSON.stringify(s).replace(/'/g,"&#39;")})' style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--navy);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">${esc(s)}</div>`).join('');
 }
 
 document.addEventListener('click', function(e) {
@@ -2214,7 +2214,7 @@ function clearSpecFilter() {
 function renderSpecFilterActive() {
   const el = document.getElementById('specFilterActive');
   if (!el) return;
-  el.innerHTML = activeSpecFilters.map(s=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--navy);color:var(--gold);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;">${esc(s)}<button onclick="removeSpecFilter(${JSON.stringify(s)})" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:11px;padding:0;line-height:1;margin-left:2px;">&#x2715;</button></span>`).join('');
+  el.innerHTML = activeSpecFilters.map(s=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--navy);color:var(--gold);font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;">${esc(s)}<button onclick='removeSpecFilter(${JSON.stringify(s).replace(/'/g,"&#39;")})' style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:11px;padding:0;line-height:1;margin-left:2px;">&#x2715;</button></span>`).join('');
 }
 
 // ── Contact Titles ──
