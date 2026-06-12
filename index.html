@@ -506,7 +506,6 @@ input[type=file]{display:none}
                 oninput="onSpecFilterInput()" onfocus="onSpecFilterInput()" onblur="setTimeout(hideSpecDropdown,180)">
               <button id="specFilterClear" onclick="clearSpecFilter()" style="display:none;background:none;border:none;cursor:pointer;color:var(--slate-light);font-size:14px;padding:0 2px;line-height:1" title="Clear">&#x2715;</button>
             </div>
-            <div id="specFilterDropdown" style="display:none;position:absolute;left:12px;right:12px;top:calc(100% + 2px);background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:200;max-height:200px;overflow-y:auto;"></div>
             <div id="specFilterActive" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;min-height:0;"></div>
           </div>
           <div class="lender-list" id="lenderList"></div>
@@ -695,6 +694,7 @@ input[type=file]{display:none}
   </div>
 </div>
 <div class="toast-container" id="toastContainer"></div>
+<div id="specFilterDropdown" style="display:none;position:fixed;background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:9999;max-height:200px;overflow-y:auto;"></div>
 
 <!-- LENDER MODAL -->
 <div class="modal-overlay" id="lenderModal">
@@ -743,7 +743,7 @@ input[type=file]{display:none}
         <div class="form-section-title">Contact Info</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="ct_name" placeholder="Full name"></div>
-          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000) 000-0000"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000) 000-0000" oninput="formatPhoneInput(this)" maxlength="14"></div>
           <div class="form-group form-full"><label class="form-label">Email</label><input class="form-input" type="email" id="ct_email" placeholder="name@lender.com"></div>
         </div>
       </div>
@@ -1731,6 +1731,14 @@ function v(id) { const el = document.getElementById(id); return el ? el.value : 
 function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtCur(val) { if(!val) return ' '; const n=parseFloat(String(val).replace(/[^0-9.]/g,'')); if(isNaN(n)) return val; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function formatPhoneInput(el) {
+  let digits = el.value.replace(/\D/g,'').slice(0,10);
+  let out = digits;
+  if (digits.length > 6) out = '(' + digits.slice(0,3) + ') ' + digits.slice(3,6) + ' - ' + digits.slice(6);
+  else if (digits.length > 3) out = '(' + digits.slice(0,3) + ') ' + digits.slice(3);
+  else if (digits.length > 0) out = '(' + digits;
+  el.value = out;
+}
 function toast(msg, type='success') {
   const el = document.createElement('div');
   el.className = 'toast '+type;
@@ -2150,11 +2158,16 @@ function getLenderSpecialties() {
 let activeSpecFilters = [];
 
 function onSpecFilterInput() {
-  const q = (document.getElementById('specFilterInput').value||'').toLowerCase().trim();
+  const input = document.getElementById('specFilterInput');
+  const q = (input.value||'').toLowerCase().trim();
   const specs = getLenderSpecialties().filter(s => !activeSpecFilters.includes(s));
   const matches = q ? specs.filter(s=>s.toLowerCase().includes(q)) : specs;
   const dd = document.getElementById('specFilterDropdown');
   if (!matches.length) { dd.style.display = 'none'; return; }
+  const rect = input.getBoundingClientRect();
+  dd.style.left = rect.left + 'px';
+  dd.style.width = rect.width + 'px';
+  dd.style.top = (rect.bottom + 2) + 'px';
   dd.style.display = 'block';
   dd.innerHTML = matches.map(s=>`<div onmousedown="event.preventDefault();addSpecFilter(${JSON.stringify(s)})" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--navy);" onmouseover="this.style.background='var(--cream)'" onmouseout="this.style.background=''">${esc(s)}</div>`).join('');
 }
