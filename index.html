@@ -743,7 +743,7 @@ input[type=file]{display:none}
         <div class="form-section-title">Contact Info</div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" type="text" id="ct_name" placeholder="Full name"></div>
-          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000) 000-0000" oninput="formatPhoneInput(this)" maxlength="14"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="ct_phone" placeholder="(000)000-0000" oninput="formatPhoneInput(this)" maxlength="14"></div>
           <div class="form-group form-full"><label class="form-label">Email</label><input class="form-input" type="email" id="ct_email" placeholder="name@lender.com"></div>
         </div>
       </div>
@@ -1734,8 +1734,8 @@ function fmtCur(val) { if(!val) return ' '; const n=parseFloat(String(val).repla
 function formatPhoneInput(el) {
   let digits = el.value.replace(/\D/g,'').slice(0,10);
   let out = digits;
-  if (digits.length > 6) out = '(' + digits.slice(0,3) + ') ' + digits.slice(3,6) + ' - ' + digits.slice(6);
-  else if (digits.length > 3) out = '(' + digits.slice(0,3) + ') ' + digits.slice(3);
+  if (digits.length > 6) out = '(' + digits.slice(0,3) + ')' + digits.slice(3,6) + '-' + digits.slice(6);
+  else if (digits.length > 3) out = '(' + digits.slice(0,3) + ')' + digits.slice(3);
   else if (digits.length > 0) out = '(' + digits;
   el.value = out;
 }
