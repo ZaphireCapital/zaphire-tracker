@@ -350,6 +350,7 @@ input[type=file]{display:none}
       <div class="nav-section-label">Menu</div>
       <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"> </span>Dashboard<span class="nav-badge" id="navBadge">0</span></button>
       <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"> </span>All Files</button>
+      <button class="nav-item" onclick="showPage('closedfiles')"><span class="nav-icon">📁</span>Closed Files<span class="nav-badge" id="closedBadge" style="background:rgba(201,168,76,.15);color:var(--gold-light)">0</span></button>
       <div class="nav-section-label" style="margin-top:16px">Admin</div>
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"> </span>Settings & Dropdowns</button>
       <button class="nav-item" onclick="showPage('customfields')"><span class="nav-icon"> </span>Custom Fields</button>
@@ -398,6 +399,7 @@ input[type=file]{display:none}
           <div><div class="file-main-title" id="detailTitle"> </div><div class="file-subtitle" id="detailSubtitle"> </div></div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-outline btn-sm" onclick="openEditFileModal()">Edit Info</button>
+            <button class="btn btn-outline btn-sm" id="archiveFileBtn" onclick="openArchiveFileModal()" style="color:#7b5c12;border-color:#e8c97a;">📁 Close / Withdraw</button>
             <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">Delete File</button>
           </div>
         </div>
@@ -444,6 +446,13 @@ input[type=file]{display:none}
       </div>
 
       <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Security</div></div>
+      <div class="settings-card" style="max-width:400px">
+        <div class="settings-card-title">App Password</div>
+        <div class="settings-card-sub">Change the password required to log in to the tracker. The new password takes effect immediately and applies to all team members.</div>
+        <button class="btn btn-outline" onclick="openChangePasswordModal()">🔒 Change Password</button>
+      </div>
+      <div class="divider"></div>
       <div class="section-header"><div class="section-title">Backup &amp; Data Export</div></div>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow);max-width:680px">
 
@@ -484,6 +493,22 @@ input[type=file]{display:none}
       </div>
     </div>
 
+    <!-- CLOSED FILES -->
+    <div class="page" id="page-closedfiles">
+      <div class="search-bar"><span style="color:var(--slate-light)"> </span><input type="text" id="closedSearch" placeholder="Search closed files by borrower, property, or bank..." oninput="renderClosedFiles()"></div>
+      <div class="filter-bar" id="closedFilterBar">
+        <button class="filter-btn active" onclick="setClosedFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setClosedFilter('closed',this)">Closed</button>
+        <button class="filter-btn" onclick="setClosedFilter('withdrawn',this)">Withdrawn</button>
+      </div>
+      <div class="section-header"><div class="section-title">Closed Files</div></div>
+      <div class="files-table-wrap">
+        <table class="files-table">
+          <thead><tr><th>Borrower(s)</th><th>Property</th><th>Loan Type</th><th>Bank</th><th>Loan Amount</th><th>Status</th><th>Closed On</th><th></th></tr></thead>
+          <tbody id="closedFilesTbody"></tbody>
+        </table>
+      </div>
+    </div>
     <!-- LENDERS -->
     <div class="page" id="page-lenders">
       <div class="lender-body">
@@ -809,7 +834,62 @@ input[type=file]{display:none}
   </div>
 </div>
 
-<!-- LENDER NOTE MODAL -->
+<!-- ARCHIVE FILE MODAL -->
+<div class="modal-overlay" id="archiveFileModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-title">Close / Withdraw File</div>
+      <button class="btn btn-ghost" onclick="closeModal('archiveFileModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:var(--slate);margin-bottom:20px;line-height:1.6">This will move the file out of your active files and into the <strong>Closed Files</strong> area. The file and all its conditions are preserved and can be viewed or reopened at any time.</p>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="archive_status">
+          <option value="closed">Closed</option>
+          <option value="withdrawn">Withdrawn</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason / Notes (optional)</label>
+        <textarea class="form-textarea" id="archive_reason" placeholder="e.g. Loan funded, file complete / Borrower withdrew application..." style="min-height:80px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('archiveFileModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="archiveCurrentFile()">Move to Closed Files</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">Change Password</div>
+      <button class="btn btn-ghost" onclick="closeModal('changePasswordModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Current Password</label>
+        <input class="form-input" type="password" id="pw_current" placeholder="Enter current password">
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">New Password</label>
+        <input class="form-input" type="password" id="pw_new" placeholder="Enter new password">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm New Password</label>
+        <input class="form-input" type="password" id="pw_confirm" placeholder="Re-enter new password">
+      </div>
+      <div id="pwError" style="color:var(--danger);font-size:12.5px;margin-top:10px;display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('changePasswordModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveNewPassword()">Update Password</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="lenderNoteModal">
   <div class="modal" style="max-width:500px">
     <div class="modal-header">
@@ -1068,20 +1148,23 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
+  const titles = {dashboard:'Dashboard',files:'All Files',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,files:1,settings:2,customfields:3,lenders:4,dates:5,trash:6};
+  const nm = {dashboard:0,files:1,closedfiles:2,settings:3,customfields:4,lenders:5,dates:6,trash:7};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   if (page === 'lenders') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-outline btn-sm" onclick="openSpecialtiesModal()" style="margin-right:6px">⚙ Manage Specialties</button><button class="btn btn-gold" onclick="openLenderModal()">+ Add Lender</button>';
   } else if (page === 'filedetail') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>';
+  } else if (page === 'closedfiles') {
+    document.getElementById('topbarActions').innerHTML = '';
   } else {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
   }
   if (page === 'dashboard') renderDashboard();
   if (page === 'files') renderFiles();
+  if (page === 'closedfiles') renderClosedFiles();
   if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); }
   if (page === 'settings') renderSettings();
   if (page === 'customfields') renderCFList();
@@ -1103,16 +1186,18 @@ function switchTab(tab, btn) {
 //                                        
 function updateStats() {
   let open=0,sub=0,clr=0;
+  const activeFiles = cache.files.filter(f=>!f.fileStatus||f.fileStatus==='active');
   Object.values(cache.conditions).forEach(cs => cs.forEach(c => {
     if(c.status==='Open'||c.status==='Open (Ready to Submit)') open++;
     else if(c.status==='Submitted to Lender') sub++;
     else if(c.status==='Cleared') clr++;
   }));
-  document.getElementById('statActive').textContent = cache.files.length;
+  document.getElementById('statActive').textContent = activeFiles.length;
   document.getElementById('statOpen').textContent = open;
   document.getElementById('statSubmitted').textContent = sub;
   document.getElementById('statCleared').textContent = clr;
-  document.getElementById('navBadge').textContent = cache.files.length;
+  document.getElementById('navBadge').textContent = activeFiles.length;
+  updateClosedBadge();
 }
 
 //                                        
@@ -1123,7 +1208,7 @@ function renderDashboard() {
   updateTrashBadge();
   updateDatesBadge();
   const tbody = document.getElementById('dashTbody');
-  const files = [...cache.files].reverse().slice(0,10);
+  const files = [...cache.files].filter(f=>!f.fileStatus||f.fileStatus==='active').reverse().slice(0,10);
   if (!files.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon"> </div><div class="empty-state-title">No files yet</div><div class="empty-state-sub">Click "New File" to get started</div></div></td></tr>'; return; }
   tbody.innerHTML = files.map(f => fileRow(f, 6)).join('');
 }
@@ -1156,9 +1241,9 @@ function fileRow(f, cols) {
 //                                        
 function renderFiles() {
   const q = (document.getElementById('filesSearch')?.value||'').toLowerCase();
-  const files = [...cache.files].reverse().filter(f => !q || (f.b1+' '+f.b2+' '+f.prop+' '+f.bank).toLowerCase().includes(q));
+  const files = [...cache.files].filter(f=>!f.fileStatus||f.fileStatus==='active').reverse().filter(f => !q || (f.b1+' '+f.b2+' '+f.prop+' '+f.bank).toLowerCase().includes(q));
   const tbody = document.getElementById('filesTbody');
-  if (!files.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-title">${q?'No matching files':'No files yet'}</div></div></td></tr>`; return; }
+  if (!files.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-title">${q?'No matching files':'No active files'}</div></div></td></tr>`; return; }
   tbody.innerHTML = files.map(f => fileRow(f, 8)).join('');
 }
 
@@ -1171,7 +1256,33 @@ function renderFileDetail() {
   const names = [f.b1,f.b2].filter(Boolean).join(' & ');
   document.getElementById('detailTitle').textContent = names;
   document.getElementById('detailSubtitle').textContent = f.prop || ' ';
-  document.getElementById('detailGrid').innerHTML = `
+  // Show/hide archive button based on current status
+  const archiveBtn = document.getElementById('archiveFileBtn');
+  if (archiveBtn) {
+    if (f.fileStatus === 'closed' || f.fileStatus === 'withdrawn') {
+      archiveBtn.textContent = '↩ Reopen File';
+      archiveBtn.onclick = () => reopenFile(f.id).then(() => showPage('files'));
+      archiveBtn.style.color = '#2d6a4f';
+      archiveBtn.style.borderColor = '#b7efc5';
+    } else {
+      archiveBtn.textContent = '📁 Close / Withdraw';
+      archiveBtn.onclick = openArchiveFileModal;
+      archiveBtn.style.color = '#7b5c12';
+      archiveBtn.style.borderColor = '#e8c97a';
+    }
+  }
+  // Status banner for closed/withdrawn files
+  let statusBanner = '';
+  if (f.fileStatus === 'closed' || f.fileStatus === 'withdrawn') {
+    const label = f.fileStatus === 'withdrawn' ? 'Withdrawn' : 'Closed';
+    const color = f.fileStatus === 'withdrawn' ? '#7b4f12' : '#2d6a4f';
+    const bg = f.fileStatus === 'withdrawn' ? '#fef3c7' : '#d8f3dc';
+    const closedDate = f.closedAt ? new Date(f.closedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    statusBanner = `<div style="background:${bg};border-radius:var(--radius);padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;color:${color};font-size:13.5px;">
+      <strong>${label}</strong>${closedDate?' · '+closedDate:''}${f.closedBy?' · by '+esc(f.closedBy):''}${f.closedReason?'<span style="margin-left:12px;font-weight:400;opacity:.8">'+esc(f.closedReason)+'</span>':''}
+    </div>`;
+  }
+  document.getElementById('detailGrid').innerHTML = statusBanner + `
     <div class="info-cell"><div class="info-label">Loan Type</div><div class="info-value">${esc(f.loanType||' ')}</div></div>
     <div class="info-cell"><div class="info-label">Occupancy</div><div class="info-value">${esc(f.occupancy||' ')}</div></div>
     <div class="info-cell"><div class="info-label">Units</div><div class="info-value">${esc(f.units||' ')}</div></div>
@@ -1800,7 +1911,9 @@ function doLogin() {
   const pass = document.getElementById('loginPassword').value;
   const err = document.getElementById('loginError');
   if (!user) { err.textContent = 'Please select your name.'; err.classList.add('show'); return; }
-  if (pass !== APP_PASSWORD) { err.textContent = 'Incorrect password. Please try again.'; err.classList.add('show'); return; }
+  // Check against Supabase-stored password first (loaded async), fall back to hardcoded
+  const validPassword = (cache.settings && cache.settings.appPassword) ? cache.settings.appPassword : APP_PASSWORD;
+  if (pass !== validPassword) { err.textContent = 'Incorrect password. Please try again.'; err.classList.add('show'); return; }
   err.classList.remove('show');
   sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, auth: true }));
   currentUser = user;
@@ -2120,6 +2233,10 @@ async function downloadBackup() {
 
 
 if (!checkSession()) {
+  // Pre-load settings from Supabase so the stored password is available at login time
+  sbGet('settings').then(settings => {
+    if (settings) cache.settings = { ...DEFAULTS, ...settings };
+  });
   // Show login — init() called after successful login
 } else {
   init();
@@ -2640,6 +2757,133 @@ async function removeSpecialty(idx) {
   await syncToCloud();
   renderSpecTags();
   toast('Specialty removed');
+}
+
+// ─────────────────────────────────────────────
+//  CLOSED FILES
+// ─────────────────────────────────────────────
+let closedFilter = 'all';
+
+function updateClosedBadge() {
+  const count = (cache.files||[]).filter(f=>f.fileStatus==='closed'||f.fileStatus==='withdrawn').length;
+  const el = document.getElementById('closedBadge');
+  if (el) el.textContent = count;
+}
+
+function setClosedFilter(val, btn) {
+  closedFilter = val;
+  document.querySelectorAll('#closedFilterBar .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderClosedFiles();
+}
+
+function renderClosedFiles() {
+  const q = (document.getElementById('closedSearch')?.value||'').toLowerCase();
+  let files = [...cache.files].filter(f=>f.fileStatus==='closed'||f.fileStatus==='withdrawn');
+  if (closedFilter !== 'all') files = files.filter(f=>f.fileStatus===closedFilter);
+  if (q) files = files.filter(f=>(f.b1+' '+f.b2+' '+f.prop+' '+f.bank).toLowerCase().includes(q));
+  files = files.reverse();
+  const tbody = document.getElementById('closedFilesTbody');
+  if (!files.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📁</div><div class="empty-state-title">${q||closedFilter!=='all'?'No matching files':'No closed files yet'}</div><div class="empty-state-sub">Files you close or withdraw will appear here</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = files.map(f => {
+    const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+    const amt = fmtCur(f.la);
+    const statusBadge = f.fileStatus==='withdrawn'
+      ? `<span class="badge badge-amber">Withdrawn</span>`
+      : `<span class="badge badge-green">Closed</span>`;
+    const closedDate = f.closedAt ? new Date(f.closedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    return `<tr onclick="showPage('filedetail','${f.id}')">
+      <td><div class="borrower-name">${esc(names)}</div><div class="borrower-sub">${esc(f.bank||'')}</div></td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(f.prop||'—')}</td>
+      <td><span class="badge badge-navy">${esc(f.loanType||'—')}</span></td>
+      <td>${esc(f.bank||'—')}</td>
+      <td><strong>${amt}</strong></td>
+      <td>${statusBadge}</td>
+      <td style="font-size:12.5px;color:var(--slate-light)">${closedDate}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();reopenFile('${f.id}')">Reopen</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openArchiveFileModal() {
+  document.getElementById('archive_status').value = 'closed';
+  document.getElementById('archive_reason').value = '';
+  openModal('archiveFileModal');
+}
+
+async function archiveCurrentFile() {
+  const status = document.getElementById('archive_status').value;
+  const reason = document.getElementById('archive_reason').value.trim();
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  f.fileStatus = status;
+  f.closedAt = new Date().toISOString();
+  f.closedBy = currentUser;
+  if (reason) f.closedReason = reason;
+  await syncToCloud();
+  closeModal('archiveFileModal');
+  toast('File moved to Closed Files');
+  showPage('files');
+  updateStats();
+}
+
+async function reopenFile(fid) {
+  if (!confirm('Reopen this file and move it back to Active Files?')) return;
+  const f = cache.files.find(x=>x.id===fid);
+  if (!f) return;
+  f.fileStatus = 'active';
+  delete f.closedAt;
+  delete f.closedBy;
+  delete f.closedReason;
+  await syncToCloud();
+  renderClosedFiles();
+  updateStats();
+  toast('File reopened and moved to Active Files');
+}
+
+// ─────────────────────────────────────────────
+//  CHANGE PASSWORD
+// ─────────────────────────────────────────────
+function getAppPassword() {
+  return cache.settings.appPassword || APP_PASSWORD;
+}
+
+function openChangePasswordModal() {
+  document.getElementById('pw_current').value = '';
+  document.getElementById('pw_new').value = '';
+  document.getElementById('pw_confirm').value = '';
+  document.getElementById('pwError').style.display = 'none';
+  openModal('changePasswordModal');
+}
+
+async function saveNewPassword() {
+  const current = document.getElementById('pw_current').value;
+  const newPw = document.getElementById('pw_new').value;
+  const confirm = document.getElementById('pw_confirm').value;
+  const errEl = document.getElementById('pwError');
+  errEl.style.display = 'none';
+  if (current !== getAppPassword()) {
+    errEl.textContent = 'Current password is incorrect.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!newPw || newPw.length < 6) {
+    errEl.textContent = 'New password must be at least 6 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPw !== confirm) {
+    errEl.textContent = 'New passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+  cache.settings.appPassword = newPw;
+  await syncToCloud();
+  closeModal('changePasswordModal');
+  toast('Password updated. Takes effect on next login.');
 }
 
 function updateTrashBadge() {
