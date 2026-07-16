@@ -564,6 +564,23 @@ input[type=file]{display:none}
       </div>
 
       <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Document Checklist Print Settings</div></div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
+        <p style="font-size:13px;color:var(--slate-light);margin-bottom:18px;line-height:1.6">Customize the header and footer that appear on every printed Client Document Checklist. Changes sync to all team members.</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" type="text" id="ps_companyName" placeholder="Zaphire Capital"></div>
+          <div class="form-group"><label class="form-label">NMLS # / License #</label><input class="form-input" type="text" id="ps_nmls" placeholder="NMLS# 2511614"></div>
+          <div class="form-group"><label class="form-label">Address / Location</label><input class="form-input" type="text" id="ps_address" placeholder="Stamford, CT"></div>
+          <div class="form-group"><label class="form-label">Phone (optional)</label><input class="form-input" type="text" id="ps_phone" placeholder="(203) 555-0000"></div>
+          <div class="form-group form-full"><label class="form-label">Intro Paragraph (shown above the list)</label><textarea class="form-textarea" id="ps_intro" style="min-height:80px" placeholder="Please provide the documents below at your earliest convenience..."></textarea></div>
+          <div class="form-group form-full"><label class="form-label">Footer Text</label><input class="form-input" type="text" id="ps_footer" placeholder="Zaphire Capital · NMLS# 2511614 · Stamford, CT"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-gold" onclick="savePrintSettings()">Save Print Settings</button>
+          <button class="btn btn-outline" onclick="loadPrintSettingsToForm()">Reset to Saved</button>
+        </div>
+      </div>
+      <div class="divider"></div>
       <div class="section-header"><div class="section-title">Backup &amp; Data Export</div></div>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow);max-width:680px">
 
@@ -1099,7 +1116,15 @@ const DEFAULTS = {
   requiredBy: ['NMLS','NYSDFS','CTDOB','DFS','CFPB','HUD','FHA','VA','Other'],
   lenderSpecialties: ['Conventional','VA','FHA','DSCR','Non-QM','Purchase','Refinance','Jumbo','1-4 Units','2-4 Units','5+ Units','HELOC','Reverse Mortgage','Construction','Construction (Ground Up)','Commercial','Mixed Use','Co-ops','Condos'],
   docTemplates: ['Bank Statement','Pay Stubs (30-day)','W-2 (2 years)','Tax Returns (2 years)','Government-Issued ID','Letter of Explanation','Gift Letter','Mortgage Statement','Business P&L','HOA Documents','Insurance Declaration Page'],
-  lenderTrackedFields: ['Broker Comp Tier','Portal URL','Submission Method','Avg. Turn Time','Min FICO','Max LTV','Notes on Guidelines']
+  lenderTrackedFields: ['Broker Comp Tier','Portal URL','Submission Method','Avg. Turn Time','Min FICO','Max LTV','Notes on Guidelines'],
+  printSettings: {
+    companyName: 'Zaphire Capital',
+    nmls: 'NMLS# 2511614',
+    address: 'Stamford, CT',
+    phone: '',
+    intro: 'Please provide the following documents at your earliest convenience. Items marked ✓ have been received and accepted. Review each item\'s requirements carefully before submitting to ensure completeness.',
+    footer: 'Zaphire Capital · NMLS# 2511614 · Stamford, CT'
+  }
 };
 
 let cache = {
@@ -1770,6 +1795,7 @@ function renderSettings() {
   document.getElementById('settingsGrid').innerHTML = defs.map(s=>`<div class="settings-card"><div class="settings-card-title">${s.label}</div><div class="settings-card-sub">${s.sub}</div><div class="tag-list" id="tags-${s.key}"></div><div class="tag-add-row"><input class="form-input" type="text" id="addInput-${s.key}" placeholder="Add new option..." onkeydown="if(event.key==='Enter')addSetting('${s.key}')"><button class="btn btn-outline btn-sm" onclick="addSetting('${s.key}')">Add</button></div></div>`).join('');
   renderAllTags();
   renderUserTags();
+  loadPrintSettingsToForm();
 }
 
 function renderAllTags() {
@@ -3167,32 +3193,32 @@ function toggleDocNotes(id, btn) {
 }
 
 function jumpToCondition(condLink) {
-  // Switch to the Conditions tab
-  const condBtn = document.querySelector('#page-filedetail .tab-btn:first-child');
-  if (condBtn) {
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-    condBtn.classList.add('active');
-    document.getElementById('tab-conditions').classList.add('active');
+  // Scope tab switching to just the file detail page tab bar
+  const tabBar = document.querySelector('#page-filedetail .tab-bar');
+  if (tabBar) {
+    tabBar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    tabBar.querySelector('.tab-btn:first-child').classList.add('active');
   }
-  // Try to find and highlight the matching condition by number
+  document.querySelectorAll('#page-filedetail .tab-content').forEach(t=>t.classList.remove('active'));
+  const condTab = document.getElementById('tab-conditions');
+  if (condTab) condTab.classList.add('active');
+  // Find and highlight the matching condition card
   const numMatch = condLink.match(/#(\S+)/);
   if (numMatch) {
     const num = numMatch[1];
-    // Wait for DOM then scroll to it
     setTimeout(() => {
-      const cards = document.querySelectorAll('.condition-card');
+      const cards = document.querySelectorAll('#tab-conditions .condition-card');
       for (const card of cards) {
         const numEl = card.querySelector('.condition-num');
         if (numEl && numEl.textContent.trim() === num) {
           card.scrollIntoView({behavior:'smooth', block:'center'});
           card.style.outline = '2px solid var(--gold)';
-          card.style.borderRadius = 'var(--radius)';
-          setTimeout(()=>{ card.style.outline = ''; }, 2000);
+          card.style.transition = 'outline 0.3s';
+          setTimeout(()=>{ card.style.outline = ''; }, 2500);
           break;
         }
       }
-    }, 100);
+    }, 150);
   }
 }
 
@@ -3210,19 +3236,27 @@ async function updateDocStatus(did, status) {
 function openDocItemModal(did) {
   _editDocId = did||null;
   const d = did ? getFileDocs(currentFileId).find(x=>x.id===did) : null;
+  const f = cache.files.find(x=>x.id===currentFileId);
   document.getElementById('docItemModalTitle').textContent = d?'Edit Document':'Add Document Request';
   document.getElementById('di_name').value = d?.name||'';
   document.getElementById('di_spec').value = d?.spec||'';
-  document.getElementById('di_for').value = d?.for||'Borrower 1';
   document.getElementById('di_status').value = d?.status||'needed';
   document.getElementById('di_template').checked = d?.isTemplate||false;
   document.getElementById('di_note').value = '';
+  // Populate For dropdown with actual borrower names from this file
+  const b1 = f?.b1 || 'Borrower 1';
+  const b2 = f?.b2 || '';
+  const both = b2 ? `${b1} & ${b2}` : b1;
+  const forSel = document.getElementById('di_for');
+  forSel.innerHTML = `<option value="${esc(b1)}">${esc(b1)}</option>` +
+    (b2 ? `<option value="${esc(b2)}">${esc(b2)}</option><option value="${esc(both)}">${esc(both)}</option>` : '');
+  // Restore saved value if it matches, otherwise default to b1
+  if (d?.for) { forSel.value = d.for; if (!forSel.value) forSel.value = b1; }
   // Populate condition dropdown from this file's conditions
   const conds = (cache.conditions[currentFileId]||[]);
   const condSel = document.getElementById('di_cond');
   condSel.innerHTML = '<option value="">— None —</option>' +
-    conds.map(c=>`<option value="${esc('#'+(c.num||'?')+' — '+c.desc)}" ${d?.condLink===(('#'+(c.num||'?')+' — '+c.desc))?'selected':''}>${esc('#'+(c.num||'?')+' — '+c.desc)}</option>`).join('');
-  // If editing and current condLink isn't in the list, add it as an option
+    conds.map(c=>`<option value="${esc('#'+(c.num||'?')+' — '+c.desc)}" ${d?.condLink===('#'+(c.num||'?')+' — '+c.desc)?'selected':''}>${esc('#'+(c.num||'?')+' — '+c.desc)}</option>`).join('');
   if (d?.condLink && !conds.find(c=>('#'+(c.num||'?')+' — '+c.desc)===d.condLink)) {
     condSel.innerHTML += `<option value="${esc(d.condLink)}" selected>${esc(d.condLink)}</option>`;
   }
@@ -3313,34 +3347,90 @@ async function removeDocTemplate(idx) {
   toast('Template removed');
 }
 
+function getPrintSettings() {
+  return Object.assign({}, DEFAULTS.printSettings, cache.settings.printSettings||{});
+}
+
+function loadPrintSettingsToForm() {
+  const ps = getPrintSettings();
+  document.getElementById('ps_companyName').value = ps.companyName||'';
+  document.getElementById('ps_nmls').value = ps.nmls||'';
+  document.getElementById('ps_address').value = ps.address||'';
+  document.getElementById('ps_phone').value = ps.phone||'';
+  document.getElementById('ps_intro').value = ps.intro||'';
+  document.getElementById('ps_footer').value = ps.footer||'';
+}
+
+async function savePrintSettings() {
+  cache.settings.printSettings = {
+    companyName: document.getElementById('ps_companyName').value.trim(),
+    nmls: document.getElementById('ps_nmls').value.trim(),
+    address: document.getElementById('ps_address').value.trim(),
+    phone: document.getElementById('ps_phone').value.trim(),
+    intro: document.getElementById('ps_intro').value.trim(),
+    footer: document.getElementById('ps_footer').value.trim()
+  };
+  await syncToCloud();
+  toast('Print settings saved');
+}
+
 function printDocChecklist() {
-  const f=cache.files.find(x=>x.id===currentFileId);
+  const f = cache.files.find(x=>x.id===currentFileId);
   if (!f) return;
-  const docs=getFileDocs(currentFileId);
-  const names=[f.b1,f.b2].filter(Boolean).join(' & ');
-  const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  const logo=cache.logo?`<img src="${cache.logo}" style="width:50px;height:50px;border-radius:9px;object-fit:cover">`:`<div style="width:50px;height:50px;border-radius:9px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-size:20px;color:#c9a84c;font-family:Georgia,serif;font-weight:600">Z</div>`;
-  const items=docs.map(d=>{
-    const checked=d.status==='accepted';
-    const box=checked?`<div style="width:17px;height:17px;border-radius:4px;background:#2d6a4f;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:11px;color:#fff">✓</div>`:`<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid #c9c0b0;flex-shrink:0;margin-top:2px"></div>`;
-    const strike=checked?'text-decoration:line-through;opacity:.5':'';
-    return `<div style="display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece4">${box}<div style="${strike}flex:1"><div style="font-size:13.5px;font-weight:600;color:#0a1628;margin-bottom:2px">${esc(d.name)}</div>${d.spec?`<div style="font-size:12.5px;color:#4a5568;line-height:1.5">${esc(d.spec)}</div>`:''}<div style="font-size:11.5px;color:#718096;margin-top:2px">For: ${esc(d.for||'Borrower 1')}</div></div></div>`;
+  const ps = getPrintSettings();
+  const docs = getFileDocs(currentFileId);
+  const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const logo = cache.logo
+    ? `<img src="${cache.logo}" style="width:50px;height:50px;border-radius:9px;object-fit:cover">`
+    : `<div style="width:50px;height:50px;border-radius:9px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-size:20px;color:#c9a84c;font-family:Georgia,serif;font-weight:600">Z</div>`;
+  const companyName = ps.companyName || 'Zaphire Capital';
+  const nmlsLine = ps.nmls ? `<div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em">${esc(ps.nmls)}</div>` : '';
+  const phoneLine = ps.phone ? ` · ${esc(ps.phone)}` : '';
+  const footerText = ps.footer || `${companyName}${ps.nmls?' · '+ps.nmls:''}${ps.address?' · '+ps.address:''}`;
+  const introText = ps.intro || 'Please provide the following documents at your earliest convenience. Items marked ✓ have been received and accepted.';
+  const items = docs.map(d => {
+    const checked = d.status==='accepted';
+    const box = checked
+      ? `<div style="width:17px;height:17px;border-radius:4px;background:#2d6a4f;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:11px;color:#fff">✓</div>`
+      : `<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid #c9c0b0;flex-shrink:0;margin-top:2px"></div>`;
+    const strike = checked ? 'text-decoration:line-through;opacity:.5;' : '';
+    return `<div style="display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece4">
+      ${box}
+      <div style="${strike}flex:1">
+        <div style="font-size:13.5px;font-weight:600;color:#0a1628;margin-bottom:2px">${esc(d.name)}</div>
+        ${d.spec?`<div style="font-size:12.5px;color:#4a5568;line-height:1.5">${esc(d.spec)}</div>`:''}
+        <div style="font-size:11.5px;color:#718096;margin-top:2px">For: ${esc(d.for||'')}</div>
+      </div>
+    </div>`;
   }).join('');
-  const win=window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Document Checklist</title><style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@media print{body{margin:0}}</style></head><body>
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #0a1628">
-      <div style="display:flex;align-items:center;gap:12px">${logo}<div><div style="font-family:Georgia,serif;font-size:16px;color:#0a1628;font-weight:500">Zaphire Capital</div><div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em">NMLS# 2511614</div></div></div>
-      <div style="text-align:right"><div style="font-family:Georgia,serif;font-size:19px;color:#0a1628;font-weight:500">Document Request List</div><div style="font-size:12px;color:#718096;margin-top:3px">Prepared ${today}</div></div>
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Document Checklist — ${esc(names)}</title>
+  <style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@media print{body{margin:0}}</style></head><body>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #0a1628">
+    <div style="display:flex;align-items:center;gap:12px">
+      ${logo}
+      <div>
+        <div style="font-family:Georgia,serif;font-size:16px;color:#0a1628;font-weight:500">${esc(companyName)}</div>
+        ${nmlsLine}
+        ${ps.address?`<div style="font-size:11px;color:#718096">${esc(ps.address)}${phoneLine}</div>`:''}
+      </div>
     </div>
-    <div style="background:#f8f6f1;border-left:3px solid #c9a84c;border-radius:0 6px 6px 0;padding:11px 15px;margin-bottom:20px">
-      <div style="font-size:15px;font-weight:600;color:#0a1628">${esc(names)}</div>
-      <div style="font-size:12.5px;color:#718096;margin-top:2px">${esc(f.prop||'')}${f.loanType?' · '+esc(f.loanType):''}${f.bank?' · '+esc(f.bank):''}</div>
+    <div style="text-align:right">
+      <div style="font-family:Georgia,serif;font-size:19px;color:#0a1628;font-weight:500">Document Request List</div>
+      <div style="font-size:12px;color:#718096;margin-top:3px">Prepared ${today}</div>
     </div>
-    <p style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:18px">Please provide the documents below at your earliest convenience. Items marked ✓ have been received and accepted.</p>
-    ${items}
-    <div style="margin-top:22px;padding-top:12px;border-top:1px solid #e2ddd4;display:flex;justify-content:space-between;font-size:11.5px;color:#718096">
-      <div>Zaphire Capital · NMLS# 2511614 · Stamford, CT</div><div>Printed ${today}</div>
-    </div><script>window.onload=function(){window.print()}<\/script></body></html>`);
+  </div>
+  <div style="background:#f8f6f1;border-left:3px solid #c9a84c;border-radius:0 6px 6px 0;padding:11px 15px;margin-bottom:20px">
+    <div style="font-size:15px;font-weight:600;color:#0a1628">${esc(names)}</div>
+    <div style="font-size:12.5px;color:#718096;margin-top:2px">${esc(f.prop||'')}${f.loanType?' · '+esc(f.loanType):''}${f.bank?' · '+esc(f.bank):''}</div>
+  </div>
+  <p style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:18px">${esc(introText)}</p>
+  ${items}
+  <div style="margin-top:22px;padding-top:12px;border-top:1px solid #e2ddd4;display:flex;justify-content:space-between;font-size:11.5px;color:#718096">
+    <div>${esc(footerText)}</div><div>Printed ${today}</div>
+  </div>
+  <script>window.onload=function(){window.print()}<\/script></body></html>`);
   win.document.close();
 }
 </script>
@@ -3385,7 +3475,7 @@ function printDocChecklist() {
         <div class="form-grid">
           <div class="form-group form-full"><label class="form-label">Document Name *</label><input class="form-input" type="text" id="di_name" placeholder="e.g. Chase Checking ×4821 — Bank Statement"></div>
           <div class="form-group form-full"><label class="form-label">Specific Requirements</label><textarea class="form-textarea" id="di_spec" placeholder="e.g. Must cover Jan 1–Feb 28, 2026. All pages required." style="min-height:65px"></textarea></div>
-          <div class="form-group"><label class="form-label">For</label><select class="form-select" id="di_for"><option value="Borrower 1">Borrower 1</option><option value="Borrower 2">Borrower 2</option><option value="Both Borrowers">Both Borrowers</option></select></div>
+          <div class="form-group"><label class="form-label">For</label><select class="form-select" id="di_for"></select></div>
           <div class="form-group"><label class="form-label">Linked Condition (optional)</label><select class="form-select" id="di_cond"><option value="">— None —</option></select></div>
           <div class="form-group"><label class="form-label">Status</label>
             <select class="form-select" id="di_status">
