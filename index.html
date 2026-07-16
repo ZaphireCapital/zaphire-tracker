@@ -252,22 +252,22 @@ input[type=file]{display:none}
   .lender-search-inner input{border:none;outline:none;background:transparent;font-size:12px;color:var(--navy);width:100%;font-family:var(--font-body)}
   .lender-filter-bar{padding:6px 10px;border-bottom:1px solid var(--border);display:flex;gap:4px}
   .lender-list{flex:1;overflow-y:auto}
-  /* compact list item */
   .lender-list-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #f0ece4;cursor:pointer;transition:background .1s}
   .lender-list-item:hover{background:var(--cream)}
   .lender-list-item.active{background:var(--gold-pale);border-left:2px solid var(--gold);padding-left:8px}
   .lender-list-item.active .litem-name{color:#7b5c12}
   .litem-av{width:28px;height:28px;border-radius:7px;background:#e8edf5;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-  .litem-av.litem-av-active{background:rgba(201,168,76,.15);color:#7b5c12}
+  .litem-av.on{background:rgba(201,168,76,.15);color:#7b5c12}
   .litem-body{flex:1;min-width:0}
-  .litem-name{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:0}
+  .litem-name{font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
   .litem-sub{font-size:10.5px;color:var(--slate-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .litem-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
   .litem-cnt{font-size:9.5px;color:var(--slate-light)}
+  .litem-specbadge{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:500}
   .lender-right{flex:1;overflow-y:auto;background:var(--cream)}
   .lender-right-inner{padding:20px 24px}
   .lender-detail-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
-  .ld-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .ld-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
   .ld-name{font-family:var(--font-display);font-size:20px;font-weight:500;color:var(--navy)}
   .ld-sub{font-size:12px;color:var(--slate-light);margin-top:2px}
   .ld-acts{display:flex;gap:6px;align-items:center;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
@@ -276,7 +276,7 @@ input[type=file]{display:none}
   .ld-qs-label{font-size:10px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
   .ld-qs-val{font-size:20px;font-weight:300;color:var(--navy);font-family:var(--font-display)}
   .ld-sec-title{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);font-weight:600;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-  .ld-contact-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .ld-contact-row{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
   .ld-contact-row:last-child{border-bottom:none}
   .ld-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
   .ld-av-0{background:rgba(201,168,76,.18);color:#7b5c12}
@@ -286,17 +286,14 @@ input[type=file]{display:none}
   .ld-av-4{background:#fce7f3;color:#9d174d}
   .ld-cinfo{flex:1}
   .ld-cname{font-size:13px;font-weight:600;color:var(--navy)}
-  .ld-crole{font-size:11px;color:var(--slate-light);margin-top:1px}
   .ld-cdetails{display:flex;gap:14px;margin-top:5px;flex-wrap:wrap}
   .ld-cdet{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--slate)}
-  /* collapsible notes */
-  .ld-notes-toggle{background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--slate-light);cursor:pointer;padding:2px 0;display:flex;align-items:center;gap:4px}
+  .ld-notes-toggle{background:none;border:none;font-family:var(--font-body);font-size:11.5px;color:var(--slate-light);cursor:pointer;padding:2px 0;display:flex;align-items:center;gap:4px;margin-top:5px}
   .ld-notes-toggle:hover{color:var(--navy)}
   .ld-notes-collapsed{display:none;flex-direction:column;gap:5px;margin-top:6px}
   .ld-notes-collapsed.open{display:flex}
   .ld-note-block{background:#f8f6f1;border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px}
-  .ld-note-block:last-child{margin-bottom:0}
-  .ld-note-meta{font-size:10.5px;color:var(--slate-light);margin-bottom:3px;display:flex;gap:7px;align-items:center}
+  .ld-note-meta{font-size:10.5px;color:var(--slate-light);margin-bottom:3px;display:flex;gap:6px;align-items:center}
   .ld-note-user{font-weight:600;color:var(--gold);background:rgba(201,168,76,.1);padding:1px 6px;border-radius:3px;font-size:11px}
   .ld-note-text{font-size:12.5px;color:var(--slate);line-height:1.5}
   .ld-note-time{font-size:10px;color:var(--slate-light);margin-left:auto}
@@ -314,19 +311,17 @@ input[type=file]{display:none}
   .spec-badge-k{background:#fce7f3;color:#9d174d}
   .spec-badge-i{background:#e0e7ff;color:#3730a3}
   .spec-badge-y{background:#f0ece4;color:#4a5568}
-  .litem-specbadge{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:500}
-  .litem-cnt{font-size:9.5px;color:var(--slate-light)}
   #page-lenders{padding:0;overflow:hidden}
   #page-lenders .lender-body{height:calc(100vh - 60px)}
-  /* custom tracked fields */
+  /* tracked fields */
   .cf-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .cf-field-box{background:var(--cream);border-radius:8px;padding:10px 13px;border:1px solid var(--border);position:relative}
+  .cf-field-box{background:var(--cream);border-radius:8px;padding:10px 13px;border:1px solid var(--border)}
   .cf-field-label{font-size:10px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:flex;align-items:center;justify-content:space-between}
   .cf-field-val{font-size:13.5px;color:var(--navy);font-weight:500;word-break:break-word}
   .cf-field-empty{color:var(--slate-light);font-style:italic;font-size:12.5px;font-weight:400}
   .cf-add-slot{background:transparent;border:1.5px dashed var(--border-strong);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:var(--slate-light);cursor:pointer;font-family:var(--font-body);width:100%}
   .cf-add-slot:hover{border-color:var(--gold);color:var(--gold)}
-  /* ── CLIENT DOCUMENT CHECKLIST ── */
+  /* client doc checklist */
   .doc-progress-bar{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
   .doc-progress-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
   .doc-progress-title{font-size:13px;font-weight:600;color:var(--navy)}
@@ -339,19 +334,17 @@ input[type=file]{display:none}
   .doc-quick-add{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:18px;box-shadow:var(--shadow)}
   .doc-qa-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);font-weight:600;margin-bottom:10px}
   .doc-qa-chips{display:flex;flex-wrap:wrap;gap:6px}
-  .doc-qa-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;background:var(--cream);border:1px solid var(--border-strong);color:var(--slate);font-size:12px;cursor:pointer;font-family:var(--font-body);transition:all .15s}
+  .doc-qa-chip{display:inline-flex;align-items:center;padding:4px 11px;border-radius:20px;background:var(--cream);border:1px solid var(--border-strong);color:var(--slate);font-size:12px;cursor:pointer;font-family:var(--font-body);transition:all .15s}
   .doc-qa-chip:hover{background:var(--gold-pale);border-color:var(--gold);color:#7b5c12}
-  /* doc buckets */
   .doc-bucket{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
   .doc-bucket-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
   .doc-bkt-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
   .doc-bkt-title{font-size:14px;font-weight:600;flex:1}
   .doc-bkt-count{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:20px}
-  .doc-bkt-chev{font-size:14px;color:var(--slate-light);transition:transform .2s;margin-left:4px}
+  .doc-bkt-chev{font-size:14px;color:var(--slate-light);transition:transform .2s}
   .doc-bkt-chev.open{transform:rotate(180deg)}
   .doc-bkt-body{display:none}
   .doc-bkt-body.open{display:block}
-  /* bucket themes */
   .dbkt-needed .doc-bkt-icon{background:var(--danger-bg);color:var(--danger)}
   .dbkt-needed .doc-bkt-title{color:#7f1d1d}
   .dbkt-needed .doc-bkt-count{background:var(--danger-bg);color:var(--danger)}
@@ -364,10 +357,8 @@ input[type=file]{display:none}
   .dbkt-accepted .doc-bkt-icon{background:var(--success-bg);color:var(--success)}
   .dbkt-accepted .doc-bkt-title{color:#14532d}
   .dbkt-accepted .doc-bkt-count{background:var(--success-bg);color:var(--success)}
-  /* doc item */
   .doc-item{border-bottom:1px solid #f0ece4;padding:14px 18px}
   .doc-item:last-child{border-bottom:none}
-  .doc-item:hover{background:#fdf9f2}
   .doc-item-top{display:flex;align-items:flex-start;gap:10px}
   .doc-item-icon{width:32px;height:32px;border-radius:7px;background:#f0ece4;color:var(--slate);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
   .doc-item-main{flex:1}
@@ -379,8 +370,7 @@ input[type=file]{display:none}
   .doc-status-review{background:var(--warning-bg);color:var(--warning);border-color:#fcd34d}
   .doc-status-resubmit{background:#ede9fe;color:#4c1d95;border-color:#c4b5fd}
   .doc-status-accepted{background:var(--success-bg);color:var(--success);border-color:#86efac}
-  /* version trail */
-  .doc-version-trail{margin-top:10px;margin-left:42px;padding:10px 13px;background:#f8f6f1;border-left:2px solid var(--border-strong);border-radius:0 6px 6px 0}
+  .doc-ver-trail{margin-top:10px;margin-left:42px;padding:10px 13px;background:#f8f6f1;border-left:2px solid var(--border-strong);border-radius:0 6px 6px 0}
   .doc-ver-title{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);font-weight:600;margin-bottom:7px}
   .doc-ver-row{display:flex;align-items:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid #ede9e1}
   .doc-ver-row:last-child{border-bottom:none}
@@ -388,14 +378,12 @@ input[type=file]{display:none}
   .doc-ver-num.ver-ok{background:var(--success-bg);color:var(--success)}
   .doc-ver-num.ver-rej{background:var(--danger-bg);color:var(--danger)}
   .doc-ver-num.ver-pending{background:var(--warning-bg);color:var(--warning)}
-  .doc-ver-info{flex:1}
   .doc-ver-label{font-size:12px;font-weight:500;color:var(--navy)}
   .doc-ver-detail{font-size:11.5px;color:var(--slate-light);margin-top:1px}
   .doc-ver-badge{font-size:10px;padding:1px 6px;border-radius:20px;font-weight:600;margin-left:5px}
   .dvb-ok{background:var(--success-bg);color:var(--success)}
   .dvb-rej{background:var(--danger-bg);color:var(--danger)}
   .dvb-pending{background:var(--warning-bg);color:var(--warning)}
-  /* doc notes */
   .doc-notes-section{margin-top:8px;margin-left:42px}
   .doc-notes-toggle{background:none;border:none;font-family:var(--font-body);font-size:11.5px;color:var(--slate-light);cursor:pointer;padding:2px 0;display:flex;align-items:center;gap:4px}
   .doc-notes-toggle:hover{color:var(--navy)}
@@ -409,13 +397,6 @@ input[type=file]{display:none}
   .doc-note-add-wrap.open{display:block}
   .doc-note-add-wrap textarea{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:7px 9px;font-family:var(--font-body);font-size:12.5px;resize:vertical;min-height:52px;background:var(--white);outline:none;margin-bottom:6px}
   .doc-note-add-wrap textarea:focus{border-color:var(--gold)}
-  @media print{
-    #sidebar,#main .topbar,.tab-bar,.doc-notes-section,.doc-version-trail,.btn,.btn-gold,.btn-outline,.btn-danger,button{display:none!important}
-    .doc-print-only{display:block!important}
-    body{background:white}
-    .doc-item:hover{background:transparent}
-  }
-  .doc-print-only{display:none}
 </style>
 </head>
 <body>
@@ -531,8 +512,8 @@ input[type=file]{display:none}
         <div class="section-header">
           <div class="section-title">Client Document Checklist</div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Manage Templates</button>
-            <button class="btn btn-outline btn-sm" onclick="printDocChecklist()" style="background:#1a3155;color:#fff;border-color:#1a3155">🖨 Print Client List</button>
+            <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
+            <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print List</button>
             <button class="btn btn-gold btn-sm" onclick="openDocItemModal()">+ Add Document</button>
           </div>
         </div>
@@ -817,136 +798,6 @@ input[type=file]{display:none}
 <div class="toast-container" id="toastContainer"></div>
 <div id="specFilterDropdown" style="display:none;position:fixed;background:var(--white);border:1px solid var(--border-strong);border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:9999;max-height:200px;overflow-y:auto;"></div>
 
-<!-- DOC ITEM MODAL -->
-<div class="modal-overlay" id="docItemModal">
-  <div class="modal" style="max-width:580px">
-    <div class="modal-header">
-      <div class="modal-title" id="docItemModalTitle">Add Document Request</div>
-      <button class="btn btn-ghost" onclick="closeModal('docItemModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-section">
-        <div class="form-section-title">Document Details</div>
-        <div class="form-grid">
-          <div class="form-group form-full"><label class="form-label">Document Name *</label><input class="form-input" type="text" id="di_name" placeholder="e.g. Chase Checking ×4821 — Bank Statement"></div>
-          <div class="form-group form-full"><label class="form-label">Specific Requirements</label><textarea class="form-textarea" id="di_spec" placeholder="e.g. Must cover Jan 1–Feb 28, 2026. All pages including blank pages." style="min-height:70px"></textarea></div>
-          <div class="form-group"><label class="form-label">For</label><select class="form-select" id="di_for"><option value="Borrower 1">Borrower 1</option><option value="Borrower 2">Borrower 2</option><option value="Both Borrowers">Both Borrowers</option></select></div>
-          <div class="form-group"><label class="form-label">Linked Condition # (optional)</label><input class="form-input" type="text" id="di_cond" placeholder="e.g. Cond #3 — Asset Verification"></div>
-          <div class="form-group"><label class="form-label">Status</label>
-            <select class="form-select" id="di_status">
-              <option value="needed">🔴 Still Needed</option>
-              <option value="review">🟡 Received — Under Review</option>
-              <option value="resubmit">🟣 Resubmit Required</option>
-              <option value="accepted">🟢 Accepted</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="form-label">Template Item?</label>
-            <div class="form-checkbox-row" style="margin-top:6px"><input type="checkbox" id="di_template"><label for="di_template">Mark as standard template item</label></div>
-          </div>
-        </div>
-      </div>
-      <div class="form-section" style="border-bottom:none;padding-bottom:0">
-        <div class="form-section-title">Note (optional)</div>
-        <textarea class="form-textarea" id="di_note" placeholder="Internal note about this document request…" style="min-height:60px"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('docItemModal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveDocItem()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- DOC VERSION MODAL -->
-<div class="modal-overlay" id="docVersionModal">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-header">
-      <div class="modal-title">Log New Version Received</div>
-      <button class="btn btn-ghost" onclick="closeModal('docVersionModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">Version Notes (what was received)</label>
-        <textarea class="form-textarea" id="dv_notes" placeholder="e.g. Complete resubmission received. Reviewing now." style="min-height:70px"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Result</label>
-        <select class="form-select" id="dv_result">
-          <option value="pending">Under Review</option>
-          <option value="ok">Accepted</option>
-          <option value="rej">Rejected — needs resubmission</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('docVersionModal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveDocVersion()">Log Version</button>
-    </div>
-  </div>
-</div>
-
-<!-- MANAGE DOC TEMPLATES MODAL -->
-<div class="modal-overlay" id="docTemplatesModal">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-header">
-      <div class="modal-title">Manage Document Templates</div>
-      <button class="btn btn-ghost" onclick="closeModal('docTemplatesModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These items appear in the Quick Add bar on every file's Document Checklist tab.</p>
-      <div class="tag-list" id="docTemplateTagList"></div>
-      <div class="tag-add-row">
-        <input class="form-input" type="text" id="addDocTemplateInput" placeholder="Add template item..." onkeydown="if(event.key==='Enter')addDocTemplate()">
-        <button class="btn btn-outline btn-sm" onclick="addDocTemplate()">Add</button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-gold" onclick="closeModal('docTemplatesModal')">Done</button>
-    </div>
-  </div>
-</div>
-
-<!-- MANAGE LENDER TRACKED FIELDS MODAL -->
-<div class="modal-overlay" id="lenderFieldsModal">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-header">
-      <div class="modal-title">Manage Tracked Fields</div>
-      <button class="btn btn-ghost" onclick="closeModal('lenderFieldsModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These fields appear on every lender's detail page. Each lender has its own value for each field.</p>
-      <div class="tag-list" id="lenderFieldTagList"></div>
-      <div class="tag-add-row">
-        <input class="form-input" type="text" id="addLenderFieldInput" placeholder="Add field name..." onkeydown="if(event.key==='Enter')addLenderField()">
-        <button class="btn btn-outline btn-sm" onclick="addLenderField()">Add</button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-gold" onclick="closeModal('lenderFieldsModal');if(currentLenderId)renderLenderDetail(currentLenderId)">Done</button>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT LENDER FIELD VALUE MODAL -->
-<div class="modal-overlay" id="editLenderFieldModal">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-header">
-      <div class="modal-title" id="elfTitle">Edit Field</div>
-      <button class="btn btn-ghost" onclick="closeModal('editLenderFieldModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label" id="elfLabel">Value</label>
-        <input class="form-input" type="text" id="elfValue" placeholder="Enter value...">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('editLenderFieldModal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveLenderFieldValue()">Save</button>
-    </div>
-  </div>
-</div>
-
 <!-- LENDER MODAL -->
 <div class="modal-overlay" id="lenderModal">
   <div class="modal" style="max-width:600px">
@@ -1229,7 +1080,7 @@ const DEFAULTS = {
   users: ['Deric','Stephan','Jules'],
   requiredBy: ['NMLS','NYSDFS','CTDOB','DFS','CFPB','HUD','FHA','VA','Other'],
   lenderSpecialties: ['Conventional','VA','FHA','DSCR','Non-QM','Purchase','Refinance','Jumbo','1-4 Units','2-4 Units','5+ Units','HELOC','Reverse Mortgage','Construction','Construction (Ground Up)','Commercial','Mixed Use','Co-ops','Condos'],
-  docTemplates: ['Bank Statement','Pay Stubs (30-day)','W-2 (2 years)','Tax Returns (2 years)','Government-Issued ID','Letter of Explanation','Gift Letter','Mortgage Statement','Business P&L','HOA Documents','Insurance Declaration Page','Social Security Award Letter'],
+  docTemplates: ['Bank Statement','Pay Stubs (30-day)','W-2 (2 years)','Tax Returns (2 years)','Government-Issued ID','Letter of Explanation','Gift Letter','Mortgage Statement','Business P&L','HOA Documents','Insurance Declaration Page'],
   lenderTrackedFields: ['Broker Comp Tier','Portal URL','Submission Method','Avg. Turn Time','Min FICO','Max LTV','Notes on Guidelines']
 };
 
@@ -2562,23 +2413,20 @@ function renderLenderList() {
     return;
   }
   el.innerHTML = lenders.map(l => {
-    const initial = (l.name||'?')[0].toUpperCase();
-    const avCls = l.active ? 'litem-av litem-av-active' : 'litem-av';
+    const init = (l.name||'?')[0].toUpperCase();
+    const avCls = 'litem-av' + (l.active?' on':'');
     const pill = l.active
-      ? `<span class="pill-on" style="display:inline-flex;align-items:center;gap:2px;font-size:9.5px;padding:1px 6px;border-radius:20px;"><span style="width:4px;height:4px;border-radius:50%;background:var(--success);display:inline-block"></span>Active</span>`
-      : `<span class="pill-off" style="display:inline-flex;align-items:center;gap:2px;font-size:9.5px;padding:1px 6px;border-radius:20px;"><span style="width:4px;height:4px;border-radius:50%;background:var(--danger);display:inline-block"></span>Inactive</span>`;
+      ? `<span style="display:inline-flex;align-items:center;gap:2px;background:var(--success-bg);color:var(--success);font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:20px;"><span style="width:4px;height:4px;border-radius:50%;background:var(--success);display:inline-block"></span>Active</span>`
+      : `<span style="display:inline-flex;align-items:center;gap:2px;background:var(--danger-bg);color:var(--danger);font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:20px;"><span style="width:4px;height:4px;border-radius:50%;background:var(--danger);display:inline-block"></span>Inactive</span>`;
     const cnt = (l.specialties||[]).length;
-    const opacity = l.active ? '' : 'opacity:.6;';
-    return `<div class="lender-list-item${currentLenderId===l.id?' active':''}" onclick="selectLender('${l.id}')" style="${opacity}">
-      <div class="${avCls}">${esc(initial)}</div>
+    const op = l.active ? '' : 'opacity:.6;';
+    return `<div class="lender-list-item${currentLenderId===l.id?' active':''}" onclick="selectLender('${l.id}')" style="${op}">
+      <div class="${avCls}">${esc(init)}</div>
       <div class="litem-body">
         <div class="litem-name">${esc(l.name)}</div>
         <div class="litem-sub">${esc(l.type||'')}</div>
       </div>
-      <div class="litem-right">
-        ${pill}
-        <span class="litem-cnt">${cnt} spec${cnt!==1?'s':''}</span>
-      </div>
+      <div class="litem-right">${pill}<span class="litem-cnt">${cnt} spec${cnt!==1?'s':''}</span></div>
     </div>`;
   }).join('');
 }
@@ -2616,79 +2464,72 @@ function renderLenderDetail(lid) {
     ? specs.map(s=>`<span class="badge spec-badge-${specColor(s)}" style="font-size:11.5px;padding:3px 10px;border-radius:6px;font-weight:500;">${esc(s)}</span>`).join('')
     : '<span style="color:var(--slate-light);font-size:13px">No specialties — click Edit to add.</span>';
 
-  // Tracked fields card
   const trackedFields = getLenderTrackedFields();
   const fieldsHtml = trackedFields.map(f => {
-    const val = fields[f] || '';
+    const val = fields[f]||'';
     return `<div class="cf-field-box">
-      <div class="cf-field-label">${esc(f)} <button onclick="openEditLenderField('${l.id}',${JSON.stringify(f).replace(/'/g,"&#39;")})" style="background:none;border:none;cursor:pointer;color:var(--slate-light);font-size:11px;font-family:var(--font-body)">✏ Edit</button></div>
-      <div class="cf-field-val ${val?'':'cf-field-empty'}">${val ? esc(val) : 'Not set'}</div>
+      <div class="cf-field-label">${esc(f)}<button onclick="openEditLenderField('${l.id}',${JSON.stringify(f).replace(/'/g,'&#39;')})" style="background:none;border:none;cursor:pointer;color:var(--slate-light);font-size:11px;font-family:var(--font-body)">✏</button></div>
+      <div class="cf-field-val ${val?'':'cf-field-empty'}">${val?esc(val):'Not set'}</div>
     </div>`;
   }).join('');
 
-  // Contacts with collapsible notes
   const contactsHtml = contacts.length ? contacts.map((c,i) => {
     const cls = `ld-av-${i%5}`;
     const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const phone = c.phone ? `<div class="ld-cdet">📞 ${esc(c.phone)}</div>` : '';
     const email = c.email ? `<div class="ld-cdet">✉ ${esc(c.email)}</div>` : '';
-    const titleBadges = (c.titles||[]).map(t=>`<span style="font-size:10.5px;padding:2px 7px;border-radius:4px;background:#f0ece4;color:var(--slate);font-weight:500;">${esc(t)}</span>`).join('');
+    const titleBadges = (c.titles||[]).map(t=>`<span style="font-size:10.5px;padding:2px 7px;border-radius:4px;background:#f0ece4;color:var(--slate);font-weight:500;margin-right:3px">${esc(t)}</span>`).join('');
     const cNotes = c.notes||[];
     const cNoteItems = cNotes.map((n,ni)=>`<div class="ld-note-block" style="margin-bottom:5px">
       <div class="ld-note-meta"><span class="ld-note-user">${esc(n.user)}</span>${esc(n.ts)}<span class="ld-note-time">${n.createdAt?new Date(n.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):''}</span>
-        <button onclick="deleteLenderContactNote('${l.id}','${c.id}',${ni})" style="margin-left:4px;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px;">✕</button></div>
+        <button onclick="deleteLenderContactNote('${l.id}','${c.id}',${ni})" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px">✕</button></div>
       <div class="ld-note-text">${esc(n.text)}</div></div>`).join('');
     const notesToggle = cNotes.length
-      ? `<button class="ld-notes-toggle" onclick="toggleContactNotes('cnt-${c.id}',this)">▸ ${cNotes.length} note${cNotes.length!==1?'s':''} <span style="font-size:10px">(tap to expand)</span></button>
-         <div class="ld-notes-collapsed" id="cnt-${c.id}">${cNoteItems}</div>`
+      ? `<button class="ld-notes-toggle" onclick="toggleLdNotes('cnt-${c.id}',this)">▸ ${cNotes.length} note${cNotes.length!==1?'s':''} <span style="font-size:10px">(tap to expand)</span></button><div class="ld-notes-collapsed" id="cnt-${c.id}">${cNoteItems}</div>`
       : '';
     return `<div class="ld-contact-row">
       <div class="ld-av ${cls}">${initials}</div>
       <div class="ld-cinfo">
         <div class="ld-cname">${esc(c.name)}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;">${titleBadges}</div>
+        <div style="margin-top:3px">${titleBadges}</div>
         <div class="ld-cdetails">${phone}${email}</div>
         ${notesToggle}
-        <button onclick="openAddContactNoteInline('${l.id}','${c.id}')" style="margin-top:6px;background:none;border:1px dashed var(--border-strong);color:var(--slate-light);font-size:11px;padding:2px 8px;border-radius:5px;cursor:pointer;font-family:var(--font-body);">+ Note</button>
-        <div id="contact-note-inline-${c.id}" style="display:none;margin-top:6px;">
-          <textarea class="form-textarea" id="contact-note-ta-${c.id}" style="min-height:50px;font-size:12px;" placeholder="Note for ${esc(c.name)}…"></textarea>
-          <div style="display:flex;gap:6px;margin-top:4px;justify-content:flex-end;">
+        <button onclick="openAddContactNoteInline('${l.id}','${c.id}')" style="margin-top:5px;background:none;border:1px dashed var(--border-strong);color:var(--slate-light);font-size:11px;padding:2px 8px;border-radius:5px;cursor:pointer;font-family:var(--font-body)">+ Note</button>
+        <div id="contact-note-inline-${c.id}" style="display:none;margin-top:6px">
+          <textarea class="form-textarea" id="contact-note-ta-${c.id}" style="min-height:50px;font-size:12px" placeholder="Note for ${esc(c.name)}…"></textarea>
+          <div style="display:flex;gap:6px;margin-top:4px;justify-content:flex-end">
             <button class="btn btn-ghost btn-sm" onclick="document.getElementById('contact-note-inline-${c.id}').style.display='none'">Cancel</button>
             <button class="btn btn-gold btn-sm" onclick="saveContactNoteInline('${l.id}','${c.id}')">Save</button>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:5px;flex-shrink:0;align-self:flex-start;">
+      <div style="display:flex;gap:5px;flex-shrink:0;align-self:flex-start">
         <button class="btn btn-outline btn-sm" style="font-size:11.5px" onclick="openContactModal('${l.id}','${c.id}')">Edit</button>
         <button class="btn btn-danger btn-sm" style="font-size:11.5px" onclick="deleteContact('${l.id}','${c.id}')">✕</button>
       </div>
     </div>`;
   }).join('') : '<div style="padding:8px 0;color:var(--slate-light);font-size:13px">No contacts yet.</div>';
 
-  // Lender notes — most recent shown, rest collapsible
   const sortedNotes = [...notes].reverse();
-  const recentNote = sortedNotes[0];
-  const olderNotes = sortedNotes.slice(1);
-  const recentHtml = recentNote ? `<div class="ld-note-block" style="margin-bottom:8px">
-    <div class="ld-note-meta"><span class="ld-note-user">${esc(recentNote.user)}</span>${esc(recentNote.ts)}<span class="ld-note-time">${recentNote.createdAt?new Date(recentNote.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):''}</span>
-      <button onclick="deleteLenderNote('${l.id}','${recentNote.id}')" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px;">✕</button></div>
-    <div class="ld-note-text">${esc(recentNote.text)}</div></div>` : '<div style="color:var(--slate-light);font-size:13px">No notes yet.</div>';
-  const olderHtml = olderNotes.length ? `
-    <button class="ld-notes-toggle" onclick="toggleContactNotes('ldr-notes-older',this)">▸ Show ${olderNotes.length} older note${olderNotes.length!==1?'s':''}</button>
-    <div class="ld-notes-collapsed" id="ldr-notes-older" style="margin-top:6px">
-      ${olderNotes.map(n=>`<div class="ld-note-block" style="margin-bottom:5px">
+  const recent = sortedNotes[0];
+  const older = sortedNotes.slice(1);
+  const recentHtml = recent ? `<div class="ld-note-block" style="margin-bottom:8px">
+    <div class="ld-note-meta"><span class="ld-note-user">${esc(recent.user)}</span>${esc(recent.ts)}<span class="ld-note-time">${recent.createdAt?new Date(recent.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):''}</span>
+      <button onclick="deleteLenderNote('${l.id}','${recent.id}')" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px">✕</button></div>
+    <div class="ld-note-text">${esc(recent.text)}</div></div>`
+    : '<div style="color:var(--slate-light);font-size:13px">No notes yet.</div>';
+  const olderHtml = older.length ? `<button class="ld-notes-toggle" onclick="toggleLdNotes('ldr-old-${l.id}',this)">▸ Show ${older.length} older note${older.length!==1?'s':''}</button>
+    <div class="ld-notes-collapsed" id="ldr-old-${l.id}" style="margin-top:6px">
+      ${older.map(n=>`<div class="ld-note-block" style="margin-bottom:5px">
         <div class="ld-note-meta"><span class="ld-note-user">${esc(n.user)}</span>${esc(n.ts)}<span class="ld-note-time">${n.createdAt?new Date(n.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):''}</span>
-          <button onclick="deleteLenderNote('${l.id}','${n.id}')" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px;">✕</button></div>
+          <button onclick="deleteLenderNote('${l.id}','${n.id}')" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px">✕</button></div>
         <div class="ld-note-text">${esc(n.text)}</div></div>`).join('')}
     </div>` : '';
 
   el.innerHTML = `<div class="lender-right-inner">
     <div class="lender-detail-card">
       <div class="ld-title-row">
-        <div>
-          <div class="ld-name">${esc(l.name)}</div>
-          <div class="ld-sub">${[l.type,l.location].filter(Boolean).map(esc).join(' · ')}</div>
-        </div>
+        <div><div class="ld-name">${esc(l.name)}</div><div class="ld-sub">${[l.type,l.location].filter(Boolean).map(esc).join(' · ')}</div></div>
         <div class="ld-acts">
           ${statusPill}
           <button class="btn btn-outline btn-sm" style="font-size:11.5px" onclick="openLenderModal('${l.id}')">Edit</button>
@@ -2721,7 +2562,6 @@ function renderLenderDetail(lid) {
     </div>
   </div>`;
 }
-
 function openLenderModal(lid) {
   editingLenderId = lid || null;
   const l = lid ? (cache.lenders||[]).find(x=>x.id===lid) : null;
@@ -2957,92 +2797,6 @@ function updateTrashBadge() {
   } catch(e) {}
 }
 
-// ── Toggle collapsible notes ──
-function toggleContactNotes(id, btn) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const isOpen = el.classList.toggle('open');
-  btn.textContent = btn.textContent.replace(/[▸▾]/,'').trim();
-  btn.textContent = (isOpen ? '▾ ' : '▸ ') + btn.textContent.replace(/\(tap to expand\)|\(collapse\)/,'').trim() + (isOpen ? ' (collapse)' : ' (tap to expand)');
-}
-
-// ── Delete lender ──
-async function confirmDeleteLender(lid) {
-  const l = (cache.lenders||[]).find(x=>x.id===lid);
-  if (!l) return;
-  if (!confirm(`Permanently delete "${l.name}"? All contacts, notes, and tracked data for this lender will be removed. This cannot be undone.`)) return;
-  cache.lenders = cache.lenders.filter(x=>x.id!==lid);
-  currentLenderId = null;
-  await syncToCloud();
-  renderLenderList();
-  document.getElementById('lenderRight').innerHTML = '<div class="lender-empty"><div class="lender-empty-icon">🏦</div><div class="lender-empty-title">Select a lender</div><div class="lender-empty-sub">Click any lender on the left to view details.</div></div>';
-  toast('Lender deleted');
-}
-
-// ── Lender tracked fields ──
-function openLenderFieldsModal() {
-  renderLenderFieldTags();
-  document.getElementById('addLenderFieldInput').value = '';
-  document.getElementById('lenderFieldsModal').classList.add('open');
-}
-
-function renderLenderFieldTags() {
-  const fields = getLenderTrackedFields();
-  document.getElementById('lenderFieldTagList').innerHTML = fields.map((f,i)=>`
-    <div class="tag"><span>${esc(f)}</span><button class="tag-remove" onclick="removeLenderField(${i})">&#x2715;</button></div>`).join('');
-}
-
-async function addLenderField() {
-  const val = document.getElementById('addLenderFieldInput').value.trim();
-  if (!val) return;
-  const fields = getLenderTrackedFields();
-  if (fields.includes(val)) { toast('Already exists','error'); return; }
-  fields.push(val);
-  cache.settings.lenderTrackedFields = fields;
-  document.getElementById('addLenderFieldInput').value = '';
-  await syncToCloud();
-  renderLenderFieldTags();
-  toast('Field added');
-}
-
-async function removeLenderField(idx) {
-  const fields = getLenderTrackedFields();
-  if (!confirm('Remove "' + fields[idx] + '"? Existing values on lenders are preserved.')) return;
-  fields.splice(idx,1);
-  cache.settings.lenderTrackedFields = fields;
-  await syncToCloud();
-  renderLenderFieldTags();
-  toast('Field removed');
-}
-
-let editingLenderFieldLid = null;
-let editingLenderFieldName = null;
-
-function openEditLenderField(lid, fieldName) {
-  editingLenderFieldLid = lid;
-  editingLenderFieldName = fieldName;
-  const l = (cache.lenders||[]).find(x=>x.id===lid);
-  const current = (l?.trackedFields||{})[fieldName]||'';
-  document.getElementById('elfTitle').textContent = 'Edit: ' + fieldName;
-  document.getElementById('elfLabel').textContent = fieldName;
-  document.getElementById('elfValue').value = current;
-  document.getElementById('editLenderFieldModal').classList.add('open');
-}
-
-async function saveLenderFieldValue() {
-  const val = document.getElementById('elfValue').value.trim();
-  const l = (cache.lenders||[]).find(x=>x.id===editingLenderFieldLid);
-  if (!l) return;
-  if (!l.trackedFields) l.trackedFields = {};
-  l.trackedFields[editingLenderFieldName] = val;
-  await syncToCloud();
-  closeModal('editLenderFieldModal');
-  renderLenderDetail(editingLenderFieldLid);
-  toast('Field updated');
-}
-
-// ── When a new lender is added, seed broker comp tier at 2.5% ──
-
 function renderTrash() {
   updateTrashBadge();
   const tbody = document.getElementById('trashTableBody');
@@ -3104,43 +2858,118 @@ async function emptyTrash() {
   toast('Trash emptied');
 }
 
+// ── Toggle collapsible notes ──
+function toggleLdNotes(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  const txt = btn.textContent.replace(/^[▸▾]\s*/,'').replace(/\s*\(tap to expand\)|\s*\(collapse\)/,'');
+  btn.textContent = (open ? '▾ ' : '▸ ') + txt + (open ? ' (collapse)' : ' (tap to expand)');
+}
+
+// ── Delete lender ──
+async function confirmDeleteLender(lid) {
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l) return;
+  if (!confirm('Permanently delete "' + l.name + '"? All contacts, notes, and tracked data will be removed. This cannot be undone.')) return;
+  cache.lenders = cache.lenders.filter(x=>x.id!==lid);
+  currentLenderId = null;
+  await syncToCloud();
+  renderLenderList();
+  document.getElementById('lenderRight').innerHTML = '<div class="lender-empty"><div class="lender-empty-icon">🏦</div><div class="lender-empty-title">Select a lender</div><div class="lender-empty-sub">Click any lender on the left.</div></div>';
+  toast('Lender deleted');
+}
+
+// ── Lender tracked fields ──
+function openLenderFieldsModal() {
+  renderLenderFieldTags();
+  document.getElementById('addLenderFieldInput').value = '';
+  document.getElementById('lenderFieldsModal').classList.add('open');
+}
+
+function closeLenderFieldsModal() {
+  document.getElementById('lenderFieldsModal').classList.remove('open');
+  if (currentLenderId) renderLenderDetail(currentLenderId);
+}
+
+function renderLenderFieldTags() {
+  const fields = getLenderTrackedFields();
+  document.getElementById('lenderFieldTagList').innerHTML = fields.map((f,i)=>`
+    <div class="tag"><span>${esc(f)}</span><button class="tag-remove" onclick="removeLenderField(${i})">&#x2715;</button></div>`).join('');
+}
+
+async function addLenderField() {
+  const val = document.getElementById('addLenderFieldInput').value.trim();
+  if (!val) return;
+  const fields = getLenderTrackedFields();
+  if (fields.includes(val)) { toast('Already exists','error'); return; }
+  fields.push(val);
+  cache.settings.lenderTrackedFields = fields;
+  document.getElementById('addLenderFieldInput').value = '';
+  await syncToCloud();
+  renderLenderFieldTags();
+  toast('Field added');
+}
+
+async function removeLenderField(idx) {
+  const fields = getLenderTrackedFields();
+  if (!confirm('Remove "' + fields[idx] + '"? Existing values on lenders are preserved.')) return;
+  fields.splice(idx,1);
+  cache.settings.lenderTrackedFields = fields;
+  await syncToCloud();
+  renderLenderFieldTags();
+  toast('Field removed');
+}
+
+let _elfLid = null, _elfName = null;
+
+function openEditLenderField(lid, fieldName) {
+  _elfLid = lid; _elfName = fieldName;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  document.getElementById('elfTitle').textContent = 'Edit: ' + fieldName;
+  document.getElementById('elfLabel').textContent = fieldName;
+  document.getElementById('elfValue').value = (l?.trackedFields||{})[fieldName]||'';
+  document.getElementById('editLenderFieldModal').classList.add('open');
+}
+
+async function saveLenderFieldValue() {
+  const val = document.getElementById('elfValue').value.trim();
+  const l = (cache.lenders||[]).find(x=>x.id===_elfLid);
+  if (!l) return;
+  if (!l.trackedFields) l.trackedFields = {};
+  l.trackedFields[_elfName] = val;
+  await syncToCloud();
+  closeModal('editLenderFieldModal');
+  renderLenderDetail(_elfLid);
+  toast('Field updated');
+}
+
 // ═══════════════════════════════════════════════
 //  CLIENT DOCUMENT CHECKLIST
 // ═══════════════════════════════════════════════
-let editingDocId = null;
-let editingDocVersionId = null;
+let _editDocId = null, _editDocVerId = null;
 
-const DOC_STATUSES = {
-  needed:   { label:'Still Needed',           cls:'doc-status-needed',   icon:'🔴', bktCls:'dbkt-needed',   bktIcon:'📋', color:'var(--danger)' },
-  review:   { label:'Received — Under Review', cls:'doc-status-review',   icon:'🟡', bktCls:'dbkt-review',   bktIcon:'📬', color:'var(--warning)' },
-  resubmit: { label:'Resubmit Required',       cls:'doc-status-resubmit', icon:'🟣', bktCls:'dbkt-resubmit', bktIcon:'🔄', color:'#4c1d95' },
-  accepted: { label:'Accepted',                cls:'doc-status-accepted', icon:'🟢', bktCls:'dbkt-accepted', bktIcon:'✅', color:'var(--success)' }
+const DOC_ST = {
+  needed:   {label:'Still Needed',           cls:'doc-status-needed',   icon:'🔴', bktCls:'dbkt-needed',   bktIcon:'📋', bktTitle:'Still Needed'},
+  review:   {label:'Received — Under Review', cls:'doc-status-review',   icon:'🟡', bktCls:'dbkt-review',   bktIcon:'📬', bktTitle:'Received — Under Review'},
+  resubmit: {label:'Resubmit Required',       cls:'doc-status-resubmit', icon:'🟣', bktCls:'dbkt-resubmit', bktIcon:'🔄', bktTitle:'Resubmit Required'},
+  accepted: {label:'Accepted',                cls:'doc-status-accepted', icon:'🟢', bktCls:'dbkt-accepted', bktIcon:'✅', bktTitle:'Accepted'}
 };
 
 function getDocTemplates() {
-  if (!cache.settings.docTemplates || !cache.settings.docTemplates.length) {
-    cache.settings.docTemplates = [...DEFAULTS.docTemplates];
-  }
+  if (!cache.settings.docTemplates||!cache.settings.docTemplates.length) cache.settings.docTemplates=[...DEFAULTS.docTemplates];
   return cache.settings.docTemplates;
 }
-
 function getFileDocs(fid) {
-  if (!cache.docs) cache.docs = {};
-  if (!cache.docs[fid]) cache.docs[fid] = [];
+  if (!cache.docs) cache.docs={};
+  if (!cache.docs[fid]) cache.docs[fid]=[];
   return cache.docs[fid];
 }
 
 function renderDocTab() {
   if (!currentFileId) return;
-  renderDocProgressBar();
-  renderDocQuickAdd();
-  renderDocBuckets();
-}
-
-function renderDocProgressBar() {
   const docs = getFileDocs(currentFileId);
-  const total = docs.length;
-  const accepted = docs.filter(d=>d.status==='accepted').length;
+  const total = docs.length, accepted = docs.filter(d=>d.status==='accepted').length;
   const needed = docs.filter(d=>d.status==='needed').length;
   const review = docs.filter(d=>d.status==='review').length;
   const resubmit = docs.filter(d=>d.status==='resubmit').length;
@@ -3154,121 +2983,68 @@ function renderDocProgressBar() {
       <div class="dpstat"><div class="dpstat-dot" style="background:#4c1d95"></div>${resubmit} Resubmit Required</div>
       <div class="dpstat"><div class="dpstat-dot" style="background:var(--success)"></div>${accepted} Accepted</div>
     </div></div>` : '';
-}
-
-function renderDocQuickAdd() {
-  const templates = getDocTemplates();
-  const existing = getFileDocs(currentFileId).map(d=>d.name);
-  const chips = templates.map(t => `<button class="doc-qa-chip" onclick="quickAddDoc(${JSON.stringify(t).replace(/'/g,"&#39;")})">${esc(t)}</button>`).join('');
-  document.getElementById('docQuickAdd').innerHTML = `<div class="doc-quick-add">
-    <div class="doc-qa-title">⚡ Quick Add from Template</div>
-    <div class="doc-qa-chips">${chips}<button class="doc-qa-chip" style="border-style:dashed" onclick="openDocItemModal()">+ Custom…</button></div>
-  </div>`;
-}
-
-async function quickAddDoc(name) {
-  if (!currentFileId) return;
-  const docs = getFileDocs(currentFileId);
-  docs.push({ id:uid(), name, spec:'', for:'Borrower 1', condLink:'', status:'needed', isTemplate:true, notes:[], versions:[], createdAt:new Date().toISOString() });
-  await syncToCloud();
-  renderDocTab();
-  toast(name + ' added');
-}
-
-function renderDocBuckets() {
-  const docs = getFileDocs(currentFileId);
+  const chips = getDocTemplates().map(t=>`<button class="doc-qa-chip" onclick="quickAddDoc(${JSON.stringify(t).replace(/'/g,'&#39;')})">${esc(t)}</button>`).join('');
+  document.getElementById('docQuickAdd').innerHTML = `<div class="doc-quick-add"><div class="doc-qa-title">⚡ Quick Add from Template</div><div class="doc-qa-chips">${chips}<button class="doc-qa-chip" style="border-style:dashed" onclick="openDocItemModal()">+ Custom…</button></div></div>`;
   const order = ['needed','review','resubmit','accepted'];
-  let html = '';
-  order.forEach(st => {
-    const s = DOC_STATUSES[st];
+  document.getElementById('docBuckets').innerHTML = order.map(st => {
+    const s = DOC_ST[st];
     const items = docs.filter(d=>d.status===st);
-    const isOpen = st !== 'accepted' || items.length > 0;
+    const isOpen = st !== 'accepted';
     const chevOpen = isOpen ? 'open' : '';
     const bodyOpen = isOpen ? 'open' : '';
-    const emptyMsg = items.length ? items.map(d=>docItemHtml(d)).join('') : '<div style="padding:14px 18px;color:var(--slate-light);font-size:13px">No items in this bucket.</div>';
-    html += `<div class="doc-bucket ${s.bktCls}" id="dbkt-${st}">
-      <div class="doc-bucket-hdr" onclick="toggleDocBucket('${st}')">
+    const body = items.length ? items.map(d=>docItemHtml(d)).join('') : '<div style="padding:14px 18px;color:var(--slate-light);font-size:13px">No items here.</div>';
+    return `<div class="doc-bucket ${s.bktCls}">
+      <div class="doc-bucket-hdr" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.doc-bkt-chev').classList.toggle('open')">
         <div class="doc-bkt-icon">${s.bktIcon}</div>
-        <div class="doc-bkt-title">${s.label}</div>
+        <div class="doc-bkt-title">${s.bktTitle}</div>
         <span class="doc-bkt-count">${items.length}</span>
-        <span class="doc-bkt-chev ${chevOpen}" id="dbkt-chev-${st}">▾</span>
+        <span class="doc-bkt-chev ${chevOpen}">▾</span>
       </div>
-      <div class="doc-bkt-body ${bodyOpen}" id="dbkt-body-${st}">
-        ${emptyMsg}
-      </div>
+      <div class="doc-bkt-body ${bodyOpen}">${body}</div>
     </div>`;
-  });
-  document.getElementById('docBuckets').innerHTML = html;
-}
-
-function toggleDocBucket(st) {
-  const body = document.getElementById('dbkt-body-'+st);
-  const chev = document.getElementById('dbkt-chev-'+st);
-  const open = body.classList.toggle('open');
-  chev.classList.toggle('open', open);
+  }).join('');
 }
 
 function docItemHtml(d) {
-  const s = DOC_STATUSES[d.status||'needed'];
+  const s = DOC_ST[d.status||'needed'];
   const forBadge = `<span class="badge badge-navy" style="font-size:11px">👤 ${esc(d.for||'Borrower 1')}</span>`;
   const condBadge = d.condLink ? `<span class="badge badge-gold" style="font-size:11px">🔗 ${esc(d.condLink)}</span>` : '';
-  const templateBadge = d.isTemplate ? `<span class="badge badge-gray" style="font-size:11px">★ Template</span>` : '';
-  const statusSel = Object.keys(DOC_STATUSES).map(k=>`<option value="${k}" ${d.status===k?'selected':''}>${DOC_STATUSES[k].icon} ${DOC_STATUSES[k].label}</option>`).join('');
-
-  // Versions
+  const statusSel = Object.keys(DOC_ST).map(k=>`<option value="${k}" ${d.status===k?'selected':''}>${DOC_ST[k].icon} ${DOC_ST[k].label}</option>`).join('');
   const vers = d.versions||[];
-  const versHtml = vers.length ? `<div class="doc-version-trail">
-    <div class="doc-ver-title">Version History</div>
-    ${vers.map((v,vi)=>{
-      const cls = v.result==='ok'?'ver-ok':v.result==='rej'?'ver-rej':'ver-pending';
-      const badgeCls = v.result==='ok'?'dvb-ok':v.result==='rej'?'dvb-rej':'dvb-pending';
-      const badgeLabel = v.result==='ok'?'Accepted':v.result==='rej'?'Rejected':'Under Review';
-      return `<div class="doc-ver-row">
-        <div class="doc-ver-num ${cls}">${vi+1}</div>
-        <div class="doc-ver-info">
-          <div class="doc-ver-label">v${vi+1} — Received ${esc(v.ts)}<span class="doc-ver-badge ${badgeCls}">${badgeLabel}</span></div>
-          <div class="doc-ver-detail">${esc(v.notes||'')}</div>
-        </div></div>`;
-    }).join('')}
-    <button style="font-size:11.5px;color:var(--slate-light);background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;cursor:pointer;font-family:var(--font-body);margin-top:6px" onclick="openDocVersionModal('${d.id}')">+ Log new version received</button>
-  </div>` : `<div style="margin-top:8px;margin-left:42px"><button style="font-size:11.5px;color:var(--slate-light);background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;cursor:pointer;font-family:var(--font-body)" onclick="openDocVersionModal('${d.id}')">+ Log version received</button></div>`;
-
-  // Notes
+  const verHtml = vers.length ? `<div class="doc-ver-trail"><div class="doc-ver-title">Version History</div>${vers.map((v,vi)=>{
+    const cls=v.result==='ok'?'ver-ok':v.result==='rej'?'ver-rej':'ver-pending';
+    const bc=v.result==='ok'?'dvb-ok':v.result==='rej'?'dvb-rej':'dvb-pending';
+    const bl=v.result==='ok'?'Accepted':v.result==='rej'?'Rejected':'Under Review';
+    return `<div class="doc-ver-row"><div class="doc-ver-num ${cls}">${vi+1}</div><div><div class="doc-ver-label">v${vi+1} — ${esc(v.ts)}<span class="doc-ver-badge ${bc}">${bl}</span></div><div class="doc-ver-detail">${esc(v.notes||'')}</div></div></div>`;
+  }).join('')}<button style="font-size:11px;color:var(--slate-light);background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;cursor:pointer;font-family:var(--font-body);margin-top:6px" onclick="openDocVersionModal('${d.id}')">+ Log new version</button></div>`
+  : `<div style="margin-top:8px;margin-left:42px"><button style="font-size:11px;color:var(--slate-light);background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;cursor:pointer;font-family:var(--font-body)" onclick="openDocVersionModal('${d.id}')">+ Log version received</button></div>`;
   const docNotes = d.notes||[];
-  const noteItems = docNotes.map((n,ni)=>`<div class="doc-note-item">
-    <div class="doc-note-stamp"><span class="doc-note-user">${esc(n.user)}</span>${esc(n.ts)} ${n.createdAt?new Date(n.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):''}<button onclick="deleteDocNote('${d.id}',${ni})" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px">✕</button></div>
+  const noteItems = docNotes.map((n,ni)=>`<div class="doc-note-item"><div class="doc-note-stamp"><span class="doc-note-user">${esc(n.user)}</span>${esc(n.ts)} ${n.createdAt?new Date(n.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):''}
+    <button onclick="deleteDocNote('${d.id}',${ni})" style="margin-left:auto;background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:10px">✕</button></div>
     <div class="doc-note-text">${esc(n.text)}</div></div>`).join('');
-  const notesSection = `<div class="doc-notes-section">
-    ${docNotes.length ? `<button class="doc-notes-toggle" onclick="toggleDocNotes('docn-${d.id}',this)">▸ ${docNotes.length} note${docNotes.length!==1?'s':''} <span style="font-size:10px">(tap to expand)</span></button>
-    <div class="doc-notes-list" id="docn-${d.id}">${noteItems}</div>` : ''}
+  const noteSec = `<div class="doc-notes-section">
+    ${docNotes.length ? `<button class="doc-notes-toggle" onclick="toggleDocNotes('docn-${d.id}',this)">▸ ${docNotes.length} note${docNotes.length!==1?'s':''} (tap to expand)</button><div class="doc-notes-list" id="docn-${d.id}">${noteItems}</div>` : ''}
     <div class="doc-note-add-wrap" id="docna-${d.id}">
-      <textarea placeholder="Add an internal note…" oninput="setTyping(true)" onblur="setTyping(false)"></textarea>
-      <div style="display:flex;gap:6px;justify-content:flex-end">
-        <button class="btn btn-ghost btn-sm" onclick="closeDocNoteAdd('${d.id}')">Cancel</button>
-        <button class="btn btn-gold btn-sm" onclick="saveDocNote('${d.id}')">Save Note</button>
-      </div>
+      <textarea placeholder="Add internal note…"></textarea>
+      <div style="display:flex;gap:6px;justify-content:flex-end"><button class="btn btn-ghost btn-sm" onclick="document.getElementById('docna-${d.id}').classList.remove('open')">Cancel</button><button class="btn btn-gold btn-sm" onclick="saveDocNote('${d.id}')">Save Note</button></div>
     </div>
-    <button onclick="openDocNoteAdd('${d.id}')" style="font-size:11px;color:var(--slate-light);background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;cursor:pointer;font-family:var(--font-body);margin-top:${docNotes.length?'4px':'0'}">+ Note</button>
+    <button onclick="document.getElementById('docna-${d.id}').classList.add('open')" style="font-size:11px;color:var(--slate-light);background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;cursor:pointer;font-family:var(--font-body);margin-top:4px">+ Note</button>
   </div>`;
-
-  return `<div class="doc-item" id="docitem-${d.id}">
+  return `<div class="doc-item">
     <div class="doc-item-top">
       <div class="doc-item-icon">📄</div>
       <div class="doc-item-main">
         <div class="doc-item-name">${esc(d.name)}</div>
         ${d.spec?`<div class="doc-item-spec">${esc(d.spec)}</div>`:''}
-        <div class="doc-item-meta">
-          ${forBadge}${condBadge}${templateBadge}
-          <select class="doc-status-sel ${s.cls}" onchange="updateDocStatus('${d.id}',this.value)">${statusSel}</select>
-        </div>
+        <div class="doc-item-meta">${forBadge}${condBadge}<select class="doc-status-sel ${s.cls}" onchange="updateDocStatus('${d.id}',this.value)">${statusSel}</select></div>
       </div>
       <div style="display:flex;gap:5px;flex-shrink:0;align-self:flex-start">
         <button class="btn btn-outline btn-sm" style="font-size:11px" onclick="openDocItemModal('${d.id}')">Edit</button>
         <button class="btn btn-danger btn-sm" style="font-size:11px" onclick="deleteDocItem('${d.id}')">✕</button>
       </div>
     </div>
-    ${versHtml}
-    ${notesSection}
+    ${verHtml}
+    ${noteSec}
   </div>`;
 }
 
@@ -3276,52 +3052,25 @@ function toggleDocNotes(id, btn) {
   const el = document.getElementById(id);
   if (!el) return;
   const open = el.classList.toggle('open');
-  const base = btn.textContent.replace(/[▸▾]/,'').replace(/\(tap to expand\)|\(collapse\)/,'').trim();
-  btn.textContent = (open?'▾ ':'▸ ') + base + (open?' (collapse)':' (tap to expand)');
+  const txt = btn.textContent.replace(/^[▸▾]\s*/,'').replace(/\s*\(tap to expand\)|\s*\(collapse\)/,'');
+  btn.textContent = (open?'▾ ':'▸ ')+txt+(open?' (collapse)':' (tap to expand)');
 }
 
-function openDocNoteAdd(did) { const el = document.getElementById('docna-'+did); if(el) el.classList.add('open'); }
-function closeDocNoteAdd(did) { const el = document.getElementById('docna-'+did); if(el) { el.classList.remove('open'); const ta = el.querySelector('textarea'); if(ta) ta.value=''; } }
-
-async function saveDocNote(did) {
-  const el = document.getElementById('docna-'+did);
-  const ta = el?.querySelector('textarea');
-  const text = ta?.value.trim();
-  if (!text) return;
-  const docs = getFileDocs(currentFileId);
-  const d = docs.find(x=>x.id===did);
-  if (!d) return;
-  if (!d.notes) d.notes = [];
-  const now = new Date();
-  d.notes.push({ id:uid(), text, user:currentUser, ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), createdAt:now.toISOString() });
-  await syncToCloud();
-  renderDocBuckets();
-  toast('Note added');
-}
-
-async function deleteDocNote(did, ni) {
-  const docs = getFileDocs(currentFileId);
-  const d = docs.find(x=>x.id===did);
-  if (!d || !d.notes) return;
-  d.notes.splice(ni,1);
-  await syncToCloud();
-  renderDocBuckets();
+async function quickAddDoc(name) {
+  if (!currentFileId) return;
+  getFileDocs(currentFileId).push({id:uid(),name,spec:'',for:'Borrower 1',condLink:'',status:'needed',isTemplate:true,notes:[],versions:[],createdAt:new Date().toISOString()});
+  await syncToCloud(); renderDocTab(); toast(name+' added');
 }
 
 async function updateDocStatus(did, status) {
-  const docs = getFileDocs(currentFileId);
-  const d = docs.find(x=>x.id===did);
-  if (!d) return;
-  d.status = status;
-  await syncToCloud();
-  renderDocTab();
+  const d = getFileDocs(currentFileId).find(x=>x.id===did);
+  if (d) { d.status=status; await syncToCloud(); renderDocTab(); }
 }
 
 function openDocItemModal(did) {
-  editingDocId = did||null;
-  const docs = getFileDocs(currentFileId);
-  const d = did ? docs.find(x=>x.id===did) : null;
-  document.getElementById('docItemModalTitle').textContent = d ? 'Edit Document' : 'Add Document Request';
+  _editDocId = did||null;
+  const d = did ? getFileDocs(currentFileId).find(x=>x.id===did) : null;
+  document.getElementById('docItemModalTitle').textContent = d?'Edit Document':'Add Document Request';
   document.getElementById('di_name').value = d?.name||'';
   document.getElementById('di_spec').value = d?.spec||'';
   document.getElementById('di_for').value = d?.for||'Borrower 1';
@@ -3337,140 +3086,241 @@ async function saveDocItem() {
   if (!name) { toast('Document name is required','error'); return; }
   const docs = getFileDocs(currentFileId);
   const noteText = document.getElementById('di_note').value.trim();
-  const data = {
-    name,
-    spec: document.getElementById('di_spec').value.trim(),
-    for: document.getElementById('di_for').value,
-    condLink: document.getElementById('di_cond').value.trim(),
-    status: document.getElementById('di_status').value,
-    isTemplate: document.getElementById('di_template').checked
-  };
-  if (editingDocId) {
-    const d = docs.find(x=>x.id===editingDocId);
-    if (d) {
-      Object.assign(d, data);
-      if (noteText) { if(!d.notes)d.notes=[]; const now=new Date(); d.notes.push({id:uid(),text:noteText,user:currentUser,ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),createdAt:now.toISOString()}); }
-    }
-    toast('Document updated');
+  const data = {name, spec:document.getElementById('di_spec').value.trim(), for:document.getElementById('di_for').value, condLink:document.getElementById('di_cond').value.trim(), status:document.getElementById('di_status').value, isTemplate:document.getElementById('di_template').checked};
+  function pushNote(obj) { if (!noteText) return; if (!obj.notes) obj.notes=[]; const now=new Date(); obj.notes.push({id:uid(),text:noteText,user:currentUser,ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),createdAt:now.toISOString()}); }
+  if (_editDocId) {
+    const d=docs.find(x=>x.id===_editDocId); if(d){Object.assign(d,data);pushNote(d);} toast('Document updated');
   } else {
-    const nd = { id:uid(), ...data, notes:[], versions:[], createdAt:new Date().toISOString() };
-    if (noteText) { const now=new Date(); nd.notes.push({id:uid(),text:noteText,user:currentUser,ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),createdAt:now.toISOString()}); }
-    docs.push(nd);
-    toast('Document added');
+    const nd={id:uid(),...data,notes:[],versions:[],createdAt:new Date().toISOString()}; pushNote(nd); docs.push(nd); toast('Document added');
   }
-  await syncToCloud();
-  closeModal('docItemModal');
-  renderDocTab();
+  await syncToCloud(); closeModal('docItemModal'); renderDocTab();
 }
 
 async function deleteDocItem(did) {
   if (!confirm('Remove this document request?')) return;
-  cache.docs[currentFileId] = getFileDocs(currentFileId).filter(x=>x.id!==did);
-  await syncToCloud();
-  renderDocTab();
+  cache.docs[currentFileId]=(cache.docs[currentFileId]||[]).filter(x=>x.id!==did);
+  await syncToCloud(); renderDocTab();
+}
+
+async function saveDocNote(did) {
+  const wrap = document.getElementById('docna-'+did);
+  const ta = wrap?.querySelector('textarea');
+  const text = ta?.value.trim();
+  if (!text) return;
+  const d = getFileDocs(currentFileId).find(x=>x.id===did);
+  if (!d) return;
+  if (!d.notes) d.notes=[];
+  const now=new Date();
+  d.notes.push({id:uid(),text,user:currentUser,ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),createdAt:now.toISOString()});
+  await syncToCloud(); renderDocTab(); toast('Note added');
+}
+
+async function deleteDocNote(did, ni) {
+  const d=getFileDocs(currentFileId).find(x=>x.id===did);
+  if (!d||!d.notes) return;
+  d.notes.splice(ni,1); await syncToCloud(); renderDocTab();
 }
 
 function openDocVersionModal(did) {
-  editingDocVersionId = did;
-  document.getElementById('dv_notes').value = '';
-  document.getElementById('dv_result').value = 'pending';
+  _editDocVerId=did;
+  document.getElementById('dv_notes').value='';
+  document.getElementById('dv_result').value='pending';
   document.getElementById('docVersionModal').classList.add('open');
 }
 
 async function saveDocVersion() {
-  const notes = document.getElementById('dv_notes').value.trim();
-  const result = document.getElementById('dv_result').value;
-  const docs = getFileDocs(currentFileId);
-  const d = docs.find(x=>x.id===editingDocVersionId);
+  const notes=document.getElementById('dv_notes').value.trim();
+  const result=document.getElementById('dv_result').value;
+  const d=getFileDocs(currentFileId).find(x=>x.id===_editDocVerId);
   if (!d) return;
-  if (!d.versions) d.versions = [];
-  const now = new Date();
-  const ts = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  d.versions.push({ id:uid(), notes, result, ts, createdAt:now.toISOString() });
-  // Auto-update status
+  if (!d.versions) d.versions=[];
+  const now=new Date();
+  d.versions.push({id:uid(),notes,result,ts:now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),createdAt:now.toISOString()});
   if (result==='ok') d.status='accepted';
   else if (result==='rej') d.status='resubmit';
   else d.status='review';
-  await syncToCloud();
-  closeModal('docVersionModal');
-  renderDocTab();
-  toast('Version logged');
+  await syncToCloud(); closeModal('docVersionModal'); renderDocTab(); toast('Version logged');
 }
 
 function openManageDocTemplatesModal() {
-  renderDocTemplateTags();
-  document.getElementById('addDocTemplateInput').value = '';
+  const templates=getDocTemplates();
+  document.getElementById('docTemplateTagList').innerHTML=templates.map((t,i)=>`<div class="tag"><span>${esc(t)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
+  document.getElementById('addDocTemplateInput').value='';
   document.getElementById('docTemplatesModal').classList.add('open');
 }
-
-function renderDocTemplateTags() {
-  const templates = getDocTemplates();
-  document.getElementById('docTemplateTagList').innerHTML = templates.map((t,i)=>`
-    <div class="tag"><span>${esc(t)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
-}
-
 async function addDocTemplate() {
-  const val = document.getElementById('addDocTemplateInput').value.trim();
+  const val=document.getElementById('addDocTemplateInput').value.trim();
   if (!val) return;
-  const templates = getDocTemplates();
-  if (templates.includes(val)) { toast('Already exists','error'); return; }
-  templates.push(val);
-  cache.settings.docTemplates = templates;
-  document.getElementById('addDocTemplateInput').value = '';
+  const t=getDocTemplates();
+  if (t.includes(val)){toast('Already exists','error');return;}
+  t.push(val); cache.settings.docTemplates=t; document.getElementById('addDocTemplateInput').value='';
   await syncToCloud();
-  renderDocTemplateTags();
+  document.getElementById('docTemplateTagList').innerHTML=t.map((t2,i)=>`<div class="tag"><span>${esc(t2)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
   toast('Template added');
 }
-
 async function removeDocTemplate(idx) {
-  const templates = getDocTemplates();
-  templates.splice(idx,1);
-  cache.settings.docTemplates = templates;
+  const t=getDocTemplates(); t.splice(idx,1); cache.settings.docTemplates=t;
   await syncToCloud();
-  renderDocTemplateTags();
+  document.getElementById('docTemplateTagList').innerHTML=t.map((t2,i)=>`<div class="tag"><span>${esc(t2)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
   toast('Template removed');
 }
 
 function printDocChecklist() {
-  const f = cache.files.find(x=>x.id===currentFileId);
+  const f=cache.files.find(x=>x.id===currentFileId);
   if (!f) return;
-  const docs = getFileDocs(currentFileId);
-  const names = [f.b1,f.b2].filter(Boolean).join(' & ');
-  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  const logoHtml = cache.logo ? `<img src="${cache.logo}" style="width:52px;height:52px;border-radius:10px;object-fit:cover">` : `<div style="width:52px;height:52px;border-radius:10px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-size:22px;color:#c9a84c;font-family:Georgia,serif;font-weight:600">Z</div>`;
-  const items = docs.map(d => {
-    const checked = d.status==='accepted';
-    const box = checked
-      ? `<div style="width:18px;height:18px;border-radius:4px;background:#2d6a4f;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:11px;color:#fff">✓</div>`
-      : `<div style="width:18px;height:18px;border-radius:4px;border:1.5px solid #c9c0b0;flex-shrink:0;margin-top:2px"></div>`;
-    const strike = checked ? 'text-decoration:line-through;opacity:.5' : '';
-    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0ece4;">
-      ${box}
-      <div style="${strike}flex:1">
-        <div style="font-size:13.5px;font-weight:600;color:#0a1628;margin-bottom:2px">${esc(d.name)}</div>
-        ${d.spec?`<div style="font-size:12.5px;color:#4a5568;line-height:1.5">${esc(d.spec)}</div>`:''}
-        ${d.for?`<div style="font-size:11.5px;color:#718096;margin-top:3px">For: ${esc(d.for)}</div>`:''}
-      </div></div>`;
+  const docs=getFileDocs(currentFileId);
+  const names=[f.b1,f.b2].filter(Boolean).join(' & ');
+  const today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const logo=cache.logo?`<img src="${cache.logo}" style="width:50px;height:50px;border-radius:9px;object-fit:cover">`:`<div style="width:50px;height:50px;border-radius:9px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-size:20px;color:#c9a84c;font-family:Georgia,serif;font-weight:600">Z</div>`;
+  const items=docs.map(d=>{
+    const checked=d.status==='accepted';
+    const box=checked?`<div style="width:17px;height:17px;border-radius:4px;background:#2d6a4f;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:11px;color:#fff">✓</div>`:`<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid #c9c0b0;flex-shrink:0;margin-top:2px"></div>`;
+    const strike=checked?'text-decoration:line-through;opacity:.5':'';
+    return `<div style="display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece4">${box}<div style="${strike}flex:1"><div style="font-size:13.5px;font-weight:600;color:#0a1628;margin-bottom:2px">${esc(d.name)}</div>${d.spec?`<div style="font-size:12.5px;color:#4a5568;line-height:1.5">${esc(d.spec)}</div>`:''}<div style="font-size:11.5px;color:#718096;margin-top:2px">For: ${esc(d.for||'Borrower 1')}</div></div></div>`;
   }).join('');
-  const win = window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Document Checklist — ${esc(names)}</title>
-  <style>body{font-family:'DM Sans',sans-serif;max-width:680px;margin:40px auto;padding:0 24px;color:#0a1628}h1{font-size:14px}@media print{body{margin:0}}</style></head><body>
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:18px;border-bottom:2px solid #0a1628">
-    <div style="display:flex;align-items:center;gap:14px">${logoHtml}<div><div style="font-family:Georgia,serif;font-size:17px;color:#0a1628;font-weight:500">Zaphire Capital</div><div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em">NMLS# 2511614</div></div></div>
-    <div style="text-align:right"><div style="font-family:Georgia,serif;font-size:20px;color:#0a1628;font-weight:500">Document Request List</div><div style="font-size:12px;color:#718096;margin-top:3px">Prepared ${today}</div></div>
-  </div>
-  <div style="background:#f8f6f1;border-left:3px solid #c9a84c;border-radius:0 6px 6px 0;padding:12px 16px;margin-bottom:22px">
-    <div style="font-size:15px;font-weight:600;color:#0a1628">${esc(names)}</div>
-    <div style="font-size:12.5px;color:#718096;margin-top:2px">${esc(f.prop||'')}${f.loanType?' · '+esc(f.loanType):''}${f.bank?' · '+esc(f.bank):''}</div>
-  </div>
-  <p style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:20px">Please provide the following documents at your earliest convenience. Items marked ✓ have been received and accepted. Review each item's requirements carefully before submitting to ensure completeness.</p>
-  <div>${items}</div>
-  <div style="margin-top:24px;padding-top:14px;border-top:1px solid #e2ddd4;display:flex;justify-content:space-between;font-size:11.5px;color:#718096">
-    <div>Zaphire Capital · NMLS# 2511614 · Stamford, CT</div><div>Printed ${today}</div>
-  </div>
-  <script>window.onload=function(){window.print()}<\/script></body></html>`);
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Document Checklist</title><style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@media print{body{margin:0}}</style></head><body>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #0a1628">
+      <div style="display:flex;align-items:center;gap:12px">${logo}<div><div style="font-family:Georgia,serif;font-size:16px;color:#0a1628;font-weight:500">Zaphire Capital</div><div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em">NMLS# 2511614</div></div></div>
+      <div style="text-align:right"><div style="font-family:Georgia,serif;font-size:19px;color:#0a1628;font-weight:500">Document Request List</div><div style="font-size:12px;color:#718096;margin-top:3px">Prepared ${today}</div></div>
+    </div>
+    <div style="background:#f8f6f1;border-left:3px solid #c9a84c;border-radius:0 6px 6px 0;padding:11px 15px;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:600;color:#0a1628">${esc(names)}</div>
+      <div style="font-size:12.5px;color:#718096;margin-top:2px">${esc(f.prop||'')}${f.loanType?' · '+esc(f.loanType):''}${f.bank?' · '+esc(f.bank):''}</div>
+    </div>
+    <p style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:18px">Please provide the documents below at your earliest convenience. Items marked ✓ have been received and accepted.</p>
+    ${items}
+    <div style="margin-top:22px;padding-top:12px;border-top:1px solid #e2ddd4;display:flex;justify-content:space-between;font-size:11.5px;color:#718096">
+      <div>Zaphire Capital · NMLS# 2511614 · Stamford, CT</div><div>Printed ${today}</div>
+    </div><script>window.onload=function(){window.print()}<\/script></body></html>`);
   win.document.close();
 }
 </script>
+<!-- DOC ITEM MODAL -->
+<div class="modal-overlay" id="docItemModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title" id="docItemModalTitle">Add Document Request</div>
+      <button class="btn btn-ghost" onclick="closeModal('docItemModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Document Details</div>
+        <div class="form-grid">
+          <div class="form-group form-full"><label class="form-label">Document Name *</label><input class="form-input" type="text" id="di_name" placeholder="e.g. Chase Checking ×4821 — Bank Statement"></div>
+          <div class="form-group form-full"><label class="form-label">Specific Requirements</label><textarea class="form-textarea" id="di_spec" placeholder="e.g. Must cover Jan 1–Feb 28, 2026. All pages required." style="min-height:65px"></textarea></div>
+          <div class="form-group"><label class="form-label">For</label><select class="form-select" id="di_for"><option value="Borrower 1">Borrower 1</option><option value="Borrower 2">Borrower 2</option><option value="Both Borrowers">Both Borrowers</option></select></div>
+          <div class="form-group"><label class="form-label">Linked Condition (optional)</label><input class="form-input" type="text" id="di_cond" placeholder="e.g. Cond #3 — Asset Verification"></div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select class="form-select" id="di_status">
+              <option value="needed">🔴 Still Needed</option>
+              <option value="review">🟡 Under Review</option>
+              <option value="resubmit">🟣 Resubmit Required</option>
+              <option value="accepted">🟢 Accepted</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Template Item</label>
+            <div class="form-checkbox-row" style="margin-top:6px"><input type="checkbox" id="di_template"><label for="di_template">Mark as standard template item</label></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-section" style="border-bottom:none;padding-bottom:0">
+        <div class="form-section-title">Note (optional)</div>
+        <textarea class="form-textarea" id="di_note" placeholder="Internal note about this document request…" style="min-height:56px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('docItemModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveDocItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOC VERSION MODAL -->
+<div class="modal-overlay" id="docVersionModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Log Version Received</div>
+      <button class="btn btn-ghost" onclick="closeModal('docVersionModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Notes on what was received</label>
+        <textarea class="form-textarea" id="dv_notes" placeholder="e.g. Complete resubmission received. Reviewing now." style="min-height:70px"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Result</label>
+        <select class="form-select" id="dv_result">
+          <option value="pending">Under Review</option>
+          <option value="ok">Accepted</option>
+          <option value="rej">Rejected — needs resubmission</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('docVersionModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveDocVersion()">Log Version</button>
+    </div>
+  </div>
+</div>
+
+<!-- MANAGE DOC TEMPLATES MODAL -->
+<div class="modal-overlay" id="docTemplatesModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-title">Manage Document Templates</div>
+      <button class="btn btn-ghost" onclick="closeModal('docTemplatesModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These appear in the Quick Add bar on every file's Client Documents tab.</p>
+      <div class="tag-list" id="docTemplateTagList"></div>
+      <div class="tag-add-row">
+        <input class="form-input" type="text" id="addDocTemplateInput" placeholder="Add template item..." onkeydown="if(event.key==='Enter')addDocTemplate()">
+        <button class="btn btn-outline btn-sm" onclick="addDocTemplate()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-gold" onclick="closeModal('docTemplatesModal')">Done</button></div>
+  </div>
+</div>
+
+<!-- MANAGE LENDER TRACKED FIELDS MODAL -->
+<div class="modal-overlay" id="lenderFieldsModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-title">Manage Tracked Fields</div>
+      <button class="btn btn-ghost" onclick="closeModal('lenderFieldsModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These fields appear on every lender. Each lender has its own value per field.</p>
+      <div class="tag-list" id="lenderFieldTagList"></div>
+      <div class="tag-add-row">
+        <input class="form-input" type="text" id="addLenderFieldInput" placeholder="Add field name..." onkeydown="if(event.key==='Enter')addLenderField()">
+        <button class="btn btn-outline btn-sm" onclick="addLenderField()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-gold" onclick="closeLenderFieldsModal()">Done</button></div>
+  </div>
+</div>
+
+<!-- EDIT LENDER FIELD VALUE MODAL -->
+<div class="modal-overlay" id="editLenderFieldModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title" id="elfTitle">Edit Field</div>
+      <button class="btn btn-ghost" onclick="closeModal('editLenderFieldModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" id="elfLabel">Value</label>
+        <input class="form-input" type="text" id="elfValue" placeholder="Enter value...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('editLenderFieldModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLenderFieldValue()">Save</button>
+    </div>
+  </div>
+</div>
+
 </body>
-</html><!-- placeholder -->
+</html>
