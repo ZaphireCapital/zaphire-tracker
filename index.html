@@ -439,6 +439,7 @@ input[type=file]{display:none}
       <div class="nav-section-label">Menu</div>
       <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"> </span>Dashboard<span class="nav-badge" id="navBadge">0</span></button>
       <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"> </span>All Files</button>
+      <button class="nav-item" onclick="showPage('closedfiles')"><span class="nav-icon">📁</span>Closed Files<span class="nav-badge" id="closedBadge" style="background:rgba(201,168,76,.15);color:var(--gold-light)">0</span></button>
       <div class="nav-section-label" style="margin-top:16px">Admin</div>
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"> </span>Settings & Dropdowns</button>
       <button class="nav-item" onclick="showPage('customfields')"><span class="nav-icon"> </span>Custom Fields</button>
@@ -487,6 +488,7 @@ input[type=file]{display:none}
           <div><div class="file-main-title" id="detailTitle"> </div><div class="file-subtitle" id="detailSubtitle"> </div></div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-outline btn-sm" onclick="openEditFileModal()">Edit Info</button>
+            <button class="btn btn-outline btn-sm" id="archiveFileBtn" onclick="openArchiveFileModal()" style="color:#7b5c12;border-color:#e8c97a;">📁 Close / Withdraw</button>
             <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">Delete File</button>
           </div>
         </div>
@@ -524,6 +526,22 @@ input[type=file]{display:none}
       <div class="tab-content" id="tab-custom">
         <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
         <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
+      </div>
+    </div>
+    <!-- CLOSED FILES -->
+    <div class="page" id="page-closedfiles">
+      <div class="search-bar"><span style="color:var(--slate-light)">🔍</span><input type="text" id="closedSearch" placeholder="Search closed files by borrower, property, or bank..." oninput="renderClosedFiles()"></div>
+      <div class="filter-bar" id="closedFilterBar">
+        <button class="filter-btn active" onclick="setClosedFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setClosedFilter('closed',this)">Closed</button>
+        <button class="filter-btn" onclick="setClosedFilter('withdrawn',this)">Withdrawn</button>
+      </div>
+      <div class="section-header"><div class="section-title">Closed Files</div></div>
+      <div class="files-table-wrap">
+        <table class="files-table">
+          <thead><tr><th>Borrower(s)</th><th>Property</th><th>Loan Type</th><th>Bank</th><th>Loan Amount</th><th>Status</th><th>Closed On</th><th></th></tr></thead>
+          <tbody id="closedFilesTbody"></tbody>
+        </table>
       </div>
     </div>
     <!-- SETTINGS -->
@@ -1175,20 +1193,23 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',files:'All Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
+  const titles = {dashboard:'Dashboard',files:'All Files',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,files:1,settings:2,customfields:3,lenders:4,dates:5,trash:6};
+  const nm = {dashboard:0,files:1,closedfiles:2,settings:3,customfields:4,lenders:5,dates:6,trash:7};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   if (page === 'lenders') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-outline btn-sm" onclick="openSpecialtiesModal()" style="margin-right:6px">⚙ Manage Specialties</button><button class="btn btn-gold" onclick="openLenderModal()">+ Add Lender</button>';
   } else if (page === 'filedetail') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewConditionModal()">+ Add Condition</button>';
+  } else if (page === 'closedfiles') {
+    document.getElementById('topbarActions').innerHTML = '';
   } else {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
   }
   if (page === 'dashboard') renderDashboard();
   if (page === 'files') renderFiles();
+  if (page === 'closedfiles') renderClosedFiles();
   if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); }
   if (page === 'settings') renderSettings();
   if (page === 'customfields') renderCFList();
@@ -2849,6 +2870,89 @@ async function permanentDelete(fid) {
   toast('File permanently deleted');
 }
 
+// ─────────────────────────────────────────────
+//  CLOSED FILES
+// ─────────────────────────────────────────────
+let closedFilter = 'all';
+
+function updateClosedBadge() {
+  const count = (cache.files||[]).filter(f=>f.fileStatus==='closed'||f.fileStatus==='withdrawn').length;
+  const el = document.getElementById('closedBadge');
+  if (el) el.textContent = count;
+}
+
+function setClosedFilter(val, btn) {
+  closedFilter = val;
+  document.querySelectorAll('#closedFilterBar .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderClosedFiles();
+}
+
+function renderClosedFiles() {
+  const q = (document.getElementById('closedSearch')?.value||'').toLowerCase();
+  let files = [...(cache.files||[])].filter(f=>f.fileStatus==='closed'||f.fileStatus==='withdrawn');
+  if (closedFilter==='closed') files = files.filter(f=>f.fileStatus==='closed');
+  if (closedFilter==='withdrawn') files = files.filter(f=>f.fileStatus==='withdrawn');
+  if (q) files = files.filter(f=>(f.b1+' '+f.b2+' '+f.prop+' '+f.bank).toLowerCase().includes(q));
+  files = files.reverse();
+  const tbody = document.getElementById('closedFilesTbody');
+  if (!files.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">📁</div><div class="empty-state-title">${q||closedFilter!=='all'?'No matching files':'No closed files yet'}</div><div class="empty-state-sub">Files you close or withdraw will appear here</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = files.map(f => {
+    const names = [f.b1,f.b2].filter(Boolean).join(' & ');
+    const statusBadge = f.fileStatus==='withdrawn'
+      ? `<span class="badge badge-amber">Withdrawn</span>`
+      : `<span class="badge badge-green">Closed</span>`;
+    const closedDate = f.closedAt ? new Date(f.closedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    return `<tr onclick="showPage('filedetail','${f.id}')">
+      <td><div class="borrower-name">${esc(names)}</div><div class="borrower-sub">${esc(f.bank||'')}</div></td>
+      <td>${esc(f.prop||'—')}</td>
+      <td><span class="badge badge-navy">${esc(f.loanType||'—')}</span></td>
+      <td>${esc(f.bank||'—')}</td>
+      <td><strong>${fmtCur(f.la)}</strong></td>
+      <td>${statusBadge}</td>
+      <td style="font-size:12.5px;color:var(--slate-light)">${closedDate}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();reopenFile('${f.id}')">Reopen</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function openArchiveFileModal() {
+  document.getElementById('archive_status').value = 'closed';
+  document.getElementById('archive_reason').value = '';
+  document.getElementById('archiveFileModal').classList.add('open');
+}
+
+async function archiveCurrentFile() {
+  const status = document.getElementById('archive_status').value;
+  const reason = document.getElementById('archive_reason').value.trim();
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  f.fileStatus = status;
+  f.closedAt = new Date().toISOString();
+  f.closedBy = currentUser;
+  if (reason) f.closedReason = reason;
+  await syncToCloud();
+  closeModal('archiveFileModal');
+  updateClosedBadge();
+  toast('File moved to Closed Files');
+  showPage('files');
+}
+
+async function reopenFile(fid) {
+  if (!confirm('Reopen this file and move it back to Active Files?')) return;
+  const f = cache.files.find(x=>x.id===fid);
+  if (!f) return;
+  f.fileStatus = 'active';
+  delete f.closedAt; delete f.closedBy; delete f.closedReason;
+  await syncToCloud();
+  renderClosedFiles();
+  updateClosedBadge();
+  toast('File reopened and moved to Active Files');
+}
+
 async function emptyTrash() {
   if (!cache.trash || !cache.trash.length) { toast('Trash is already empty'); return; }
   if (!confirm('Permanently delete all ' + cache.trash.length + ' files in Trash? This cannot be undone.')) return;
@@ -2983,7 +3087,7 @@ function renderDocTab() {
       <div class="dpstat"><div class="dpstat-dot" style="background:#4c1d95"></div>${resubmit} Resubmit Required</div>
       <div class="dpstat"><div class="dpstat-dot" style="background:var(--success)"></div>${accepted} Accepted</div>
     </div></div>` : '';
-  const chips = getDocTemplates().map(t=>`<button class="doc-qa-chip" onclick="quickAddDoc(${JSON.stringify(t).replace(/'/g,'&#39;')})">${esc(t)}</button>`).join('');
+  const chips = getDocTemplates().map(t=>`<button class="doc-qa-chip" onclick='quickAddDoc(${JSON.stringify(t).replace(/'/g,"&#39;")})'>${esc(t)}</button>`).join('');
   document.getElementById('docQuickAdd').innerHTML = `<div class="doc-quick-add"><div class="doc-qa-title">⚡ Quick Add from Template</div><div class="doc-qa-chips">${chips}<button class="doc-qa-chip" style="border-style:dashed" onclick="openDocItemModal()">+ Custom…</button></div></div>`;
   const order = ['needed','review','resubmit','accepted'];
   document.getElementById('docBuckets').innerHTML = order.map(st => {
@@ -3196,6 +3300,34 @@ function printDocChecklist() {
   win.document.close();
 }
 </script>
+<!-- ARCHIVE FILE MODAL -->
+<div class="modal-overlay" id="archiveFileModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Close / Withdraw File</div>
+      <button class="btn btn-ghost" onclick="closeModal('archiveFileModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:var(--slate);margin-bottom:18px;line-height:1.6">This moves the file to <strong>Closed Files</strong>. All conditions and data are preserved and the file can be reopened at any time.</p>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="archive_status">
+          <option value="closed">Closed</option>
+          <option value="withdrawn">Withdrawn</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason / Notes (optional)</label>
+        <textarea class="form-textarea" id="archive_reason" placeholder="e.g. Loan funded / Borrower withdrew application..." style="min-height:80px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('archiveFileModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="archiveCurrentFile()">Move to Closed Files</button>
+    </div>
+  </div>
+</div>
+
 <!-- DOC ITEM MODAL -->
 <div class="modal-overlay" id="docItemModal">
   <div class="modal" style="max-width:560px">
