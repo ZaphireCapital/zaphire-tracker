@@ -1310,8 +1310,14 @@ function renderFileDetail() {
     <div class="info-cell"><div class="info-label">Note Rate</div><div class="info-value">${esc(f.rate||' ')}</div></div>
   `;
   renderConditions(f);
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===0));
+  // Preserve whichever tab is currently active — only reset to Conditions on first load
+  const activeTab = document.querySelector('#page-filedetail .tab-content.active')?.id;
+  if (!activeTab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+    document.querySelectorAll('.tab-content').forEach((t,i)=>t.classList.toggle('active',i===0));
+  } else if (activeTab === 'tab-docs') {
+    renderDocTab();
+  }
 }
 
 //                                        
@@ -3112,7 +3118,7 @@ function renderDocTab() {
 function docItemHtml(d) {
   const s = DOC_ST[d.status||'needed'];
   const forBadge = `<span class="badge badge-navy" style="font-size:11px">👤 ${esc(d.for||'Borrower 1')}</span>`;
-  const condBadge = d.condLink ? `<span class="badge badge-gold" style="font-size:11px">🔗 ${esc(d.condLink)}</span>` : '';
+  const condBadge = d.condLink ? `<span class="badge badge-gold" style="font-size:11px;cursor:pointer" onclick="jumpToCondition(${JSON.stringify(d.condLink).replace(/'/g,'&#39;')})" title="Jump to condition">🔗 ${esc(d.condLink)}</span>` : '';
   const statusSel = Object.keys(DOC_ST).map(k=>`<option value="${k}" ${d.status===k?'selected':''}>${DOC_ST[k].icon} ${DOC_ST[k].label}</option>`).join('');
   const vers = d.versions||[];
   const verHtml = vers.length ? `<div class="doc-ver-trail"><div class="doc-ver-title">Version History</div>${vers.map((v,vi)=>{
@@ -3160,6 +3166,36 @@ function toggleDocNotes(id, btn) {
   btn.textContent = (open?'▾ ':'▸ ')+txt+(open?' (collapse)':' (tap to expand)');
 }
 
+function jumpToCondition(condLink) {
+  // Switch to the Conditions tab
+  const condBtn = document.querySelector('#page-filedetail .tab-btn:first-child');
+  if (condBtn) {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    condBtn.classList.add('active');
+    document.getElementById('tab-conditions').classList.add('active');
+  }
+  // Try to find and highlight the matching condition by number
+  const numMatch = condLink.match(/#(\S+)/);
+  if (numMatch) {
+    const num = numMatch[1];
+    // Wait for DOM then scroll to it
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.condition-card');
+      for (const card of cards) {
+        const numEl = card.querySelector('.condition-num');
+        if (numEl && numEl.textContent.trim() === num) {
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          card.style.outline = '2px solid var(--gold)';
+          card.style.borderRadius = 'var(--radius)';
+          setTimeout(()=>{ card.style.outline = ''; }, 2000);
+          break;
+        }
+      }
+    }, 100);
+  }
+}
+
 async function quickAddDoc(name) {
   if (!currentFileId) return;
   getFileDocs(currentFileId).push({id:uid(),name,spec:'',for:'Borrower 1',condLink:'',status:'needed',isTemplate:true,notes:[],versions:[],createdAt:new Date().toISOString()});
@@ -3178,10 +3214,18 @@ function openDocItemModal(did) {
   document.getElementById('di_name').value = d?.name||'';
   document.getElementById('di_spec').value = d?.spec||'';
   document.getElementById('di_for').value = d?.for||'Borrower 1';
-  document.getElementById('di_cond').value = d?.condLink||'';
   document.getElementById('di_status').value = d?.status||'needed';
   document.getElementById('di_template').checked = d?.isTemplate||false;
   document.getElementById('di_note').value = '';
+  // Populate condition dropdown from this file's conditions
+  const conds = (cache.conditions[currentFileId]||[]);
+  const condSel = document.getElementById('di_cond');
+  condSel.innerHTML = '<option value="">— None —</option>' +
+    conds.map(c=>`<option value="${esc('#'+(c.num||'?')+' — '+c.desc)}" ${d?.condLink===(('#'+(c.num||'?')+' — '+c.desc))?'selected':''}>${esc('#'+(c.num||'?')+' — '+c.desc)}</option>`).join('');
+  // If editing and current condLink isn't in the list, add it as an option
+  if (d?.condLink && !conds.find(c=>('#'+(c.num||'?')+' — '+c.desc)===d.condLink)) {
+    condSel.innerHTML += `<option value="${esc(d.condLink)}" selected>${esc(d.condLink)}</option>`;
+  }
   document.getElementById('docItemModal').classList.add('open');
 }
 
@@ -3342,7 +3386,7 @@ function printDocChecklist() {
           <div class="form-group form-full"><label class="form-label">Document Name *</label><input class="form-input" type="text" id="di_name" placeholder="e.g. Chase Checking ×4821 — Bank Statement"></div>
           <div class="form-group form-full"><label class="form-label">Specific Requirements</label><textarea class="form-textarea" id="di_spec" placeholder="e.g. Must cover Jan 1–Feb 28, 2026. All pages required." style="min-height:65px"></textarea></div>
           <div class="form-group"><label class="form-label">For</label><select class="form-select" id="di_for"><option value="Borrower 1">Borrower 1</option><option value="Borrower 2">Borrower 2</option><option value="Both Borrowers">Both Borrowers</option></select></div>
-          <div class="form-group"><label class="form-label">Linked Condition (optional)</label><input class="form-input" type="text" id="di_cond" placeholder="e.g. Cond #3 — Asset Verification"></div>
+          <div class="form-group"><label class="form-label">Linked Condition (optional)</label><select class="form-select" id="di_cond"><option value="">— None —</option></select></div>
           <div class="form-group"><label class="form-label">Status</label>
             <select class="form-select" id="di_status">
               <option value="needed">🔴 Still Needed</option>
