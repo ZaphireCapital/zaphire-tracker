@@ -397,6 +397,30 @@ input[type=file]{display:none}
   .doc-note-add-wrap.open{display:block}
   .doc-note-add-wrap textarea{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:7px 9px;font-family:var(--font-body);font-size:12.5px;resize:vertical;min-height:52px;background:var(--white);outline:none;margin-bottom:6px}
   .doc-note-add-wrap textarea:focus{border-color:var(--gold)}
+  /* ── DOCS DRAWER (Option B) ── */
+  .docs-drawer{position:fixed;top:0;right:-440px;width:420px;bottom:0;background:var(--white);border-left:2px solid var(--border-strong);box-shadow:-8px 0 32px rgba(10,22,40,.18);z-index:800;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1)}
+  .docs-drawer.open{right:0}
+  .docs-drawer-header{background:var(--navy);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .docs-drawer-title{font-size:14px;font-weight:600;color:var(--gold)}
+  .docs-drawer-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;font-family:var(--font-body)}
+  .docs-drawer-close:hover{color:var(--white)}
+  .docs-drawer-progress{padding:9px 16px;border-bottom:1px solid var(--border);background:var(--cream);flex-shrink:0}
+  .docs-drawer-body{flex:1;overflow-y:auto;padding:12px 16px}
+  .docs-drawer-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--white)}
+  .drawer-backdrop{display:none;position:fixed;inset:0;background:rgba(10,22,40,.15);z-index:799}
+  .drawer-backdrop.open{display:block}
+  .drawer-doc-item{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+  .drawer-doc-item:hover{border-color:var(--border-strong)}
+  .drawer-doc-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px}
+  .drawer-doc-spec{font-size:11.5px;color:var(--slate-light);margin-bottom:5px;line-height:1.4}
+  .drawer-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:10px 0 6px}
+  /* ── REQUEST DOC button on condition card (Option C) ── */
+  .cond-req-doc-row{padding:8px 20px 10px;border-top:1px dashed #ede9e1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .cond-req-doc-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);color:#7b5c12;border:1px solid rgba(201,168,76,.35);border-radius:6px;padding:4px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-body)}
+  .cond-req-doc-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
+  .cond-linked-docs{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+  .cond-linked-doc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-pale);color:#7b5c12;border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 9px;font-size:11px;cursor:pointer}
+  .cond-linked-doc-badge:hover{background:#f0e5c4}
 </style>
 </head>
 <body>
@@ -489,6 +513,7 @@ input[type=file]{display:none}
           <div style="display:flex;gap:8px">
             <button class="btn btn-outline btn-sm" onclick="openEditFileModal()">Edit Info</button>
             <button class="btn btn-outline btn-sm" id="archiveFileBtn" onclick="openArchiveFileModal()" style="color:#7b5c12;border-color:#e8c97a;">📁 Close / Withdraw</button>
+            <button class="btn btn-outline btn-sm" id="docsDrawerBtn" onclick="toggleDocsDrawer()" style="background:var(--navy);color:var(--gold);border-color:var(--navy)">📄 Client Docs <span id="docsDrawerBadge" style="background:rgba(201,168,76,.2);color:var(--gold);border-radius:10px;padding:0 6px;font-size:10px;margin-left:2px">0</span></button>
             <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">Delete File</button>
           </div>
         </div>
@@ -1235,7 +1260,8 @@ function showPage(page, fid) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'files') renderFiles();
   if (page === 'closedfiles') renderClosedFiles();
-  if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); }
+  if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); updateDocsDrawerBadge(); }
+  if (page !== 'filedetail') closeDocsDrawer();
   if (page === 'settings') renderSettings();
   if (page === 'customfields') renderCFList();
   if (page === 'trash') renderTrash();
@@ -1405,6 +1431,18 @@ function condCard(c) {
       </div>
     </div>`).join('');
   const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
+  // Find docs linked to this condition
+  const condRef = '#'+(c.num||'?');
+  const linkedDocs = (getFileDocs(currentFileId)||[]).filter(d=>d.condLink&&d.condLink.startsWith(condRef));
+  const linkedBadges = linkedDocs.map(d=>{
+    const stIcon = d.status==='accepted'?'🟢':d.status==='review'?'🟡':d.status==='resubmit'?'🟣':'🔴';
+    return `<span class="cond-linked-doc-badge" onclick="openDocItemModal('${d.id}')" title="Edit this document request">${stIcon} ${esc(d.name)}</span>`;
+  }).join('');
+  const condLabel = JSON.stringify('#'+(c.num||'?')+' — '+c.desc).replace(/'/g,"&#39;");
+  const reqDocRow = `<div class="cond-req-doc-row">
+    <button class="cond-req-doc-btn" onclick="openDocItemModalForCond(${condLabel})">📋 Request Doc from Client</button>
+    ${linkedDocs.length ? `<div class="cond-linked-docs">${linkedBadges}</div>` : ''}
+  </div>`;
   return `<div class="condition-card">
     <div class="condition-top">
       <div class="condition-num">${esc(c.num||'?')}</div>
@@ -1427,6 +1465,7 @@ function condCard(c) {
         <button class="btn btn-danger btn-sm" onclick="deleteCond('${c.id}')" title="Delete">Delete</button>
       </div>
     </div>
+    ${reqDocRow}
     <div class="notes-list">${notes}</div>
     <div class="note-add-inline" id="ni-${c.id}">
       <textarea id="nt-${c.id}" placeholder="Type your note..."></textarea>
@@ -3139,6 +3178,8 @@ function renderDocTab() {
       <div class="doc-bkt-body ${bodyOpen}">${body}</div>
     </div>`;
   }).join('');
+  updateDocsDrawerBadge();
+  renderDrawer();
 }
 
 function docItemHtml(d) {
@@ -3190,6 +3231,106 @@ function toggleDocNotes(id, btn) {
   const open = el.classList.toggle('open');
   const txt = btn.textContent.replace(/^[▸▾]\s*/,'').replace(/\s*\(tap to expand\)|\s*\(collapse\)/,'');
   btn.textContent = (open?'▾ ':'▸ ')+txt+(open?' (collapse)':' (tap to expand)');
+}
+
+// ── Docs Drawer (Option B) ──
+let docsDrawerOpen = false;
+
+function toggleDocsDrawer() {
+  docsDrawerOpen ? closeDocsDrawer() : openDocsDrawer();
+}
+
+function openDocsDrawer() {
+  docsDrawerOpen = true;
+  document.getElementById('docsDrawer').classList.add('open');
+  document.getElementById('docsDrawerBackdrop').classList.add('open');
+  document.getElementById('docsDrawerBtn').style.background = 'var(--gold)';
+  document.getElementById('docsDrawerBtn').style.color = 'var(--navy)';
+  document.getElementById('docsDrawerBtn').style.borderColor = 'var(--gold)';
+  renderDrawer();
+}
+
+function closeDocsDrawer() {
+  docsDrawerOpen = false;
+  document.getElementById('docsDrawer').classList.remove('open');
+  document.getElementById('docsDrawerBackdrop').classList.remove('open');
+  const btn = document.getElementById('docsDrawerBtn');
+  if (btn) { btn.style.background='var(--navy)'; btn.style.color='var(--gold)'; btn.style.borderColor='var(--navy)'; }
+}
+
+function renderDrawer() {
+  if (!docsDrawerOpen || !currentFileId) return;
+  const docs = getFileDocs(currentFileId);
+  const total = docs.length;
+  const accepted = docs.filter(d=>d.status==='accepted').length;
+  const needed = docs.filter(d=>d.status==='needed').length;
+  const pct = total ? Math.round(accepted/total*100) : 0;
+  // Update badge
+  const badge = document.getElementById('docsDrawerBadge');
+  if (badge) badge.textContent = needed > 0 ? needed+' needed' : (total+' docs');
+  // Progress bar
+  document.getElementById('drawerProgress').innerHTML = total
+    ? `<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--slate-light);margin-bottom:5px"><span>${accepted} of ${total} accepted</span><span>${pct}%</span></div>
+       <div style="height:5px;background:#f0ece4;border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--gold),#b8902a);border-radius:3px"></div></div>
+       <div style="display:flex;gap:12px;margin-top:7px;flex-wrap:wrap">
+         <span style="font-size:11px;color:var(--slate-light)"><span style="color:var(--danger)">●</span> ${docs.filter(d=>d.status==='needed').length} needed</span>
+         <span style="font-size:11px;color:var(--slate-light)"><span style="color:var(--warning)">●</span> ${docs.filter(d=>d.status==='review').length} reviewing</span>
+         <span style="font-size:11px;color:var(--slate-light)"><span style="color:#4c1d95">●</span> ${docs.filter(d=>d.status==='resubmit').length} resubmit</span>
+         <span style="font-size:11px;color:var(--slate-light)"><span style="color:var(--success)">●</span> ${accepted} accepted</span>
+       </div>`
+    : '<div style="font-size:12.5px;color:var(--slate-light)">No documents yet — click "+ Add Document" below.</div>';
+  // Body — compact list by status order
+  const order = ['needed','review','resubmit','accepted'];
+  const stLabels = {needed:'🔴 Still Needed',review:'🟡 Under Review',resubmit:'🟣 Resubmit Required',accepted:'🟢 Accepted'};
+  const stCls = {needed:'var(--danger)',review:'var(--warning)',resubmit:'#4c1d95',accepted:'var(--success)'};
+  let html = '';
+  if (!total) { html = '<div style="text-align:center;padding:30px 0;color:var(--slate-light);font-size:13px">No documents yet.<br><br>Use "+ Add Document" below<br>or the 📋 button on each condition.</div>'; }
+  else {
+    order.forEach(st => {
+      const items = docs.filter(d=>d.status===st);
+      if (!items.length) return;
+      html += `<div class="drawer-section-title" style="color:${stCls[st]}">${stLabels[st]} (${items.length})</div>`;
+      items.forEach(d => {
+        const stIcon = st==='accepted'?'🟢':st==='review'?'🟡':st==='resubmit'?'🟣':'🔴';
+        html += `<div class="drawer-doc-item">
+          <div class="drawer-doc-name">${esc(d.name)}</div>
+          ${d.spec?`<div class="drawer-doc-spec">${esc(d.spec)}</div>`:''}
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:4px">
+            <span style="font-size:11px;color:var(--slate-light)">👤 ${esc(d.for||'')}</span>
+            ${d.condLink?`<span style="font-size:11px;background:var(--gold-pale);color:#7b5c12;padding:1px 7px;border-radius:20px;cursor:pointer" onclick="jumpToCondition(${JSON.stringify(d.condLink).replace(/'/g,"&#39;")})">🔗 ${esc(d.condLink)}</span>`:''}
+            <button onclick="openDocItemModal('${d.id}')" style="margin-left:auto;font-size:11px;background:none;border:1px solid var(--border-strong);border-radius:5px;padding:2px 8px;cursor:pointer;font-family:var(--font-body);color:var(--slate)">Edit</button>
+          </div>
+        </div>`;
+      });
+    });
+  }
+  document.getElementById('drawerBody').innerHTML = html;
+}
+
+function updateDocsDrawerBadge() {
+  if (!currentFileId) return;
+  const docs = getFileDocs(currentFileId);
+  const needed = docs.filter(d=>d.status==='needed').length;
+  const badge = document.getElementById('docsDrawerBadge');
+  if (badge) badge.textContent = needed > 0 ? needed+' needed' : docs.length+' docs';
+}
+
+// Option C — open doc modal pre-filled with condition
+function openDocItemModalForCond(condLink) {
+  openDocItemModal();
+  // After modal opens, set the condition dropdown
+  setTimeout(() => {
+    const sel = document.getElementById('di_cond');
+    if (!sel) return;
+    // Try to select matching option
+    for (const opt of sel.options) {
+      if (opt.value === condLink) { sel.value = condLink; return; }
+    }
+    // If not found, add it
+    const opt = document.createElement('option');
+    opt.value = condLink; opt.textContent = condLink; opt.selected = true;
+    sel.appendChild(opt);
+  }, 50);
 }
 
 function jumpToCondition(condLink) {
@@ -3276,6 +3417,9 @@ async function saveDocItem() {
     const nd={id:uid(),...data,notes:[],versions:[],createdAt:new Date().toISOString()}; pushNote(nd); docs.push(nd); toast('Document added');
   }
   await syncToCloud(); closeModal('docItemModal'); renderDocTab();
+  // Refresh conditions so linked doc badges update on condition cards
+  const _f = cache.files.find(x=>x.id===currentFileId);
+  if (_f) renderConditions(_f);
 }
 
 async function deleteDocItem(did) {
@@ -3585,6 +3729,23 @@ function printDocChecklist() {
       <button class="btn btn-outline" onclick="closeModal('editLenderFieldModal')">Cancel</button>
       <button class="btn btn-gold" onclick="saveLenderFieldValue()">Save</button>
     </div>
+  </div>
+</div>
+<!-- DOCS DRAWER (Option B) -->
+<div class="drawer-backdrop" id="docsDrawerBackdrop" onclick="closeDocsDrawer()"></div>
+<div class="docs-drawer" id="docsDrawer">
+  <div class="docs-drawer-header">
+    <div class="docs-drawer-title">📄 Client Documents</div>
+    <button class="docs-drawer-close" onclick="closeDocsDrawer()">&#x2715;</button>
+  </div>
+  <div class="docs-drawer-progress" id="drawerProgress"></div>
+  <div class="docs-drawer-body" id="drawerBody">
+    <div style="color:var(--slate-light);font-size:13px;padding:20px 0;text-align:center">Loading…</div>
+  </div>
+  <div class="docs-drawer-footer">
+    <button class="btn btn-gold btn-sm" style="flex:1" onclick="openDocItemModal()">+ Add Document</button>
+    <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
+    <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print</button>
   </div>
 </div>
 
