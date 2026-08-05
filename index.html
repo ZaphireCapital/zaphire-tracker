@@ -418,6 +418,22 @@ input[type=file]{display:none}
   .cond-req-doc-row{padding:8px 20px 10px;border-top:1px dashed #ede9e1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .cond-req-doc-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);color:#7b5c12;border:1px solid rgba(201,168,76,.35);border-radius:6px;padding:4px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-body)}
   .cond-req-doc-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
+  /* UW flag */
+  .uw-flag{display:inline-flex;align-items:center;gap:3px;background:#fff3cd;color:#7b4f12;border:1px solid #fcd34d;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)}
+  .uw-flag.active{background:#dc2626;color:#fff;border-color:#dc2626}
+  .uw-flag-badge{display:inline-flex;align-items:center;gap:3px;background:#dc2626;color:#fff;border-radius:4px;padding:1px 6px;font-size:10.5px;font-weight:700}
+  /* person badge on card */
+  .cond-person-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;cursor:default;flex-shrink:0}
+  /* sub-category section inside bucket */
+  .subcat-section{margin-bottom:4px}
+  .subcat-header{display:flex;align-items:center;gap:8px;padding:6px 14px 5px;background:#f8f6f1;border-top:1px solid #ede9e1;border-bottom:1px solid #ede9e1;cursor:pointer;user-select:none}
+  .subcat-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--slate);flex:1}
+  .subcat-count{font-size:10.5px;color:var(--slate-light)}
+  .subcat-chev{font-size:12px;color:var(--slate-light);transition:transform .2s}
+  .subcat-chev.open{transform:rotate(180deg)}
+  .subcat-body{display:none}
+  .subcat-body.open{display:block}
+  .subcat-unassigned .subcat-title{color:var(--slate-light);font-style:italic}
   .cond-linked-docs{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
   .cond-linked-doc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-pale);color:#7b5c12;border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 9px;font-size:11px;cursor:pointer}
   .cond-linked-doc-badge:hover{background:#f0e5c4}
@@ -526,12 +542,17 @@ input[type=file]{display:none}
       </div>
       <div class="tab-content active" id="tab-conditions">
         <div class="section-header"><div class="section-title">Conditions</div><button class="btn btn-gold btn-sm" onclick="openNewConditionModal()">+ Add Condition</button></div>
-        <div class="filter-bar" id="condFilterBar">
+        <div class="filter-bar" id="condFilterBar" style="flex-wrap:wrap;gap:6px;align-items:center">
           <button class="filter-btn active" onclick="setCondFilter('all',this)">All</button>
           <button class="filter-btn" onclick="setCondFilter('Open',this)">Open</button>
           <button class="filter-btn" onclick="setCondFilter('Open (Ready to Submit)',this)">Ready to Submit</button>
           <button class="filter-btn" onclick="setCondFilter('Submitted to Lender',this)">Submitted to Lender</button>
           <button class="filter-btn" onclick="setCondFilter('Cleared',this)">Cleared</button>
+          <div style="width:1px;height:20px;background:var(--border-strong);margin:0 2px"></div>
+          <select id="condPersonFilter" class="form-select" style="font-size:12px;padding:4px 10px;height:auto;width:auto" onchange="renderConditionsFromFilter()">
+            <option value="">All People</option>
+          </select>
+          <button id="condUWFilter" class="filter-btn" onclick="toggleUWFilter(this)" style="border-color:#fcd34d;color:#7b4f12">🚩 UW Call Only</button>
         </div>
         <div id="condBuckets"></div>
       </div>
@@ -757,8 +778,10 @@ input[type=file]{display:none}
         <div class="form-group"><label class="form-label">Condition Number</label><input class="form-input" type="text" id="c_num" placeholder="e.g. 1, 2a, PTD-3"></div>
         <div class="form-group"><label class="form-label">Responsible Party</label><select class="form-select" id="c_resp"></select></div>
         <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="c_status"><option value="Open">Open</option><option value="Open (Ready to Submit)">Open (Ready to Submit)</option><option value="Submitted to Lender">Submitted to Lender</option><option value="Cleared">Cleared</option></select></div>
+        <div class="form-group" id="c_queue_group" style="display:none"><label class="form-label">Lender Queue / Track</label><select class="form-select" id="c_queue"></select></div>
       </div>
-      <div class="form-group"><label class="form-label">Description *</label><textarea class="form-textarea" id="c_desc" placeholder="Describe the condition in full..."></textarea></div>
+      <div class="form-group" style="margin-bottom:12px"><label class="form-label">Description *</label><textarea class="form-textarea" id="c_desc" placeholder="Describe the condition in full..."></textarea></div>
+      <div class="form-checkbox-row"><input type="checkbox" id="c_uwflag"><label for="c_uwflag" style="font-size:13px">🚩 Flag for UW call — need to discuss this condition with the underwriter</label></div>
     </div>
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('condModal')">Cancel</button><button class="btn btn-gold" onclick="saveCondition()">Save Condition</button></div>
   </div>
@@ -1142,6 +1165,7 @@ const DEFAULTS = {
   lenderSpecialties: ['Conventional','VA','FHA','DSCR','Non-QM','Purchase','Refinance','Jumbo','1-4 Units','2-4 Units','5+ Units','HELOC','Reverse Mortgage','Construction','Construction (Ground Up)','Commercial','Mixed Use','Co-ops','Condos'],
   docTemplates: ['Bank Statement','Pay Stubs (30-day)','W-2 (2 years)','Tax Returns (2 years)','Government-Issued ID','Letter of Explanation','Gift Letter','Mortgage Statement','Business P&L','HOA Documents','Insurance Declaration Page'],
   lenderTrackedFields: ['Broker Comp Tier','Portal URL','Submission Method','Avg. Turn Time','Min FICO','Max LTV','Notes on Guidelines'],
+  defaultLenderQueues: ['Senior UW','UWII','Disclosures / Compliance'],
   printSettings: {
     companyName: 'Zaphire Capital',
     nmls: 'NMLS# 2511614',
@@ -1162,6 +1186,21 @@ let editingFileId = null;
 let editingCondId = null;
 let editingCFId = null;
 let condFilter = 'all';
+let condUWFilterActive = false;
+
+function renderConditionsFromFilter() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+}
+
+function toggleUWFilter(btn) {
+  condUWFilterActive = !condUWFilterActive;
+  btn.classList.toggle('active', condUWFilterActive);
+  btn.style.background = condUWFilterActive ? '#dc2626' : '';
+  btn.style.color = condUWFilterActive ? '#fff' : '#7b4f12';
+  btn.style.borderColor = condUWFilterActive ? '#dc2626' : '#fcd34d';
+  renderConditionsFromFilter();
+}
 let currentUser = 'Deric';
 let syncTimer = null;
 
@@ -1376,17 +1415,39 @@ function renderFileDetail() {
 //                                        
 function setCondFilter(val, btn) {
   condFilter = val;
-  document.querySelectorAll('#condFilterBar .filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#condFilterBar .filter-btn:not(#condUWFilter)').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   const f = cache.files.find(x=>x.id===currentFileId);
   if (f) renderConditions(f);
 }
 
+function getLenderQueues(bankName) {
+  if (!bankName) return [];
+  const lender = (cache.lenders||[]).find(l=>l.name&&l.name.toLowerCase()===bankName.toLowerCase());
+  return lender?.queues || [];
+}
+
+function populatePersonFilter(conditions) {
+  const sel = document.getElementById('condPersonFilter');
+  if (!sel) return;
+  const current = sel.value;
+  const people = [...new Set(conditions.map(c=>c.resp).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All People</option>' + people.map(p=>`<option value="${esc(p)}" ${current===p?'selected':''}>${esc(p)}</option>`).join('');
+}
+
 function renderConditions(f) {
   const all = cache.conditions[f.id] || [];
-  const filtered = condFilter==='all' ? all : all.filter(c=>c.status===condFilter);
+  populatePersonFilter(all);
+  const personFilter = document.getElementById('condPersonFilter')?.value || '';
+  let filtered = condFilter==='all' ? all : all.filter(c=>c.status===condFilter);
+  if (personFilter) filtered = filtered.filter(c=>c.resp===personFilter);
+  if (condUWFilterActive) filtered = filtered.filter(c=>c.uwFlag);
   const el = document.getElementById('condBuckets');
   if (!all.length) { el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">  </div><div class="empty-state-title">No conditions yet</div><div class="empty-state-sub">Click "+ Add Condition" to begin tracking</div></div>'; return; }
+  if (filtered.length===0 && (personFilter||condUWFilterActive||condFilter!=='all')) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-title">No conditions match your filter</div></div>'; return;
+  }
+  const queues = getLenderQueues(f.bank);
   const buckets = [
     {key:'Open',label:'Open Conditions',icon:'●',cls:'bucket-open'},
     {key:'Open (Ready to Submit)',label:'Open (Ready to Submit)',icon:'★',cls:'bucket-ready'},
@@ -1396,6 +1457,30 @@ function renderConditions(f) {
   el.innerHTML = buckets.map(b => {
     if (condFilter!=='all' && condFilter!==b.key) return '';
     const items = filtered.filter(c=>c.status===b.key);
+    let bodyHtml;
+    if (!items.length) {
+      bodyHtml = '<div style="padding:20px;text-align:center;color:var(--slate-light);font-size:13px">No conditions here</div>';
+    } else if (queues.length && b.key==='Open') {
+      // Sub-categorize by queue within Open bucket
+      const sections = [...queues.map(q=>({q,label:q})), {q:'__none',label:'Unassigned'}];
+      bodyHtml = sections.map(({q,label}) => {
+        const secItems = q==='__none'
+          ? items.filter(c=>!c.queue||!queues.includes(c.queue))
+          : items.filter(c=>c.queue===q);
+        if (!secItems.length) return '';
+        const isNone = q==='__none';
+        return `<div class="subcat-section ${isNone?'subcat-unassigned':''}">
+          <div class="subcat-header" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.subcat-chev').classList.toggle('open')">
+            <div class="subcat-title">${esc(label)}</div>
+            <span class="subcat-count">${secItems.length}</span>
+            <span class="subcat-chev open">▾</span>
+          </div>
+          <div class="subcat-body open">${secItems.map(c=>condCard(c)).join('')}</div>
+        </div>`;
+      }).join('');
+    } else {
+      bodyHtml = items.map(c=>condCard(c)).join('');
+    }
     return `<div class="bucket ${b.cls}">
       <div class="bucket-header" onclick="toggleBucket(this)">
         <div class="bucket-icon">${b.icon}</div>
@@ -1403,9 +1488,7 @@ function renderConditions(f) {
         <span class="bucket-count">${items.length}</span>
         <span class="bucket-chevron open"> </span>
       </div>
-      <div class="bucket-body open">
-        ${items.length ? items.map(c=>condCard(c)).join('') : '<div style="padding:20px;text-align:center;color:var(--slate-light);font-size:13px">No conditions here</div>'}
-      </div>
+      <div class="bucket-body open">${bodyHtml}</div>
     </div>`;
   }).join('');
 }
@@ -1431,6 +1514,13 @@ function condCard(c) {
       </div>
     </div>`).join('');
   const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
+  // UW flag icon
+  const uwFlagHtml = c.uwFlag ? `<span class="uw-flag-badge" title="Flagged for UW call">🚩 UW Call</span>` : '';
+  // Person initials badge
+  const personInitials = c.resp ? c.resp.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '';
+  const personBadge = personInitials ? `<span class="cond-person-badge" title="${esc(c.resp)}">${personInitials}</span>` : '';
+  // Queue badge (shown outside sub-category sections i.e. non-Open buckets)
+  const queueBadge = c.queue ? `<span class="badge badge-gray" style="font-size:11px">📂 ${esc(c.queue)}</span>` : '';
   // Find docs linked to this condition
   const condRef = '#'+(c.num||'?');
   const linkedDocs = (getFileDocs(currentFileId)||[]).filter(d=>d.condLink&&d.condLink.startsWith(condRef));
@@ -1452,12 +1542,16 @@ function condCard(c) {
           <span class="badge badge-navy" style="font-size:11px">${esc(c.cat||' ')}</span>
           <span class="badge badge-gray" style="font-size:11px">${esc(c.type||' ')}</span>
           ${c.resp?`<span class="badge badge-gold" style="font-size:11px">  ${esc(c.resp)}</span>`:''}
+          ${queueBadge}
+          ${uwFlagHtml}
+          ${personBadge}
           <select class="${sc} status-select" onchange="updateCondStatus('${c.id}',this.value)">
             <option value="Open" ${c.status==='Open'?'selected':''}>Open</option>
             <option value="Open (Ready to Submit)" ${c.status==='Open (Ready to Submit)'?'selected':''}>Open (Ready to Submit)</option>
             <option value="Submitted to Lender" ${c.status==='Submitted to Lender'?'selected':''}>Submitted to Lender</option>
             <option value="Cleared" ${c.status==='Cleared'?'selected':''}>Cleared</option>
           </select>
+          <button class="uw-flag ${c.uwFlag?'active':''}" onclick="toggleUWFlag('${c.id}')" title="${c.uwFlag?'Remove UW flag':'Flag for UW call'}">${c.uwFlag?'🚩 UW':'🚩'}</button>
         </div>
       </div>
       <div class="condition-actions">
@@ -1569,9 +1663,11 @@ function openNewConditionModal() {
   document.getElementById('c_desc').value = '';
   document.getElementById('c_num').value = '';
   document.getElementById('c_status').value = 'Open';
+  document.getElementById('c_uwflag').checked = false;
   pop('c_cat', cache.settings.conditionCategories);
-  pop('c_type', cache.settings.conditionTypes);
+  pop('c_type', [...cache.settings.conditionTypes].sort());
   pop('c_resp', cache.settings.users);
+  populateQueueField(null);
   openModal('condModal');
 }
 
@@ -1584,16 +1680,41 @@ function openEditCondModal(cid) {
   document.getElementById('c_desc').value = c.desc||'';
   document.getElementById('c_num').value = c.num||'';
   document.getElementById('c_status').value = c.status||'Open';
+  document.getElementById('c_uwflag').checked = c.uwFlag||false;
   pop('c_cat', cache.settings.conditionCategories, c.cat);
-  pop('c_type', cache.settings.conditionTypes, c.type);
+  pop('c_type', [...cache.settings.conditionTypes].sort(), c.type);
   pop('c_resp', cache.settings.users, c.resp);
+  populateQueueField(c.queue||null);
   openModal('condModal');
+}
+
+function populateQueueField(selected) {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  const queues = getLenderQueues(f?.bank||'');
+  const grp = document.getElementById('c_queue_group');
+  const sel = document.getElementById('c_queue');
+  if (queues.length) {
+    grp.style.display = '';
+    sel.innerHTML = '<option value="">— None —</option>' + queues.map(q=>`<option value="${esc(q)}" ${selected===q?'selected':''}>${esc(q)}</option>`).join('');
+  } else {
+    grp.style.display = 'none';
+  }
 }
 
 async function saveCondition() {
   const desc = document.getElementById('c_desc').value.trim();
   if (!desc) { toast('Description is required','error'); return; }
-  const data = { cat:document.getElementById('c_cat').value, type:document.getElementById('c_type').value, num:document.getElementById('c_num').value.trim(), resp:document.getElementById('c_resp').value, status:document.getElementById('c_status').value, desc };
+  const queue = document.getElementById('c_queue')?.value || '';
+  const data = {
+    cat: document.getElementById('c_cat').value,
+    type: document.getElementById('c_type').value,
+    num: document.getElementById('c_num').value.trim(),
+    resp: document.getElementById('c_resp').value,
+    status: document.getElementById('c_status').value,
+    desc,
+    queue,
+    uwFlag: document.getElementById('c_uwflag').checked
+  };
   if (!cache.conditions[currentFileId]) cache.conditions[currentFileId] = [];
   if (editingCondId) {
     const i = cache.conditions[currentFileId].findIndex(x=>x.id===editingCondId);
@@ -2641,7 +2762,12 @@ function renderLenderDetail(lid) {
       <div style="display:flex;flex-wrap:wrap;gap:6px">${specsHtml}</div>
     </div>
     <div class="lender-detail-card">
-      <div class="ld-sec-title"><span>📋 Tracked Info</span><button class="btn btn-outline btn-sm" style="font-size:11.5px" onclick="openLenderFieldsModal()">⚙ Manage Fields</button></div>
+      <div class="ld-sec-title"><span>📋 Tracked Info</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-outline btn-sm" style="font-size:11.5px" onclick="openLenderQueuesModal('${l.id}')">⚙ Queues / Tracks</button>
+          <button class="btn btn-outline btn-sm" style="font-size:11.5px" onclick="openLenderFieldsModal()">⚙ Manage Fields</button>
+        </div>
+      </div>
       <div class="cf-field-grid">${fieldsHtml}<div><button class="cf-add-slot" onclick="openLenderFieldsModal()">+ Add Field</button></div></div>
     </div>
     <div class="lender-detail-card">
@@ -3315,22 +3441,85 @@ function updateDocsDrawerBadge() {
   if (badge) badge.textContent = needed > 0 ? needed+' needed' : docs.length+' docs';
 }
 
-// Option C — open doc modal pre-filled with condition
+async function toggleUWFlag(cid) {
+  const cs = cache.conditions[currentFileId]||[];
+  const c = cs.find(x=>x.id===cid);
+  if (!c) return;
+  c.uwFlag = !c.uwFlag;
+  await saveConditions(currentFileId);
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) renderConditions(f);
+  toast(c.uwFlag ? '🚩 Flagged for UW call' : 'UW flag removed');
+}
+
+// ── Lender Queue / Track management ──
+let _lqLenderId = null;
+let _lqQueues = [];
+
+function openLenderQueuesModal(lid) {
+  _lqLenderId = lid;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  _lqQueues = [...(l?.queues||DEFAULTS.defaultLenderQueues)];
+  document.getElementById('lqModalTitle').textContent = `Queues / Tracks — ${l?.name||''}`;
+  document.getElementById('addLQInput').value = '';
+  renderLQTags();
+  document.getElementById('lenderQueuesModal').classList.add('open');
+}
+
+function renderLQTags() {
+  document.getElementById('lqTagList').innerHTML = _lqQueues.map((q,i)=>`
+    <div class="tag"><span>${esc(q)}</span><button class="tag-remove" onclick="removeLQ(${i})">&#x2715;</button></div>`).join('');
+}
+
+function addLenderQueue() {
+  const val = document.getElementById('addLQInput').value.trim();
+  if (!val) return;
+  if (_lqQueues.includes(val)) { toast('Already exists','error'); return; }
+  _lqQueues.push(val);
+  document.getElementById('addLQInput').value = '';
+  renderLQTags();
+}
+
+function removeLQ(idx) {
+  _lqQueues.splice(idx,1);
+  renderLQTags();
+}
+
+async function saveLenderQueues() {
+  const l = (cache.lenders||[]).find(x=>x.id===_lqLenderId);
+  if (l) { l.queues = [..._lqQueues]; await syncToCloud(); toast('Queues saved'); }
+  closeModal('lenderQueuesModal');
+  if (currentLenderId) renderLenderDetail(currentLenderId);
+}
+
+// Fix: openDocItemModalForCond — pass condLink directly
 function openDocItemModalForCond(condLink) {
-  openDocItemModal();
-  // After modal opens, set the condition dropdown
-  setTimeout(() => {
-    const sel = document.getElementById('di_cond');
-    if (!sel) return;
-    // Try to select matching option
-    for (const opt of sel.options) {
-      if (opt.value === condLink) { sel.value = condLink; return; }
-    }
-    // If not found, add it
-    const opt = document.createElement('option');
-    opt.value = condLink; opt.textContent = condLink; opt.selected = true;
-    sel.appendChild(opt);
-  }, 50);
+  _editDocId = null;
+  const f = cache.files.find(x=>x.id===currentFileId);
+  const b1 = f?.b1 || 'Borrower 1';
+  const b2 = f?.b2 || '';
+  const both = b2 ? `${b1} & ${b2}` : b1;
+  document.getElementById('docItemModalTitle').textContent = 'Add Document Request';
+  document.getElementById('di_name').value = '';
+  document.getElementById('di_spec').value = '';
+  document.getElementById('di_status').value = 'needed';
+  document.getElementById('di_template').checked = false;
+  document.getElementById('di_note').value = '';
+  // Populate For dropdown
+  const forSel = document.getElementById('di_for');
+  forSel.innerHTML = `<option value="${esc(b1)}">${esc(b1)}</option>` +
+    (b2 ? `<option value="${esc(b2)}">${esc(b2)}</option><option value="${esc(both)}">${esc(both)}</option>` : '');
+  // Populate condition dropdown and pre-select this condition
+  const conds = (cache.conditions[currentFileId]||[]);
+  const condSel = document.getElementById('di_cond');
+  condSel.innerHTML = '<option value="">— None —</option>' +
+    conds.map(c=>`<option value="${esc('#'+(c.num||'?')+' — '+c.desc)}" ${('#'+(c.num||'?')+' — '+c.desc)===condLink?'selected':''}>${esc('#'+(c.num||'?')+' — '+c.desc)}</option>`).join('');
+  // If not found in list, add it
+  if (!conds.find(c=>('#'+(c.num||'?')+' — '+c.desc)===condLink)) {
+    condSel.innerHTML += `<option value="${esc(condLink)}" selected>${esc(condLink)}</option>`;
+  }
+  condSel.value = condLink;
+  document.getElementById('docItemModal').classList.add('open');
 }
 
 function jumpToCondition(condLink) {
@@ -3746,6 +3935,24 @@ function printDocChecklist() {
     <button class="btn btn-gold btn-sm" style="flex:1" onclick="openDocItemModal()">+ Add Document</button>
     <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
     <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print</button>
+  </div>
+</div>
+<!-- MANAGE LENDER QUEUES MODAL -->
+<div class="modal-overlay" id="lenderQueuesModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="lqModalTitle">Manage Queues / Tracks</div>
+      <button class="btn btn-ghost" onclick="closeModal('lenderQueuesModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px" id="lqModalDesc">These queues appear as sub-sections within condition status buckets when this lender is assigned to a file.</p>
+      <div class="tag-list" id="lqTagList"></div>
+      <div class="tag-add-row">
+        <input class="form-input" type="text" id="addLQInput" placeholder="Add queue name..." onkeydown="if(event.key==='Enter')addLenderQueue()">
+        <button class="btn btn-outline btn-sm" onclick="addLenderQueue()">Add</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-gold" onclick="saveLenderQueues()">Done</button></div>
   </div>
 </div>
 
