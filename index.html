@@ -437,6 +437,24 @@ input[type=file]{display:none}
   .subcat-body{display:none}
   .subcat-body.open{display:block}
   .subcat-unassigned .subcat-title{color:var(--slate-light);font-style:italic}
+  /* Lender Tracks in Settings */
+  .ltrack-lender-row{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+  .ltrack-lender-hdr{display:flex;align-items:center;gap:12px;padding:13px 18px;cursor:pointer;user-select:none}
+  .ltrack-lender-hdr:hover{background:var(--cream)}
+  .ltrack-lender-name{font-size:14px;font-weight:600;color:var(--navy);flex:1}
+  .ltrack-lender-sub{font-size:12px;color:var(--slate-light);margin-top:1px}
+  .ltrack-queue-count{font-size:11.5px;color:var(--slate-light);background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:1px 9px}
+  .ltrack-chev{font-size:13px;color:var(--slate-light);transition:transform .2s}
+  .ltrack-chev.open{transform:rotate(180deg)}
+  .ltrack-body{display:none;padding:14px 18px;border-top:1px solid var(--border);background:#faf8f3}
+  .ltrack-body.open{display:block}
+  .ltrack-queue-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .ltrack-queue-tag{display:inline-flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border-strong);border-radius:7px;padding:5px 11px;font-size:13px;font-weight:500;color:var(--navy)}
+  .ltrack-queue-tag button{background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:13px;padding:0;line-height:1}
+  .ltrack-queue-tag button:hover{color:var(--danger)}
+  .ltrack-add-row{display:flex;gap:8px;margin-top:6px}
+  .ltrack-empty{font-size:13px;color:var(--slate-light);font-style:italic;margin-bottom:10px}
+  .ltrack-lender-av{width:30px;height:30px;border-radius:7px;background:#e8edf5;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
   .cond-linked-docs{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
   .cond-linked-doc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-pale);color:#7b5c12;border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 9px;font-size:11px;cursor:pointer}
   .cond-linked-doc-badge:hover{background:#f0e5c4}
@@ -612,6 +630,20 @@ input[type=file]{display:none}
         <div style="font-size:12.5px;color:var(--slate-light)">PNG or JPG. Appears in the sidebar on all devices.</div>
       </div>
 
+      <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Lender Condition Tracks</div></div>
+      <p style="color:var(--slate-light);font-size:13px;margin-bottom:16px;max-width:680px;line-height:1.6">Define condition sub-categories (tracks) for each lender. When a file is assigned to that lender, these tracks appear as sections inside the Open Conditions bucket — letting you organize conditions by underwriting queue, department, or workflow stage.</p>
+      <div style="max-width:680px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:13px;color:var(--slate-light)">Click a lender to expand and manage its tracks.</div>
+          <button class="btn btn-outline btn-sm" onclick="renderLenderTracks()">↺ Refresh</button>
+        </div>
+        <div id="lenderTracksList"></div>
+        <div id="lenderTracksEmpty" style="display:none;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;text-align:center;color:var(--slate-light);font-size:13.5px">
+          No lenders in your directory yet.<br>
+          <a href="#" onclick="showPage('lenders');return false" style="color:var(--gold);font-weight:500">Go to Lender Directory →</a>
+        </div>
+      </div>
       <div class="divider"></div>
       <div class="section-header"><div class="section-title">Document Checklist Print Settings</div></div>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
@@ -1977,6 +2009,7 @@ function renderSettings() {
   document.getElementById('settingsGrid').innerHTML = defs.map(s=>`<div class="settings-card"><div class="settings-card-title">${s.label}</div><div class="settings-card-sub">${s.sub}</div><div class="tag-list" id="tags-${s.key}"></div><div class="tag-add-row"><input class="form-input" type="text" id="addInput-${s.key}" placeholder="Add new option..." onkeydown="if(event.key==='Enter')addSetting('${s.key}')"><button class="btn btn-outline btn-sm" onclick="addSetting('${s.key}')">Add</button></div></div>`).join('');
   renderAllTags();
   renderUserTags();
+  renderLenderTracks();
   loadPrintSettingsToForm();
 }
 
@@ -3481,6 +3514,95 @@ async function toggleUWFlag(cid) {
 // ── Lender Queue / Track management ──
 let _lqLenderId = null;
 let _lqQueues = [];
+
+// ── Lender Tracks — Settings Page ──
+
+function renderLenderTracks() {
+  const listEl = document.getElementById('lenderTracksList');
+  const emptyEl = document.getElementById('lenderTracksEmpty');
+  if (!listEl) return;
+  const lenders = [...(cache.lenders||[])].sort((a,b)=>a.name.localeCompare(b.name));
+  if (!lenders.length) {
+    listEl.innerHTML = '';
+    if (emptyEl) emptyEl.style.display = '';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+  listEl.innerHTML = lenders.map(l => {
+    const queues = l.queues||[];
+    const init = (l.name||'?')[0].toUpperCase();
+    const statusDot = l.active
+      ? `<span style="width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block;flex-shrink:0"></span>`
+      : `<span style="width:7px;height:7px;border-radius:50%;background:var(--danger);display:inline-block;flex-shrink:0"></span>`;
+    const queueTagsHtml = queues.map((q,qi)=>`<span class="ltrack-queue-tag">${esc(q)}<button onclick="removeLenderTrackQueue('${l.id}',${qi})" title="Remove">✕</button></span>`).join('');
+    const emptyMsg = queues.length ? '' : '<div class="ltrack-empty">No tracks defined — conditions will not be sub-grouped for this lender.</div>';
+    return `<div class="ltrack-lender-row" id="ltrack-${l.id}">
+      <div class="ltrack-lender-hdr" onclick="toggleLenderTrack('${l.id}')">
+        <div class="ltrack-lender-av">${esc(init)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ltrack-lender-name">${esc(l.name)}</div>
+          <div class="ltrack-lender-sub">${esc(l.type||'')}</div>
+        </div>
+        ${statusDot}
+        <span class="ltrack-queue-count">${queues.length} track${queues.length!==1?'s':''}</span>
+        <span class="ltrack-chev" id="ltrack-chev-${l.id}">▾</span>
+      </div>
+      <div class="ltrack-body" id="ltrack-body-${l.id}">
+        <div style="font-size:12px;color:var(--slate-light);margin-bottom:10px">Conditions on files assigned to <strong>${esc(l.name)}</strong> will be grouped by these tracks inside the Open bucket. Drag to reorder is coming — for now use ✕ and re-add to reorder.</div>
+        ${emptyMsg}
+        <div class="ltrack-queue-list" id="ltrack-tags-${l.id}">${queueTagsHtml}</div>
+        <div class="ltrack-add-row">
+          <input class="form-input" type="text" id="ltrack-input-${l.id}" placeholder="Add track name (e.g. Senior UW, Disclosures...)" onkeydown="if(event.key==='Enter')addLenderTrackQueue('${l.id}')">
+          <button class="btn btn-gold btn-sm" onclick="addLenderTrackQueue('${l.id}')">Add Track</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleLenderTrack(lid) {
+  const body = document.getElementById('ltrack-body-'+lid);
+  const chev = document.getElementById('ltrack-chev-'+lid);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+async function addLenderTrackQueue(lid) {
+  const input = document.getElementById('ltrack-input-'+lid);
+  const val = input?.value.trim();
+  if (!val) return;
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l) return;
+  if (!l.queues) l.queues = [];
+  if (l.queues.includes(val)) { toast('That track already exists','error'); return; }
+  l.queues.push(val);
+  input.value = '';
+  await syncToCloud();
+  renderLenderTracks();
+  // Re-open the row that was just edited
+  const body = document.getElementById('ltrack-body-'+lid);
+  const chev = document.getElementById('ltrack-chev-'+lid);
+  if (body) { body.classList.add('open'); }
+  if (chev) { chev.classList.add('open'); }
+  toast(`Track "${val}" added to ${l.name}`);
+}
+
+async function removeLenderTrackQueue(lid, idx) {
+  const l = (cache.lenders||[]).find(x=>x.id===lid);
+  if (!l || !l.queues) return;
+  const name = l.queues[idx];
+  if (!confirm(`Remove track "${name}" from ${l.name}? Conditions already assigned to this track will show as Unassigned.`)) return;
+  l.queues.splice(idx, 1);
+  await syncToCloud();
+  renderLenderTracks();
+  // Re-open
+  const body = document.getElementById('ltrack-body-'+lid);
+  const chev = document.getElementById('ltrack-chev-'+lid);
+  if (body) { body.classList.add('open'); }
+  if (chev) { chev.classList.add('open'); }
+  toast(`Track "${name}" removed`);
+}
 
 function openLenderQueuesModal(lid) {
   _lqLenderId = lid;
