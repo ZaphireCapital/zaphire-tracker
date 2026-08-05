@@ -418,10 +418,13 @@ input[type=file]{display:none}
   .cond-req-doc-row{padding:8px 20px 10px;border-top:1px dashed #ede9e1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .cond-req-doc-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);color:#7b5c12;border:1px solid rgba(201,168,76,.35);border-radius:6px;padding:4px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-body)}
   .cond-req-doc-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
-  /* UW flag */
-  .uw-flag{display:inline-flex;align-items:center;gap:3px;background:#fff3cd;color:#7b4f12;border:1px solid #fcd34d;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)}
-  .uw-flag.active{background:#dc2626;color:#fff;border-color:#dc2626}
-  .uw-flag-badge{display:inline-flex;align-items:center;gap:3px;background:#dc2626;color:#fff;border-radius:4px;padding:1px 6px;font-size:10.5px;font-weight:700}
+  /* UW flag — Option 3 Corner Ribbon */
+  .uw-ribbon{display:none;position:absolute;top:-1px;right:-1px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:4px 12px 4px 10px;border-radius:0 var(--radius) 0 8px;letter-spacing:.04em;pointer-events:none;z-index:2}
+  .condition-card{position:relative}
+  .condition-card.uw-flagged .uw-ribbon{display:block}
+  .uw-toggle-btn{display:inline-flex;align-items:center;gap:4px;cursor:pointer;padding:3px 9px;border-radius:6px;border:1.5px dashed var(--border-strong);background:transparent;font-size:11.5px;font-family:var(--font-body);color:var(--slate-light);transition:all .15s}
+  .uw-toggle-btn:hover{border-color:#dc2626;color:#dc2626;background:#fff1f1}
+  .uw-toggle-btn.active{border-style:solid;border-color:#dc2626;background:#fff1f1;color:#dc2626;font-weight:600}
   /* person badge on card */
   .cond-person-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;cursor:default;flex-shrink:0}
   /* sub-category section inside bucket */
@@ -1062,7 +1065,10 @@ async function syncFromCloud() {
     ]);
     if (files) cache.files = files;
     if (conditions) cache.conditions = conditions;
-    if (settings) cache.settings = { ...DEFAULTS, ...settings, requiredBy: (settings.requiredBy && settings.requiredBy.length) ? settings.requiredBy : DEFAULTS.requiredBy };
+    if (settings) {
+      cache.settings = { ...DEFAULTS, ...settings, requiredBy: (settings.requiredBy && settings.requiredBy.length) ? settings.requiredBy : DEFAULTS.requiredBy };
+      if (cache.settings.conditionTypes) cache.settings.conditionTypes = [...cache.settings.conditionTypes].sort();
+    }
     if (customFields) cache.customFields = customFields;
     const trash = await sbGet('trash');
     if (trash) cache.trash = trash;
@@ -1424,7 +1430,15 @@ function setCondFilter(val, btn) {
 function getLenderQueues(bankName) {
   if (!bankName) return [];
   const lender = (cache.lenders||[]).find(l=>l.name&&l.name.toLowerCase()===bankName.toLowerCase());
-  return lender?.queues || [];
+  if (!lender) return [];
+  // Return lender's queues — empty array means no sub-categorization
+  return lender.queues || [];
+}
+
+function getLenderIdByName(bankName) {
+  if (!bankName) return null;
+  const lender = (cache.lenders||[]).find(l=>l.name&&l.name.toLowerCase()===bankName.toLowerCase());
+  return lender?.id || null;
 }
 
 function populatePersonFilter(conditions) {
@@ -1448,6 +1462,14 @@ function renderConditions(f) {
     el.innerHTML = '<div class="empty-state"><div class="empty-state-title">No conditions match your filter</div></div>'; return;
   }
   const queues = getLenderQueues(f.bank);
+  const lenderId = getLenderIdByName(f.bank);
+  // Show queue setup tip inside Open bucket if lender exists but has no queues yet
+  const queueSetupTip = (f.bank && lenderId && !queues.length)
+    ? `<div style="padding:8px 16px;background:#f5ecd4;border-bottom:1px solid #e8c97a;font-size:12px;color:#7b5c12;display:flex;align-items:center;gap:8px">
+        📂 <strong>${esc(f.bank)}</strong> has no queues/tracks set up yet.
+        <button onclick="openLenderQueuesModal('${lenderId}')" style="background:none;border:1px solid #c9a84c;border-radius:5px;padding:2px 9px;font-size:11.5px;color:#7b5c12;cursor:pointer;font-family:var(--font-body)">⚙ Set Up Queues</button>
+      </div>`
+    : '';
   const buckets = [
     {key:'Open',label:'Open Conditions',icon:'●',cls:'bucket-open'},
     {key:'Open (Ready to Submit)',label:'Open (Ready to Submit)',icon:'★',cls:'bucket-ready'},
@@ -1488,7 +1510,7 @@ function renderConditions(f) {
         <span class="bucket-count">${items.length}</span>
         <span class="bucket-chevron open"> </span>
       </div>
-      <div class="bucket-body open">${bodyHtml}</div>
+      <div class="bucket-body open">${b.key==='Open'?queueSetupTip:''}${bodyHtml}</div>
     </div>`;
   }).join('');
 }
@@ -1514,8 +1536,8 @@ function condCard(c) {
       </div>
     </div>`).join('');
   const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
-  // UW flag icon
-  const uwFlagHtml = c.uwFlag ? `<span class="uw-flag-badge" title="Flagged for UW call">🚩 UW Call</span>` : '';
+  // UW flag — corner ribbon (always in DOM, shown via CSS class on card)
+  const uwCardClass = c.uwFlag ? ' uw-flagged' : '';
   // Person initials badge
   const personInitials = c.resp ? c.resp.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '';
   const personBadge = personInitials ? `<span class="cond-person-badge" title="${esc(c.resp)}">${personInitials}</span>` : '';
@@ -1533,7 +1555,8 @@ function condCard(c) {
     <button class="cond-req-doc-btn" onclick="openDocItemModalForCond(${condLabel})">📋 Request Doc from Client</button>
     ${linkedDocs.length ? `<div class="cond-linked-docs">${linkedBadges}</div>` : ''}
   </div>`;
-  return `<div class="condition-card">
+  return `<div class="condition-card${uwCardClass}">
+    <div class="uw-ribbon">📞 UW CALL</div>
     <div class="condition-top">
       <div class="condition-num">${esc(c.num||'?')}</div>
       <div class="condition-main">
@@ -1543,7 +1566,6 @@ function condCard(c) {
           <span class="badge badge-gray" style="font-size:11px">${esc(c.type||' ')}</span>
           ${c.resp?`<span class="badge badge-gold" style="font-size:11px">  ${esc(c.resp)}</span>`:''}
           ${queueBadge}
-          ${uwFlagHtml}
           ${personBadge}
           <select class="${sc} status-select" onchange="updateCondStatus('${c.id}',this.value)">
             <option value="Open" ${c.status==='Open'?'selected':''}>Open</option>
@@ -1551,7 +1573,7 @@ function condCard(c) {
             <option value="Submitted to Lender" ${c.status==='Submitted to Lender'?'selected':''}>Submitted to Lender</option>
             <option value="Cleared" ${c.status==='Cleared'?'selected':''}>Cleared</option>
           </select>
-          <button class="uw-flag ${c.uwFlag?'active':''}" onclick="toggleUWFlag('${c.id}')" title="${c.uwFlag?'Remove UW flag':'Flag for UW call'}">${c.uwFlag?'🚩 UW':'🚩'}</button>
+          <button class="uw-toggle-btn ${c.uwFlag?'active':''}" onclick="toggleUWFlag('${c.id}')">${c.uwFlag?'📞 UW Flagged':'📞 UW Call'}</button>
         </div>
       </div>
       <div class="condition-actions">
@@ -1961,7 +1983,7 @@ function renderSettings() {
 function renderAllTags() {
   ['loanTypes','occupancyTypes','conditionCategories','conditionTypes','requiredBy'].forEach(key => {
     const el = document.getElementById('tags-'+key); if (!el) return;
-    el.innerHTML = (cache.settings[key]||[]).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeSetting('${key}',${i})" title="Remove">&#x2715;</button></span>`).join('');
+    el.innerHTML = ([...(cache.settings[key]||[])].sort((a,b)=>key==='conditionTypes'?a.localeCompare(b):0)).map((v,i)=>`<span class="tag">${esc(v)}<button class="tag-remove" onclick="removeSetting('${key}',${cache.settings[key].indexOf(v)})" title="Remove">&#x2715;</button></span>`).join('');
   });
 }
 
@@ -1973,7 +1995,11 @@ function renderUserTags() {
 async function addSetting(key) {
   const input = document.getElementById('addInput-'+key);
   const val = input.value.trim(); if (!val) return;
-  if (!cache.settings[key].includes(val)) { cache.settings[key].push(val); await saveSettings(); renderAllTags(); toast('Option added'); }
+  if (!cache.settings[key].includes(val)) {
+    cache.settings[key].push(val);
+    if (key === 'conditionTypes') cache.settings[key].sort();
+    await saveSettings(); renderAllTags(); toast('Option added');
+  }
   else toast('Already exists','error');
   input.value = '';
 }
