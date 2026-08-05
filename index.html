@@ -428,15 +428,26 @@ input[type=file]{display:none}
   /* person badge on card */
   .cond-person-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;cursor:default;flex-shrink:0}
   /* sub-category section inside bucket */
-  .subcat-section{margin-bottom:4px}
-  .subcat-header{display:flex;align-items:center;gap:8px;padding:6px 14px 5px;background:#f8f6f1;border-top:1px solid #ede9e1;border-bottom:1px solid #ede9e1;cursor:pointer;user-select:none}
-  .subcat-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--slate);flex:1}
-  .subcat-count{font-size:10.5px;color:var(--slate-light)}
-  .subcat-chev{font-size:12px;color:var(--slate-light);transition:transform .2s}
-  .subcat-chev.open{transform:rotate(180deg)}
-  .subcat-body{display:none}
+  /* ── Sub-category tracks — Option 1 Portal Style ── */
+  .subcat-section{margin-bottom:0}
+  .subcat-sep{height:12px;background:var(--white)}
+  .subcat-header{display:flex;align-items:stretch;gap:0;cursor:pointer;user-select:none;border-top:2px solid #e55b0a}
+  .subcat-count-box{background:#e55b0a;color:#fff;font-size:13px;font-weight:700;padding:9px 14px;min-width:60px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .subcat-title{flex:1;background:#e8e4dc;padding:9px 16px;font-size:12.5px;font-weight:700;color:#2d2a24;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center}
+  .subcat-cleared{background:#e8e4dc;color:#6b5c4a;font-size:12px;font-weight:600;padding:9px 13px;display:flex;align-items:center;border-left:1px solid #d4cfc5;flex-shrink:0}
+  .subcat-chev-box{background:#d4500a;color:#fff;padding:9px 12px;flex-shrink:0;font-size:13px;display:flex;align-items:center;transition:background .15s}
+  .subcat-chev-box:hover{background:#c04008}
+  .subcat-chev-box.open .subcat-chev{transform:rotate(180deg)}
+  .subcat-chev{display:inline-block;transition:transform .2s}
+  .subcat-body{display:none;background:#f5f2ed}
   .subcat-body.open{display:block}
-  .subcat-unassigned .subcat-title{color:var(--slate-light);font-style:italic}
+  /* unassigned section — muted style */
+  .subcat-unassigned .subcat-header{border-top-color:#9ca3af}
+  .subcat-unassigned .subcat-count-box{background:#6b7280}
+  .subcat-unassigned .subcat-title{background:#f0ece4;color:var(--slate-light);font-style:italic;font-weight:500;letter-spacing:.02em;text-transform:none}
+  .subcat-unassigned .subcat-cleared{background:#f0ece4;border-color:#e0dbd2}
+  .subcat-unassigned .subcat-chev-box{background:#9ca3af}
+  .subcat-unassigned .subcat-body{background:#faf8f3}
   /* Lender Tracks in Settings */
   .ltrack-lender-row{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
   .ltrack-lender-hdr{display:flex;align-items:center;gap:12px;padding:13px 18px;cursor:pointer;user-select:none}
@@ -1527,15 +1538,22 @@ function renderConditions(f) {
           : items.filter(c=>c.queue===q);
         if (!secItems.length) return '';
         const isNone = q==='__none';
-        return `<div class="subcat-section ${isNone?'subcat-unassigned':''}">
-          <div class="subcat-header" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.subcat-chev').classList.toggle('open')">
+        const cleared = secItems.filter(c=>c.status==='Cleared').length;
+        const total = secItems.length;
+        const countLabel = `0 / ${total}`;
+        const clearedLabel = `${cleared} Cleared`;
+        const sId = 'sc-' + (q==='__none'?'none':q.replace(/[^a-z0-9]/gi,'_'));
+        return `<div class="subcat-sep"></div>
+        <div class="subcat-section ${isNone?'subcat-unassigned':''}">
+          <div class="subcat-header" onclick="toggleSubcat('${sId}')">
+            <div class="subcat-count-box">${countLabel}</div>
             <div class="subcat-title">${esc(label)}</div>
-            <span class="subcat-count">${secItems.length}</span>
-            <span class="subcat-chev open">▾</span>
+            <div class="subcat-cleared">${clearedLabel}</div>
+            <div class="subcat-chev-box open" id="scchev-${sId}"><span class="subcat-chev">▾</span></div>
           </div>
-          <div class="subcat-body open">${secItems.map(c=>condCard(c)).join('')}</div>
+          <div class="subcat-body open" id="${sId}">${secItems.map(c=>condCard(c)).join('')}</div>
         </div>`;
-      }).join('');
+      }).join('') + '<div class="subcat-sep"></div>';
     } else {
       bodyHtml = items.map(c=>condCard(c)).join('');
     }
@@ -1633,6 +1651,14 @@ function condCard(c) {
 function toggleBucket(h) {
   h.nextElementSibling.classList.toggle('open');
   h.querySelector('.bucket-chevron').classList.toggle('open');
+}
+
+function toggleSubcat(id) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById('scchev-'+id);
+  if (!body || !chev) return;
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
 }
 
 //                                        
