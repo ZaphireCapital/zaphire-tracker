@@ -792,7 +792,11 @@ input[type=file]{display:none}
           <div class="form-group"><label class="form-label">Number of Units</label><select class="form-select" id="f_units"><option value="1">1 Unit</option><option value="2">2 Units</option><option value="3">3 Units</option><option value="4">4 Units</option></select></div>
           <div class="form-group"><label class="form-label">Loan Type</label><select class="form-select" id="f_loanType"></select></div>
           <div class="form-group"><label class="form-label">Occupancy</label><select class="form-select" id="f_occupancy"></select></div>
-          <div class="form-group"><label class="form-label">Bank / Lender</label><input class="form-input" type="text" id="f_bank" placeholder="e.g. Chase, Wells Fargo"></div>
+          <div class="form-group"><label class="form-label">Bank / Lender</label>
+            <input class="form-input" type="text" id="f_bank" placeholder="Type or select lender..." list="f_bank_list" autocomplete="off">
+            <datalist id="f_bank_list"></datalist>
+            <div id="f_bank_tracks" style="display:none;margin-top:6px;font-size:12px;color:var(--success);font-weight:500"></div>
+          </div>
           <div class="form-group"><label class="form-label">Purchase Price</label><input class="form-input" type="text" id="f_pp" placeholder="$0.00"></div>
           <div class="form-group"><label class="form-label">Loan Amount</label><input class="form-input" type="text" id="f_la" placeholder="$0.00"></div>
           <div class="form-group"><label class="form-label">Note Rate</label><input class="form-input" type="text" id="f_rate" placeholder="e.g. 6.875%"></div>
@@ -1634,6 +1638,33 @@ function toggleBucket(h) {
 //                                        
 //  FILE CRUD
 //                                        
+function populateLenderDatalist() {
+  const dl = document.getElementById('f_bank_list');
+  if (!dl) return;
+  const lenders = [...(cache.lenders||[])]
+    .filter(l=>l.active)
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  dl.innerHTML = lenders.map(l=>`<option value="${esc(l.name)}">${esc(l.name)}${l.type?' — '+l.type:''}</option>`).join('');
+  // wire up input event for track preview
+  const input = document.getElementById('f_bank');
+  if (input && !input._trackWired) {
+    input.addEventListener('input', () => showBankTracks(input.value));
+    input._trackWired = true;
+  }
+}
+
+function showBankTracks(bankName) {
+  const el = document.getElementById('f_bank_tracks');
+  if (!el) return;
+  const queues = getLenderQueues(bankName);
+  if (queues.length) {
+    el.style.display = '';
+    el.textContent = '✓ Tracks available: ' + queues.join(' · ');
+  } else {
+    el.style.display = 'none';
+  }
+}
+
 function openNewFileModal() {
   editingFileId = null;
   document.getElementById('fileModalTitle').textContent = 'New File';
@@ -1641,6 +1672,8 @@ function openNewFileModal() {
   document.getElementById('f_units').value = '1';
   pop('f_loanType', cache.settings.loanTypes);
   pop('f_occupancy', cache.settings.occupancyTypes);
+  populateLenderDatalist();
+  document.getElementById('f_bank_tracks').style.display = 'none';
   openModal('fileModal');
 }
 
@@ -1659,6 +1692,8 @@ function openEditFileModal(fid) {
   document.getElementById('f_units').value = f.units||'1';
   pop('f_loanType', cache.settings.loanTypes, f.loanType);
   pop('f_occupancy', cache.settings.occupancyTypes, f.occupancy);
+  populateLenderDatalist();
+  showBankTracks(f.bank||'');
   openModal('fileModal');
 }
 
