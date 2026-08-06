@@ -85,6 +85,8 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
 .dot-open{background:#2563eb}.dot-submitted{background:#d97706}.dot-cleared{background:#16a34a}
 .file-detail-header{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 32px;margin-bottom:20px;box-shadow:var(--shadow)}
+.file-detail-tabs-body{display:flex;flex-direction:row;align-items:flex-start;gap:0;position:relative}
+.file-tabs-main{flex:1;min-width:0}
 .file-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
 .file-main-title{font-family:var(--font-display);font-size:22px;font-weight:500}
 .file-subtitle{font-size:13.5px;color:var(--slate-light);margin-top:4px}
@@ -409,6 +411,54 @@ input[type=file]{display:none}
   .docs-drawer-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;background:var(--white)}
   .drawer-backdrop{display:none;position:fixed;inset:0;background:rgba(10,22,40,.15);z-index:799}
   .drawer-backdrop.open{display:block}
+  /* ── File Notes Panel (Option B — pinnable) ── */
+  .notes-panel{position:fixed;top:0;right:-380px;width:360px;bottom:0;background:var(--white);border-left:2px solid var(--border-strong);box-shadow:-6px 0 28px rgba(10,22,40,.16);z-index:790;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1)}
+  .notes-panel.open{right:0}
+  .notes-panel.pinned{position:relative;right:auto;top:auto;bottom:auto;box-shadow:none;border-left:2px solid var(--gold);flex-shrink:0;width:320px;min-width:320px;z-index:1}
+  .notes-panel-hdr{background:var(--navy);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .notes-panel-hdr.pinned-hdr{background:var(--gold-pale);border-bottom:1px solid #e8c97a}
+  .notes-panel-title{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .notes-panel-title.dark{color:var(--gold)}
+  .notes-panel-title.light{color:var(--navy)}
+  .notes-cnt-badge{font-size:11px;font-weight:700;padding:1px 7px;border-radius:20px}
+  .notes-cnt-badge.dark{background:rgba(201,168,76,.2);color:var(--gold)}
+  .notes-cnt-badge.light{background:rgba(201,168,76,.3);color:#7b5c12}
+  .notes-pin-btn{display:inline-flex;align-items:center;gap:4px;border:1px solid;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);background:none;transition:all .15s}
+  .notes-pin-btn.unpinned{border-color:rgba(201,168,76,.4);color:var(--gold)}
+  .notes-pin-btn.unpinned:hover{background:rgba(201,168,76,.15)}
+  .notes-pin-btn.pinned-active{border-color:var(--gold);color:#7b5c12;background:rgba(201,168,76,.25)}
+  .notes-panel-close{background:none;border:none;cursor:pointer;font-size:19px;line-height:1;padding:0 3px;font-family:var(--font-body)}
+  .notes-panel-close.dark{color:rgba(255,255,255,.5)}
+  .notes-panel-close.dark:hover{color:#fff}
+  .notes-panel-close.light{color:var(--slate-light)}
+  .notes-panel-close.light:hover{color:var(--danger)}
+  .notes-list{flex:1;overflow-y:auto}
+  .notes-empty{padding:32px 20px;text-align:center;color:var(--slate-light);font-size:13px}
+  .notes-empty-icon{font-size:32px;margin-bottom:10px;opacity:.4}
+  .note-entry{padding:11px 14px;border-bottom:1px solid #f0ece4}
+  .note-entry:last-child{border-bottom:none}
+  .note-entry:hover{background:#fdf9f2}
+  .note-meta-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .note-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+  .nav-av-0{background:rgba(201,168,76,.2);color:#7b5c12}
+  .nav-av-1{background:#dbeafe;color:#1d4ed8}
+  .nav-av-2{background:#d8f3dc;color:#15803d}
+  .nav-av-3{background:#ede9fe;color:#4c1d95}
+  .note-author{font-size:11.5px;font-weight:600;color:var(--navy)}
+  .note-ts{font-size:10.5px;color:var(--slate-light);margin-left:auto}
+  .note-body{font-size:12.5px;color:var(--slate);line-height:1.55}
+  .note-del-btn{background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:11px;padding:0 3px;opacity:0;transition:opacity .15s;margin-left:4px}
+  .note-entry:hover .note-del-btn{opacity:1}
+  .note-del-btn:hover{color:var(--danger)}
+  .notes-add-area{padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;background:var(--white)}
+  .notes-add-ta{width:100%;border:1px solid var(--border-strong);border-radius:8px;padding:8px 11px;font-family:var(--font-body);font-size:12.5px;resize:none;min-height:68px;outline:none;background:var(--cream);color:var(--navy);line-height:1.5}
+  .notes-add-ta:focus{border-color:var(--gold);background:var(--white)}
+  .notes-add-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+  .notes-user-sel{border:1px solid var(--border-strong);border-radius:6px;padding:4px 8px;font-size:12px;font-family:var(--font-body);color:var(--slate);background:var(--white);outline:none}
+  .notes-user-sel:focus{border-color:var(--gold)}
+  /* file-detail split layout when notes pinned */
+  #page-filedetail.notes-pinned .file-detail-tabs-body{display:flex;flex-direction:row;overflow:hidden}
+  #page-filedetail.notes-pinned .file-tabs-main{flex:1;min-width:0;overflow-y:auto}
   .drawer-doc-item{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
   .drawer-doc-item:hover{border-color:var(--border-strong)}
   .drawer-doc-name{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px}
@@ -558,52 +608,75 @@ input[type=file]{display:none}
       <div class="file-detail-header">
         <div class="file-title-row">
           <div><div class="file-main-title" id="detailTitle"> </div><div class="file-subtitle" id="detailSubtitle"> </div></div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
             <button class="btn btn-outline btn-sm" onclick="openEditFileModal()">Edit Info</button>
             <button class="btn btn-outline btn-sm" id="archiveFileBtn" onclick="openArchiveFileModal()" style="color:#7b5c12;border-color:#e8c97a;">📁 Close / Withdraw</button>
             <button class="btn btn-outline btn-sm" id="docsDrawerBtn" onclick="toggleDocsDrawer()" style="background:var(--navy);color:var(--gold);border-color:var(--navy)">📄 Client Docs <span id="docsDrawerBadge" style="background:rgba(201,168,76,.2);color:var(--gold);border-radius:10px;padding:0 6px;font-size:10px;margin-left:2px">0</span></button>
+            <button class="btn btn-outline btn-sm" id="notesDrawerBtn" onclick="toggleNotesPanel()">📝 File Notes <span id="notesBadge" style="background:rgba(10,22,40,.08);color:var(--slate);border-radius:10px;padding:0 6px;font-size:10px;margin-left:2px">0</span></button>
             <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">Delete File</button>
           </div>
         </div>
         <div class="info-grid" id="detailGrid"></div>
       </div>
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
-        <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
-        <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
-      </div>
-      <div class="tab-content active" id="tab-conditions">
-        <div class="section-header"><div class="section-title">Conditions</div><button class="btn btn-gold btn-sm" onclick="openNewConditionModal()">+ Add Condition</button></div>
-        <div class="filter-bar" id="condFilterBar" style="flex-wrap:wrap;gap:6px;align-items:center">
-          <button class="filter-btn active" onclick="setCondFilter('all',this)">All</button>
-          <button class="filter-btn" onclick="setCondFilter('Open',this)">Open</button>
-          <button class="filter-btn" onclick="setCondFilter('Open (Ready to Submit)',this)">Ready to Submit</button>
-          <button class="filter-btn" onclick="setCondFilter('Submitted to Lender',this)">Submitted to Lender</button>
-          <button class="filter-btn" onclick="setCondFilter('Cleared',this)">Cleared</button>
-          <div style="width:1px;height:20px;background:var(--border-strong);margin:0 2px"></div>
-          <select id="condPersonFilter" class="form-select" style="font-size:12px;padding:4px 10px;height:auto;width:auto" onchange="renderConditionsFromFilter()">
-            <option value="">All People</option>
-          </select>
-          <button id="condUWFilter" class="filter-btn" onclick="toggleUWFilter(this)" style="border-color:#fcd34d;color:#7b4f12">🚩 UW Call Only</button>
-        </div>
-        <div id="condBuckets"></div>
-      </div>
-      <div class="tab-content" id="tab-docs">
-        <div class="section-header">
-          <div class="section-title">Client Document Checklist</div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
-            <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print List</button>
-            <button class="btn btn-gold btn-sm" onclick="openDocItemModal()">+ Add Document</button>
+      <div class="file-detail-tabs-body">
+        <div class="file-tabs-main">
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
+            <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
+            <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+          </div>
+          <div class="tab-content active" id="tab-conditions">
+            <div class="section-header"><div class="section-title">Conditions</div><button class="btn btn-gold btn-sm" onclick="openNewConditionModal()">+ Add Condition</button></div>
+            <div class="filter-bar" id="condFilterBar" style="flex-wrap:wrap;gap:6px;align-items:center">
+              <button class="filter-btn active" onclick="setCondFilter('all',this)">All</button>
+              <button class="filter-btn" onclick="setCondFilter('Open',this)">Open</button>
+              <button class="filter-btn" onclick="setCondFilter('Open (Ready to Submit)',this)">Ready to Submit</button>
+              <button class="filter-btn" onclick="setCondFilter('Submitted to Lender',this)">Submitted to Lender</button>
+              <button class="filter-btn" onclick="setCondFilter('Cleared',this)">Cleared</button>
+              <div style="width:1px;height:20px;background:var(--border-strong);margin:0 2px"></div>
+              <select id="condPersonFilter" class="form-select" style="font-size:12px;padding:4px 10px;height:auto;width:auto" onchange="renderConditionsFromFilter()">
+                <option value="">All People</option>
+              </select>
+              <button id="condUWFilter" class="filter-btn" onclick="toggleUWFilter(this)" style="border-color:#fcd34d;color:#7b4f12">🚩 UW Call Only</button>
+            </div>
+            <div id="condBuckets"></div>
+          </div>
+          <div class="tab-content" id="tab-docs">
+            <div class="section-header">
+              <div class="section-title">Client Document Checklist</div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
+                <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print List</button>
+                <button class="btn btn-gold btn-sm" onclick="openDocItemModal()">+ Add Document</button>
+              </div>
+            </div>
+            <div id="docProgressBar"></div>
+            <div id="docQuickAdd"></div>
+            <div id="docBuckets"></div>
+          </div>
+          <div class="tab-content" id="tab-custom">
+            <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
+            <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
           </div>
         </div>
-        <div id="docProgressBar"></div>
-        <div id="docQuickAdd"></div>
-        <div id="docBuckets"></div>
-      </div>
-      <div class="tab-content" id="tab-custom">
-        <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
-        <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
+        <!-- Notes panel — sits inside the split when pinned, fixed when not -->
+        <div class="notes-panel" id="notesPanel">
+          <div class="notes-panel-hdr" id="notesPanelHdr">
+            <div class="notes-panel-title dark">📝 File Notes <span class="notes-cnt-badge dark" id="notesCntBadge">0</span></div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button class="notes-pin-btn unpinned" id="notesPinBtn" onclick="toggleNotesPin()">📌 Pin</button>
+              <button class="notes-panel-close dark" onclick="closeNotesPanel()">&#x2715;</button>
+            </div>
+          </div>
+          <div class="notes-list" id="notesList"></div>
+          <div class="notes-add-area">
+            <textarea class="notes-add-ta" id="notesAddTa" placeholder="Add a file update note… (Ctrl+Enter to add)" onkeydown="if(event.ctrlKey&&event.key==='Enter'){addFileNote();}"></textarea>
+            <div class="notes-add-footer">
+              <select class="notes-user-sel" id="notesUserSel"></select>
+              <button class="btn btn-gold btn-sm" onclick="addFileNote()">+ Add Note</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <!-- CLOSED FILES -->
@@ -1352,8 +1425,8 @@ function showPage(page, fid) {
   if (page === 'dashboard') renderDashboard();
   if (page === 'files') renderFiles();
   if (page === 'closedfiles') renderClosedFiles();
-  if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); updateDocsDrawerBadge(); }
-  if (page !== 'filedetail') closeDocsDrawer();
+  if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); updateDocsDrawerBadge(); updateNotesBadge(); }
+  if (page !== 'filedetail') { closeDocsDrawer(); closeNotesPanel(); }
   if (page === 'settings') renderSettings();
   if (page === 'customfields') renderCFList();
   if (page === 'trash') renderTrash();
@@ -3494,6 +3567,173 @@ function openDocsDrawer() {
   document.getElementById('docsDrawerBtn').style.color = 'var(--navy)';
   document.getElementById('docsDrawerBtn').style.borderColor = 'var(--gold)';
   renderDrawer();
+}
+
+// ═══════════════════════════════════════════════
+//  FILE NOTES PANEL (Option B — Pinnable)
+// ═══════════════════════════════════════════════
+let notesPanelOpen = false;
+let notesPinned = false;
+
+function getFileNotes(fid) {
+  const f = cache.files.find(x=>x.id===fid);
+  if (!f) return [];
+  if (!f.fileNotes) f.fileNotes = [];
+  return f.fileNotes;
+}
+
+function toggleNotesPanel() {
+  notesPanelOpen ? closeNotesPanel() : openNotesPanel();
+}
+
+function openNotesPanel() {
+  notesPanelOpen = true;
+  const panel = document.getElementById('notesPanel');
+  panel.classList.add('open');
+  // If already pinned, don't show backdrop
+  if (!notesPinned) {
+    document.getElementById('docsDrawerBackdrop').classList.add('open');
+  }
+  // Style the header button as active
+  const btn = document.getElementById('notesDrawerBtn');
+  if (btn) {
+    btn.style.background = 'var(--gold-pale)';
+    btn.style.color = '#7b5c12';
+    btn.style.borderColor = 'var(--gold)';
+  }
+  renderNotesPanel();
+  // Focus textarea
+  setTimeout(() => document.getElementById('notesAddTa')?.focus(), 300);
+}
+
+function closeNotesPanel() {
+  if (notesPinned) unpinNotes();
+  notesPanelOpen = false;
+  const panel = document.getElementById('notesPanel');
+  panel.classList.remove('open');
+  document.getElementById('docsDrawerBackdrop').classList.remove('open');
+  const btn = document.getElementById('notesDrawerBtn');
+  if (btn) {
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+}
+
+function toggleNotesPin() {
+  notesPinned ? unpinNotes() : pinNotes();
+}
+
+function pinNotes() {
+  notesPinned = true;
+  const panel = document.getElementById('notesPanel');
+  const hdr = document.getElementById('notesPanelHdr');
+  const pinBtn = document.getElementById('notesPinBtn');
+  const closeBtn = panel.querySelector('.notes-panel-close');
+  const title = panel.querySelector('.notes-panel-title');
+  const badge = document.getElementById('notesCntBadge');
+  // Move panel from fixed to inline (inside the flex row)
+  panel.classList.add('pinned');
+  panel.classList.remove('open');
+  hdr.classList.add('pinned-hdr');
+  title.classList.remove('dark'); title.classList.add('light');
+  badge.classList.remove('dark'); badge.classList.add('light');
+  closeBtn.classList.remove('dark'); closeBtn.classList.add('light');
+  pinBtn.classList.remove('unpinned'); pinBtn.classList.add('pinned-active');
+  pinBtn.textContent = '📌 Pinned';
+  // Remove backdrop since panel is now inline
+  document.getElementById('docsDrawerBackdrop').classList.remove('open');
+}
+
+function unpinNotes() {
+  notesPinned = false;
+  const panel = document.getElementById('notesPanel');
+  const hdr = document.getElementById('notesPanelHdr');
+  const pinBtn = document.getElementById('notesPinBtn');
+  const closeBtn = panel.querySelector('.notes-panel-close');
+  const title = panel.querySelector('.notes-panel-title');
+  const badge = document.getElementById('notesCntBadge');
+  panel.classList.remove('pinned');
+  panel.classList.add('open');
+  hdr.classList.remove('pinned-hdr');
+  title.classList.add('dark'); title.classList.remove('light');
+  badge.classList.add('dark'); badge.classList.remove('light');
+  closeBtn.classList.add('dark'); closeBtn.classList.remove('light');
+  pinBtn.classList.add('unpinned'); pinBtn.classList.remove('pinned-active');
+  pinBtn.textContent = '📌 Pin';
+  document.getElementById('docsDrawerBackdrop').classList.add('open');
+}
+
+function renderNotesPanel() {
+  if (!currentFileId) return;
+  const notes = getFileNotes(currentFileId);
+  // Populate user selector
+  const userSel = document.getElementById('notesUserSel');
+  if (userSel) {
+    const users = cache.settings.users || ['Deric','Stephan','Jules'];
+    userSel.innerHTML = users.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
+    // Default to currentUser
+    if (users.includes(currentUser)) userSel.value = currentUser;
+  }
+  // Update badge
+  updateNotesBadge();
+  // Render list
+  const el = document.getElementById('notesList');
+  if (!el) return;
+  if (!notes.length) {
+    el.innerHTML = `<div class="notes-empty"><div class="notes-empty-icon">📝</div>No notes yet.<br><br>Add the first update note below — it will be visible to all team members.</div>`;
+    return;
+  }
+  const userColors = ['nav-av-0','nav-av-1','nav-av-2','nav-av-3'];
+  const users = cache.settings.users || [];
+  el.innerHTML = [...notes].reverse().map(n => {
+    const initials = (n.user||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const colorIdx = users.indexOf(n.user) % userColors.length;
+    const avCls = userColors[Math.max(0, colorIdx)];
+    return `<div class="note-entry">
+      <div class="note-meta-row">
+        <div class="note-av ${avCls}">${initials}</div>
+        <span class="note-author">${esc(n.user)}</span>
+        <button class="note-del-btn" onclick="deleteFileNote('${n.id}')" title="Delete note">✕</button>
+        <span class="note-ts">${esc(n.ts)}</span>
+      </div>
+      <div class="note-body">${esc(n.text)}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateNotesBadge() {
+  if (!currentFileId) return;
+  const count = getFileNotes(currentFileId).length;
+  const badge = document.getElementById('notesBadge');
+  const cntBadge = document.getElementById('notesCntBadge');
+  if (badge) badge.textContent = count;
+  if (cntBadge) cntBadge.textContent = count;
+}
+
+async function addFileNote() {
+  const text = document.getElementById('notesAddTa')?.value.trim();
+  if (!text) return;
+  const user = document.getElementById('notesUserSel')?.value || currentUser;
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  if (!f.fileNotes) f.fileNotes = [];
+  const now = new Date();
+  const ts = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' ' + now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  f.fileNotes.push({ id:uid(), text, user, ts, createdAt:now.toISOString() });
+  document.getElementById('notesAddTa').value = '';
+  await syncToCloud();
+  renderNotesPanel();
+  toast('Note added');
+}
+
+async function deleteFileNote(nid) {
+  if (!confirm('Delete this note?')) return;
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f || !f.fileNotes) return;
+  f.fileNotes = f.fileNotes.filter(n=>n.id!==nid);
+  await syncToCloud();
+  renderNotesPanel();
 }
 
 function closeDocsDrawer() {
