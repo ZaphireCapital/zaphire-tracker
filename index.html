@@ -579,16 +579,15 @@ input[type=file]{display:none}
     </div>
     <div class="sidebar-nav">
       <div class="nav-section-label">Menu</div>
-      <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"> </span>Dashboard<span class="nav-badge" id="navBadge">0</span></button>
+      <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"></span>Dashboard<span class="nav-badge" id="navBadge">0</span></button>
       <div class="nav-section-label" style="margin-top:12px">Pipeline</div>
-      <button class="nav-item" onclick="showPage('presubmission')"><span class="nav-icon">🔍</span>Pre-Submission<span class="nav-badge" id="preBadge" style="background:rgba(139,92,246,.2);color:#c4b5fd">0</span></button>
-      <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"> </span>Files in Process</button>
-      <button class="nav-item" onclick="showPage('closedfiles')"><span class="nav-icon">📁</span>Closed Files<span class="nav-badge" id="closedBadge" style="background:rgba(201,168,76,.15);color:var(--gold-light)">0</span></button>
+      <button class="nav-item" onclick="showPage('presubmission')"><span class="nav-icon"></span>Pre-Submission<span class="nav-badge" id="preBadge" style="background:rgba(139,92,246,.2);color:#c4b5fd">0</span></button>
+      <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"></span>Files in Process</button>
+      <button class="nav-item" onclick="showPage('closedfiles')"><span class="nav-icon"></span>Closed Files<span class="nav-badge" id="closedBadge" style="background:rgba(201,168,76,.15);color:var(--gold-light)">0</span></button>
       <div class="nav-section-label" style="margin-top:12px">Admin</div>
-      <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"> </span>Settings & Dropdowns</button>
-      <button class="nav-item" onclick="showPage('customfields')"><span class="nav-icon"> </span>Custom Fields</button>
-      <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon">🏦</span>Lenders</button>
-      <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon">📅</span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
+      <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"></span>Settings</button>
+      <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
+      <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon"></span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon">🗑</span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
     <div class="sidebar-footer">
@@ -735,7 +734,7 @@ input[type=file]{display:none}
     </div>
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
-      <div class="section-header"><div class="section-title">Settings & Dropdown Management</div></div>
+      <div class="section-header"><div class="section-title">Settings</div></div>
       <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:24px">Changes sync to all team members automatically.</p>
       <div class="settings-grid" id="settingsGrid"></div>
       <div class="divider"></div>
@@ -744,6 +743,10 @@ input[type=file]{display:none}
         <div class="tag-list" id="userTags"></div>
         <div class="tag-add-row"><input class="form-input" type="text" id="addUserInput" placeholder="Add team member..." onkeydown="if(event.key==='Enter')addUser()"><button class="btn btn-outline btn-sm" onclick="addUser()">Add</button></div>
       </div>
+      <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Custom Fields</div><button class="btn btn-gold btn-sm" onclick="openNewCFModal()">+ Add Field</button></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px">Add any field you want to track. Appears on every file under "Additional Info".</p>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);max-width:680px"><div id="cfList" style="padding:8px 20px"></div></div>
       <div class="divider"></div>
       <div class="section-header"><div class="section-title">Logo</div></div>
       <div class="logo-upload-area" onclick="document.getElementById('logoInput').click()">
@@ -875,12 +878,7 @@ input[type=file]{display:none}
       <div id="datesContent"></div>
     </div>
     <!-- CUSTOM FIELDS -->
-    <div class="page" id="page-customfields">
-      <div class="section-header"><div class="section-title">Custom Fields</div><button class="btn btn-gold" onclick="openNewCFModal()">+ Add Field</button></div>
-      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:24px">Add any field you want to track. Appears on every file under "Additional Info".</p>
-      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)"><div id="cfList" style="padding:8px 20px"></div></div>
-    </div>
-
+    <div class="page" id="page-customfields"></div>
     <!-- TRASH -->
     <div class="page" id="page-trash">
       <div class="section-header">
@@ -1333,7 +1331,19 @@ const DEFAULTS = {
   users: ['Deric','Stephan','Jules'],
   requiredBy: ['NMLS','NYSDFS','CTDOB','DFS','CFPB','HUD','FHA','VA','Other'],
   lenderSpecialties: ['Conventional','VA','FHA','DSCR','Non-QM','Purchase','Refinance','Jumbo','1-4 Units','2-4 Units','5+ Units','HELOC','Reverse Mortgage','Construction','Construction (Ground Up)','Commercial','Mixed Use','Co-ops','Condos'],
-  docTemplates: ['Bank Statement','Pay Stubs (30-day)','W-2 (2 years)','Tax Returns (2 years)','Government-Issued ID','Letter of Explanation','Gift Letter','Mortgage Statement','Business P&L','HOA Documents','Insurance Declaration Page'],
+  docTemplates: [
+    {name:'Bank Statement', spec:'All bank statements for all accounts from the last 2 months. Include all numbered pages of all bank statements.'},
+    {name:'Pay Stubs (30-day)', spec:'Most recent 30 days of pay stubs from all employers. Include all pages.'},
+    {name:'W-2 (2 years)', spec:'W-2 forms from all employers for the past 2 years (most recent 2 tax years). Include all pages.'},
+    {name:'Tax Returns (2 years)', spec:'Federal tax returns for the past 2 years including all schedules and all pages. Must be signed.'},
+    {name:'Government-Issued ID', spec:'Valid government-issued photo ID (driver\'s license, passport, or state ID). Must not be expired.'},
+    {name:'Letter of Explanation', spec:'Signed and dated letter of explanation from borrower. Must address the specific item requested.'},
+    {name:'Gift Letter', spec:'Signed gift letter from donor confirming funds are a gift and not a loan. Include donor\'s bank statement showing funds.'},
+    {name:'Mortgage Statement', spec:'Most recent mortgage statement for all properties owned. Include all pages.'},
+    {name:'Business P&L', spec:'Year-to-date profit and loss statement. Must be prepared and signed by a licensed CPA.'},
+    {name:'HOA Documents', spec:'Current HOA contact information, monthly dues amount, and any special assessments. Include all pages.'},
+    {name:'Insurance Declaration Page', spec:'Current homeowners insurance declaration page showing coverage amounts, policy number, and agent contact.'}
+  ],
   lenderTrackedFields: ['Broker Comp Tier','Portal URL','Submission Method','Avg. Turn Time','Min FICO','Max LTV','Notes on Guidelines'],
   defaultLenderQueues: ['Senior UW','UWII','Disclosures / Compliance'],
   printSettings: {
@@ -1452,10 +1462,10 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings & Dropdowns',customfields:'Custom Fields',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
+  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:5,lenders:6,dates:7,trash:8};
+  const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:4,lenders:5,dates:6,trash:7};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   if (page === 'lenders') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-outline btn-sm" onclick="openSpecialtiesModal()" style="margin-right:6px">⚙ Manage Specialties</button><button class="btn btn-gold" onclick="openLenderModal()">+ Add Lender</button>';
@@ -1472,8 +1482,8 @@ function showPage(page, fid) {
   if (page === 'closedfiles') renderClosedFiles();
   if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); updateDocsDrawerBadge(); updateNotesBadge(); }
   if (page !== 'filedetail') { closeDocsDrawer(); closeNotesPanel(); }
-  if (page === 'settings') renderSettings();
-  if (page === 'customfields') renderCFList();
+  if (page === 'settings' || page === 'customfields') renderSettings();
+  if (page === 'customfields') { document.getElementById('page-settings').classList.add('active'); document.getElementById('page-customfields')?.classList.remove('active'); }
   if (page === 'trash') renderTrash();
   if (page === 'dates') renderDates();
   if (page === 'lenders') renderLenderList();
@@ -1704,8 +1714,8 @@ function renderConditions(f) {
     let bodyHtml;
     if (!items.length) {
       bodyHtml = '<div style="padding:20px;text-align:center;color:var(--slate-light);font-size:13px">No conditions here</div>';
-    } else if (queues.length && b.key==='Open') {
-      // Sub-categorize by queue within Open bucket
+    } else if (queues.length) {
+      // Sub-categorize by queue within ALL status buckets
       const sections = [...queues.map(q=>({q,label:q})), {q:'__none',label:'Unassigned'}];
       bodyHtml = sections.map(({q,label}) => {
         const secItems = q==='__none'
@@ -2255,6 +2265,7 @@ function renderSettings() {
   renderUserTags();
   renderLenderTracks();
   loadPrintSettingsToForm();
+  renderCFList();
 }
 
 function renderAllTags() {
@@ -3654,7 +3665,13 @@ const DOC_ST = {
 };
 
 function getDocTemplates() {
-  if (!cache.settings.docTemplates||!cache.settings.docTemplates.length) cache.settings.docTemplates=[...DEFAULTS.docTemplates];
+  if (!cache.settings.docTemplates||!cache.settings.docTemplates.length) {
+    cache.settings.docTemplates=[...DEFAULTS.docTemplates];
+  }
+  // Normalize — upgrade any legacy string entries to {name, spec} objects
+  cache.settings.docTemplates = cache.settings.docTemplates.map(t=>
+    typeof t === 'string' ? {name:t, spec:''} : t
+  );
   return cache.settings.docTemplates;
 }
 function getFileDocs(fid) {
@@ -3680,7 +3697,7 @@ function renderDocTab() {
       <div class="dpstat"><div class="dpstat-dot" style="background:#4c1d95"></div>${resubmit} Resubmit Required</div>
       <div class="dpstat"><div class="dpstat-dot" style="background:var(--success)"></div>${accepted} Accepted</div>
     </div></div>` : '';
-  const chips = getDocTemplates().map(t=>`<button class="doc-qa-chip" onclick='quickAddDoc(${JSON.stringify(t).replace(/'/g,"&#39;")})'>${esc(t)}</button>`).join('');
+  const chips = getDocTemplates().map(t=>`<button class="doc-qa-chip" onclick='quickAddDoc(${JSON.stringify(t.name).replace(/'/g,"&#39;")})'>${esc(t.name)}</button>`).join('');
   document.getElementById('docQuickAdd').innerHTML = `<div class="doc-quick-add"><div class="doc-qa-title">⚡ Quick Add from Template</div><div class="doc-qa-chips">${chips}<button class="doc-qa-chip" style="border-style:dashed" onclick="openDocItemModal()">+ Custom…</button></div></div>`;
   const order = ['needed','review','resubmit','accepted'];
   document.getElementById('docBuckets').innerHTML = order.map(st => {
@@ -4206,7 +4223,13 @@ function jumpToCondition(condLink) {
 
 async function quickAddDoc(name) {
   if (!currentFileId) return;
-  getFileDocs(currentFileId).push({id:uid(),name,spec:'',for:'Borrower 1',condLink:'',status:'needed',isTemplate:true,notes:[],versions:[],createdAt:new Date().toISOString()});
+  const f = cache.files.find(x=>x.id===currentFileId);
+  const b1 = f?.b1 || 'Borrower 1';
+  // Get default spec from template if available
+  const templates = getDocTemplates();
+  const tmpl = templates.find(t=>(typeof t==='object'?t.name:t)===name);
+  const spec = (typeof tmpl==='object' && tmpl.spec) ? tmpl.spec : '';
+  getFileDocs(currentFileId).push({id:uid(),name,spec,for:b1,condLink:'',status:'needed',isTemplate:true,notes:[],versions:[],createdAt:new Date().toISOString()});
   await syncToCloud(); renderDocTab(); toast(name+' added');
 }
 
@@ -4225,16 +4248,16 @@ function openDocItemModal(did) {
   document.getElementById('di_status').value = d?.status||'needed';
   document.getElementById('di_template').checked = d?.isTemplate||false;
   document.getElementById('di_note').value = '';
-  // Populate For dropdown with actual borrower names from this file
+  // For dropdown — always default to b1 for new docs
   const b1 = f?.b1 || 'Borrower 1';
   const b2 = f?.b2 || '';
   const both = b2 ? `${b1} & ${b2}` : b1;
   const forSel = document.getElementById('di_for');
   forSel.innerHTML = `<option value="${esc(b1)}">${esc(b1)}</option>` +
     (b2 ? `<option value="${esc(b2)}">${esc(b2)}</option><option value="${esc(both)}">${esc(both)}</option>` : '');
-  // Restore saved value if it matches, otherwise default to b1
-  if (d?.for) { forSel.value = d.for; if (!forSel.value) forSel.value = b1; }
-  // Populate condition dropdown from this file's conditions
+  forSel.value = d?.for || b1;
+  if (!forSel.value) forSel.value = b1;
+  // Condition dropdown
   const conds = (cache.conditions[currentFileId]||[]);
   const condSel = document.getElementById('di_cond');
   condSel.innerHTML = '<option value="">— None —</option>' +
@@ -4242,6 +4265,14 @@ function openDocItemModal(did) {
   if (d?.condLink && !conds.find(c=>('#'+(c.num||'?')+' — '+c.desc)===d.condLink)) {
     condSel.innerHTML += `<option value="${esc(d.condLink)}" selected>${esc(d.condLink)}</option>`;
   }
+  // Wire name field to auto-fill spec from template when name matches and spec is empty
+  const nameField = document.getElementById('di_name');
+  nameField.oninput = function() {
+    const specField = document.getElementById('di_spec');
+    if (specField.value.trim()) return;
+    const tmpl = getDocTemplates().find(t=>t.name.toLowerCase()===this.value.toLowerCase());
+    if (tmpl?.spec) specField.value = tmpl.spec;
+  };
   document.getElementById('docItemModal').classList.add('open');
 }
 
@@ -4310,25 +4341,68 @@ async function saveDocVersion() {
 }
 
 function openManageDocTemplatesModal() {
-  const templates=getDocTemplates();
-  document.getElementById('docTemplateTagList').innerHTML=templates.map((t,i)=>`<div class="tag"><span>${esc(t)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
+  renderDocTemplateTags();
   document.getElementById('addDocTemplateInput').value='';
+  document.getElementById('addDocTemplateSpec').value='';
   document.getElementById('docTemplatesModal').classList.add('open');
 }
-async function addDocTemplate() {
-  const val=document.getElementById('addDocTemplateInput').value.trim();
-  if (!val) return;
-  const t=getDocTemplates();
-  if (t.includes(val)){toast('Already exists','error');return;}
-  t.push(val); cache.settings.docTemplates=t; document.getElementById('addDocTemplateInput').value='';
+
+function renderDocTemplateTags() {
+  const templates = getDocTemplates();
+  document.getElementById('docTemplateTagList').innerHTML = templates.map((t,i)=>`
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${t.spec?'6px':'0'}">
+        <div style="font-size:13px;font-weight:600;color:var(--navy)">${esc(t.name)}</div>
+        <button onclick="removeDocTemplate(${i})" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:13px;padding:0 4px" title="Remove">&#x2715;</button>
+      </div>
+      ${t.spec ? `<div style="font-size:12px;color:var(--slate-light);line-height:1.5">${esc(t.spec)}</div>` : `<div style="font-size:11.5px;color:var(--border-strong);font-style:italic">No default verbiage set</div>`}
+      <button onclick="editDocTemplateSpec(${i})" style="margin-top:6px;background:none;border:1px dashed var(--border-strong);border-radius:5px;padding:2px 9px;font-size:11px;color:var(--slate-light);cursor:pointer;font-family:var(--font-body)">✏ Edit Verbiage</button>
+      <div id="tmpl-edit-${i}" style="display:none;margin-top:8px">
+        <textarea class="form-textarea" id="tmpl-ta-${i}" style="min-height:60px;font-size:12.5px">${esc(t.spec||'')}</textarea>
+        <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('tmpl-edit-${i}').style.display='none'">Cancel</button>
+          <button class="btn btn-gold btn-sm" onclick="saveDocTemplateSpec(${i})">Save</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editDocTemplateSpec(idx) {
+  document.getElementById('tmpl-edit-'+idx).style.display='';
+  document.getElementById('tmpl-ta-'+idx).focus();
+}
+
+async function saveDocTemplateSpec(idx) {
+  const templates = getDocTemplates();
+  templates[idx].spec = document.getElementById('tmpl-ta-'+idx).value.trim();
+  cache.settings.docTemplates = templates;
   await syncToCloud();
-  document.getElementById('docTemplateTagList').innerHTML=t.map((t2,i)=>`<div class="tag"><span>${esc(t2)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
+  renderDocTemplateTags();
+  toast('Verbiage saved');
+}
+
+async function addDocTemplate() {
+  const name = document.getElementById('addDocTemplateInput').value.trim();
+  if (!name) return;
+  const spec = document.getElementById('addDocTemplateSpec').value.trim();
+  const t = getDocTemplates();
+  if (t.find(x=>x.name.toLowerCase()===name.toLowerCase())) { toast('Already exists','error'); return; }
+  t.push({name, spec});
+  cache.settings.docTemplates = t;
+  document.getElementById('addDocTemplateInput').value='';
+  document.getElementById('addDocTemplateSpec').value='';
+  await syncToCloud();
+  renderDocTemplateTags();
   toast('Template added');
 }
+
 async function removeDocTemplate(idx) {
-  const t=getDocTemplates(); t.splice(idx,1); cache.settings.docTemplates=t;
+  const t = getDocTemplates();
+  if (!confirm(`Remove "${t[idx].name}"?`)) return;
+  t.splice(idx,1);
+  cache.settings.docTemplates=t;
   await syncToCloud();
-  document.getElementById('docTemplateTagList').innerHTML=t.map((t2,i)=>`<div class="tag"><span>${esc(t2)}</span><button class="tag-remove" onclick="removeDocTemplate(${i})">&#x2715;</button></div>`).join('');
+  renderDocTemplateTags();
   toast('Template removed');
 }
 
@@ -4517,18 +4591,20 @@ function printDocChecklist() {
 
 <!-- MANAGE DOC TEMPLATES MODAL -->
 <div class="modal-overlay" id="docTemplatesModal">
-  <div class="modal" style="max-width:460px">
+  <div class="modal" style="max-width:640px">
     <div class="modal-header">
       <div class="modal-title">Manage Document Templates</div>
       <button class="btn btn-ghost" onclick="closeModal('docTemplatesModal')" style="padding:6px 8px;font-size:18px">&#x2715;</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These appear in the Quick Add bar on every file's Client Documents tab.</p>
-      <div class="tag-list" id="docTemplateTagList"></div>
-      <div class="tag-add-row">
-        <input class="form-input" type="text" id="addDocTemplateInput" placeholder="Add template item..." onkeydown="if(event.key==='Enter')addDocTemplate()">
-        <button class="btn btn-outline btn-sm" onclick="addDocTemplate()">Add</button>
+      <p style="font-size:13px;color:var(--slate-light);margin-bottom:16px">These appear in the Quick Add bar. Each template can have default verbiage that auto-fills the Specific Requirements field when added.</p>
+      <div id="docTemplateTagList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
+      <div class="form-section-title" style="margin-bottom:8px">Add New Template</div>
+      <div class="form-grid">
+        <div class="form-group form-full"><label class="form-label">Document Name</label><input class="form-input" type="text" id="addDocTemplateInput" placeholder="e.g. 1099 Forms" onkeydown="if(event.key==='Enter')document.getElementById('addDocTemplateSpec').focus()"></div>
+        <div class="form-group form-full"><label class="form-label">Default Verbiage (Specific Requirements)</label><textarea class="form-textarea" id="addDocTemplateSpec" placeholder="e.g. All 1099 forms from all sources for the past 2 years. Include all pages." style="min-height:60px"></textarea></div>
       </div>
+      <button class="btn btn-outline" onclick="addDocTemplate()">+ Add Template</button>
     </div>
     <div class="modal-footer"><button class="btn btn-gold" onclick="closeModal('docTemplatesModal')">Done</button></div>
   </div>
