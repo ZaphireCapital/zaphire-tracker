@@ -95,11 +95,34 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .file-main-title{font-family:var(--font-display);font-size:22px;font-weight:500}
 .file-subtitle{font-size:13.5px;color:var(--slate-light);margin-top:4px}
 .info-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.info-grid.cols-4{grid-template-columns:repeat(4,1fr)}
 .info-cell{padding:14px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
 .info-cell:nth-child(3n){border-right:none}
+.info-grid.cols-4 .info-cell:nth-child(3n){border-right:1px solid var(--border)}
+.info-grid.cols-4 .info-cell:nth-child(4n){border-right:none}
 .info-cell:nth-last-child(-n+3){border-bottom:none}
+.info-grid.cols-4 .info-cell:nth-last-child(-n+3){border-bottom:1px solid var(--border)}
+.info-grid.cols-4 .info-cell:nth-last-child(-n+4){border-bottom:none}
 .info-label{font-size:11px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:4px}
 .info-value{font-size:14px;font-weight:500}
+/* Rate lock row tint */
+.info-cell.rl-cell{background:#f7fbff}
+.info-cell.rl-cell .info-label{color:#4a7ab5}
+/* Lock status badges */
+.lock-badge{display:inline-flex;align-items:center;gap:3px;border-radius:20px;padding:2px 8px;font-size:10.5px;font-weight:700;margin-top:4px}
+.lock-badge-locked{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.lock-badge-unlocked{background:var(--warning-bg);color:var(--warning);border:1px solid #fcd34d}
+.lock-badge-expired{background:var(--danger-bg);color:var(--danger);border:1px solid #f5c6c6}
+.lock-days-pill{display:inline-flex;align-items:center;gap:3px;border-radius:20px;padding:2px 8px;font-size:10.5px;font-weight:600;margin-top:3px}
+.lock-days-ok{background:var(--success-bg);color:var(--success)}
+.lock-days-warn{background:var(--warning-bg);color:var(--warning)}
+.lock-days-expired{background:var(--danger-bg);color:var(--danger)}
+/* Lock toggle switch */
+.lock-toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:18px}
+.lock-toggle-switch{width:44px;height:24px;border-radius:12px;background:#d1d5db;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none}
+.lock-toggle-switch.on{background:var(--success)}
+.lock-toggle-knob{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.lock-toggle-switch.on .lock-toggle-knob{left:22px}
 .tab-bar{display:flex;border-bottom:2px solid var(--border);margin-bottom:24px}
 .tab-btn{padding:10px 20px;font-family:var(--font-body);font-size:13.5px;font-weight:500;color:var(--slate-light);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;transition:all .15s}
 .tab-btn:hover{color:var(--navy)}
@@ -632,12 +655,13 @@ input[type=file]{display:none}
           <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
             <button class="btn btn-outline btn-sm" onclick="openEditFileModal()">Edit Info</button>
             <button class="btn btn-outline btn-sm" id="archiveFileBtn" onclick="openArchiveFileModal()" style="color:#7b5c12;border-color:#e8c97a;">📁 Close / Withdraw</button>
+            <button class="btn btn-outline btn-sm" id="rateLockBtn" onclick="openRateLockModal()" style="color:#1d4ed8;border-color:#93c5fd">🔒 Lock Info</button>
             <button class="btn btn-outline btn-sm" id="docsDrawerBtn" onclick="toggleDocsDrawer()" style="background:var(--navy);color:var(--gold);border-color:var(--navy)">📄 Client Docs <span id="docsDrawerBadge" style="background:rgba(201,168,76,.2);color:var(--gold);border-radius:10px;padding:0 6px;font-size:10px;margin-left:2px">0</span></button>
             <button class="btn btn-outline btn-sm" id="notesDrawerBtn" onclick="toggleNotesPanel()">📝 File Notes <span id="notesBadge" style="background:rgba(10,22,40,.08);color:var(--slate);border-radius:10px;padding:0 6px;font-size:10px;margin-left:2px">0</span></button>
             <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">Delete File</button>
           </div>
         </div>
-        <div class="info-grid" id="detailGrid"></div>
+        <div class="info-grid cols-4" id="detailGrid"></div>
       </div>
       <div class="file-detail-tabs-body">
         <div class="file-tabs-main">
@@ -1580,14 +1604,45 @@ function renderFileDetail() {
   const names = [f.b1,f.b2].filter(Boolean).join(' & ');
   document.getElementById('detailTitle').textContent = names;
   document.getElementById('detailSubtitle').textContent = f.prop || ' ';
+  // Build rate lock row
+  const rl = f.rateLock || {};
+  const locked = rl.locked || false;
+  const today = new Date(); today.setHours(0,0,0,0);
+  let lockBadge = '', daysHtml = '', expColor = '';
+  if (locked && rl.expDate) {
+    const exp = new Date(rl.expDate); exp.setHours(0,0,0,0);
+    const diff = Math.round((exp - today) / 86400000);
+    if (diff < 0) {
+      lockBadge = `<span class="lock-badge lock-badge-expired">⚠ Expired</span>`;
+      daysHtml = `<div class="lock-days-pill lock-days-expired">⚠ Expired ${Math.abs(diff)}d ago</div>`;
+      expColor = 'color:var(--danger)';
+    } else if (diff <= 7) {
+      lockBadge = `<span class="lock-badge lock-badge-locked">🔒 Locked</span>`;
+      daysHtml = `<div class="lock-days-pill lock-days-warn">⏱ ${diff}d remaining</div>`;
+      expColor = 'color:var(--warning)';
+    } else {
+      lockBadge = `<span class="lock-badge lock-badge-locked">🔒 Locked</span>`;
+      daysHtml = `<div class="lock-days-pill lock-days-ok">✓ ${diff}d remaining</div>`;
+    }
+  } else if (locked) {
+    lockBadge = `<span class="lock-badge lock-badge-locked">🔒 Locked</span>`;
+  } else {
+    lockBadge = `<span class="lock-badge lock-badge-unlocked">🔓 Not Locked</span>`;
+  }
+  // Format comp
+  const compPct = rl.compPct ? rl.compPct+'%' : '—';
+  const compAmt = rl.compAmt ? '$'+parseFloat(rl.compAmt).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+  const compLabel = rl.compType ? `${esc(rl.compType)} · ${compPct} · ${compAmt}` : '—';
+  const fmtDate = d => { if (!d) return '—'; const dt = new Date(d+'T12:00:00'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
   document.getElementById('detailGrid').innerHTML = `
-    <div class="info-cell"><div class="info-label">Loan Type</div><div class="info-value">${esc(f.loanType||' ')}</div></div>
-    <div class="info-cell"><div class="info-label">Occupancy</div><div class="info-value">${esc(f.occupancy||' ')}</div></div>
-    <div class="info-cell"><div class="info-label">Units</div><div class="info-value">${esc(f.units||' ')}</div></div>
-    <div class="info-cell"><div class="info-label">Bank / Lender</div><div class="info-value">${esc(f.bank||' ')}</div></div>
-    <div class="info-cell"><div class="info-label">Purchase Price</div><div class="info-value">${fmtCur(f.pp)}</div></div>
+    <div class="info-cell"><div class="info-label">Loan Type</div><div class="info-value">${esc(f.loanType||'—')}</div></div>
+    <div class="info-cell"><div class="info-label">Occupancy</div><div class="info-value">${esc(f.occupancy||'—')}</div></div>
+    <div class="info-cell"><div class="info-label">Bank / Lender</div><div class="info-value">${esc(f.bank||'—')}</div></div>
     <div class="info-cell"><div class="info-label">Loan Amount</div><div class="info-value">${fmtCur(f.la)}</div></div>
-    <div class="info-cell"><div class="info-label">Note Rate</div><div class="info-value">${esc(f.rate||' ')}</div></div>
+    <div class="info-cell rl-cell"><div class="info-label">Note Rate</div><div class="info-value">${esc(f.rate||'—')}</div>${lockBadge}</div>
+    <div class="info-cell rl-cell"><div class="info-label">Lock Date</div><div class="info-value">${fmtDate(rl.lockDate)}</div></div>
+    <div class="info-cell rl-cell"><div class="info-label">Lock Expiration</div><div class="info-value" style="${expColor}">${fmtDate(rl.expDate)}</div>${daysHtml}</div>
+    <div class="info-cell rl-cell"><div class="info-label">Compensation</div><div class="info-value" style="font-size:13px">${compLabel}</div></div>
   `;
   // Back button — goes back to correct page
   const backBtn = document.getElementById('fileDetailBackBtn');
@@ -3790,7 +3845,89 @@ function openDocsDrawer() {
 }
 
 // ═══════════════════════════════════════════════
-//  FILE NOTES PANEL (Option B — Pinnable)
+//  RATE LOCK & COMPENSATION
+// ═══════════════════════════════════════════════
+function openRateLockModal() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  const rl = f.rateLock || {};
+  // Lock toggle
+  const sw = document.getElementById('rlLockSwitch');
+  if (rl.locked) { sw.classList.add('on'); } else { sw.classList.remove('on'); }
+  updateRlToggleLabel(rl.locked||false);
+  // Fields
+  document.getElementById('rl_rate').value = rl.rate || f.rate || '';
+  document.getElementById('rl_lockDate').value = rl.lockDate || '';
+  document.getElementById('rl_expDate').value = rl.expDate || '';
+  document.getElementById('rl_compType').value = rl.compType || '';
+  document.getElementById('rl_compPct').value = rl.compPct || '';
+  document.getElementById('rl_compAmt').value = rl.compAmt || '';
+  document.getElementById('rl_compCalcNote').style.display = 'none';
+  openModal('rateLockModal');
+}
+
+function toggleRateLock() {
+  const sw = document.getElementById('rlLockSwitch');
+  const on = sw.classList.toggle('on');
+  updateRlToggleLabel(on);
+}
+
+function updateRlToggleLabel(on) {
+  document.getElementById('rlLockLabel').textContent = on ? 'Locked' : 'Not Locked';
+  document.getElementById('rlLockLabel').style.color = on ? 'var(--success)' : 'var(--slate-light)';
+  document.getElementById('rlLockLabel').style.fontWeight = on ? '600' : '400';
+}
+
+function getRlLoanAmount() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f || !f.la) return 0;
+  return parseFloat(String(f.la).replace(/[^0-9.]/g,'')) || 0;
+}
+
+function rlPctChanged() {
+  const pct = parseFloat(document.getElementById('rl_compPct').value);
+  const la = getRlLoanAmount();
+  if (!isNaN(pct) && la) {
+    const amt = (pct / 100 * la).toFixed(2);
+    document.getElementById('rl_compAmt').value = amt;
+    const note = document.getElementById('rl_compCalcNote');
+    note.textContent = `↺ ${pct}% of $${la.toLocaleString()} = $${parseFloat(amt).toLocaleString('en-US',{minimumFractionDigits:2})}`;
+    note.style.display = '';
+  }
+}
+
+function rlAmtChanged() {
+  const amt = parseFloat(document.getElementById('rl_compAmt').value);
+  const la = getRlLoanAmount();
+  if (!isNaN(amt) && la) {
+    const pct = (amt / la * 100).toFixed(3);
+    document.getElementById('rl_compPct').value = pct;
+    const note = document.getElementById('rl_compCalcNote');
+    note.textContent = `↺ $${amt.toLocaleString('en-US',{minimumFractionDigits:2})} ÷ $${la.toLocaleString()} = ${pct}%`;
+    note.style.display = '';
+  }
+}
+
+async function saveRateLock() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  const locked = document.getElementById('rlLockSwitch').classList.contains('on');
+  f.rateLock = {
+    locked,
+    rate: document.getElementById('rl_rate').value.trim(),
+    lockDate: document.getElementById('rl_lockDate').value,
+    expDate: document.getElementById('rl_expDate').value,
+    compType: document.getElementById('rl_compType').value,
+    compPct: document.getElementById('rl_compPct').value,
+    compAmt: document.getElementById('rl_compAmt').value
+  };
+  // Also update the file's note rate field if set here
+  if (f.rateLock.rate) f.rate = f.rateLock.rate;
+  await syncToCloud();
+  closeModal('rateLockModal');
+  renderFileDetail();
+  toast(locked ? '🔒 Rate lock saved' : '🔓 Lock info saved');
+}
 // ═══════════════════════════════════════════════
 let notesPanelOpen = false;
 let notesPinned = false;
@@ -4691,6 +4828,66 @@ function printDocChecklist() {
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-gold" onclick="saveLenderQueues()">Done</button></div>
+  </div>
+</div>
+<!-- RATE LOCK MODAL -->
+<div class="modal-overlay" id="rateLockModal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header" style="background:var(--navy)">
+      <div class="modal-title" style="color:var(--gold)">🔒 Rate Lock &amp; Compensation</div>
+      <button class="btn btn-ghost" onclick="closeModal('rateLockModal')" style="padding:6px 8px;font-size:18px;color:rgba(255,255,255,.5)">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Lock toggle -->
+      <div class="lock-toggle-row">
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--navy)">Rate Lock Status</div>
+          <div style="font-size:12px;color:var(--slate-light);margin-top:2px">Toggle to mark whether the rate is currently locked</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:12px;color:var(--slate-light)" id="rlLockLabel">Not Locked</span>
+          <button class="lock-toggle-switch" id="rlLockSwitch" onclick="toggleRateLock()">
+            <div class="lock-toggle-knob"></div>
+          </button>
+          <span style="font-size:12px;font-weight:600;color:var(--success)" id="rlLockedLabel" style="display:none"></span>
+        </div>
+      </div>
+      <!-- Rate + dates -->
+      <div class="form-grid" style="margin-bottom:16px">
+        <div class="form-group"><label class="form-label">Note Rate</label><input class="form-input" type="text" id="rl_rate" placeholder="e.g. 7.450%"></div>
+        <div class="form-group"><label class="form-label">Lock Date</label><input class="form-input" type="date" id="rl_lockDate"></div>
+        <div class="form-group"><label class="form-label">Lock Expiration</label><input class="form-input" type="date" id="rl_expDate"></div>
+      </div>
+      <!-- Compensation -->
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);font-weight:600;margin-bottom:12px">Compensation</div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Compensation Type</label>
+          <select class="form-select" id="rl_compType">
+            <option value="">— Select —</option>
+            <option value="Lender Paid">Lender Paid</option>
+            <option value="Borrower Paid">Borrower Paid</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Compensation %</label>
+            <input class="form-input" type="number" id="rl_compPct" placeholder="e.g. 2.500" step="0.001" min="0" max="10" oninput="rlPctChanged()">
+            <div style="font-size:11.5px;color:var(--slate-light);margin-top:4px">Changes % → $ auto-calculates</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Compensation $</label>
+            <input class="form-input" type="number" id="rl_compAmt" placeholder="e.g. 7400.00" step="0.01" min="0" oninput="rlAmtChanged()">
+            <div style="font-size:11.5px;color:var(--slate-light);margin-top:4px">Changes $ → % auto-calculates</div>
+          </div>
+        </div>
+        <div id="rl_compCalcNote" style="font-size:12px;color:var(--success);margin-top:4px;display:none"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('rateLockModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveRateLock()">Save Lock Info</button>
+    </div>
   </div>
 </div>
 
