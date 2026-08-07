@@ -525,7 +525,65 @@ input[type=file]{display:none}
   .subcat-unassigned .subcat-cleared{background:#f0ece4;border-color:#e0dbd2}
   .subcat-unassigned .subcat-chev-box{background:#9ca3af}
   .subcat-unassigned .subcat-body{background:#faf8f3}
-  /* ── Pre-Submission ── */
+  /* ── Loan Worksheet Tab ── */
+  .ws-body{padding:18px;background:var(--cream);display:flex;flex-direction:column;gap:14px}
+  .ws-section-title{font-family:var(--font-display);font-size:15px;font-weight:500;color:var(--navy);margin-bottom:2px}
+  .ws-row{display:grid;gap:14px}
+  .ws-row-2{grid-template-columns:1fr 1fr}
+  .ws-row-3{grid-template-columns:1fr 1fr 1fr}
+  .ws-row-4{grid-template-columns:1fr 1fr 1fr 1fr}
+  .ws-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(10,22,40,.06)}
+  .ws-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--navy)}
+  .ws-card-title{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--gold)}
+  .ws-card-hdr-gold{background:var(--gold-pale);border-bottom:1px solid #e8c97a}
+  .ws-card-title-gold{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#7b5c12}
+  .ws-card-body{padding:10px 14px}
+  .ws-field{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0ece4;gap:8px}
+  .ws-field:last-child{border-bottom:none}
+  .ws-field-label{font-size:12.5px;color:var(--slate);flex:1;min-width:0}
+  .ws-field-sub{font-size:10.5px;color:var(--slate-light);display:block;margin-top:1px}
+  .ws-input{border:1px solid var(--border-strong);border-radius:6px;padding:4px 8px;font-size:12.5px;font-family:var(--font-body);color:var(--navy);width:110px;text-align:right;background:var(--white);outline:none}
+  .ws-input:focus{border-color:var(--gold);background:#fffdf7}
+  .ws-input-wide{width:150px}
+  .ws-calc{font-size:13px;font-weight:700;color:var(--navy);background:#f8f6f1;border-radius:6px;padding:4px 9px;min-width:110px;text-align:right;flex-shrink:0}
+  .ws-calc.good{color:var(--success);background:var(--success-bg)}
+  .ws-calc.warn{color:var(--warning);background:var(--warning-bg)}
+  .ws-calc.bad{color:var(--danger);background:var(--danger-bg)}
+  .ws-calc.blue{color:#1d4ed8;background:#dbeafe}
+  /* DTI summary cards */
+  .ws-dti-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center;box-shadow:0 1px 4px rgba(10,22,40,.06)}
+  .ws-dti-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600;color:var(--slate-light);margin-bottom:5px}
+  .ws-dti-value{font-size:26px;font-weight:700;line-height:1}
+  .ws-dti-sub{font-size:11px;color:var(--slate-light);margin-top:4px}
+  .ws-dti-bar{height:3px;border-radius:2px;margin-top:8px}
+  .ws-dti-green{color:var(--success)}.ws-dti-bar-green{background:var(--success)}
+  .ws-dti-warn{color:var(--warning)}.ws-dti-bar-warn{background:var(--gold)}
+  .ws-dti-red{color:var(--danger)}.ws-dti-bar-red{background:var(--danger)}
+  .ws-dti-navy{color:var(--navy)}.ws-dti-bar-navy{background:var(--navy)}
+  /* Inline tables */
+  .ws-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .ws-table th{text-align:left;padding:6px 10px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-light);border-bottom:2px solid var(--border);background:#f8f6f1;white-space:nowrap}
+  .ws-table td{padding:6px 10px;border-bottom:1px solid #f0ece4;vertical-align:middle}
+  .ws-table tr:last-child td{border-bottom:none}
+  .ws-table tr:hover td{background:#fdf9f2}
+  .ws-table .total-row td{font-weight:700;color:var(--navy);background:#f8f6f1;border-top:2px solid var(--border)}
+  .ws-table input{border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:12px;font-family:var(--font-body);width:100%;outline:none}
+  .ws-table input:focus{border-color:var(--gold)}
+  .ws-table input.right{text-align:right}
+  /* DTI toggle */
+  .dti-toggle{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:all .15s;font-family:var(--font-body)}
+  .dti-inc{background:var(--success-bg);color:var(--success);border-color:#86efac}
+  .dti-exc{background:#f0ece4;color:var(--slate-light);border-color:var(--border-strong)}
+  /* Qualify calculator */
+  .qual-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+  .qual-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+  .qual-card-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600;color:var(--slate-light);margin-bottom:6px}
+  .qual-result{font-size:20px;font-weight:700;color:var(--navy);margin:4px 0 2px}
+  .qual-result-sub{font-size:11px;color:var(--slate-light)}
+  .qual-program-hdr{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f8f6f1;border-radius:8px;margin-bottom:8px;cursor:pointer;user-select:none}
+  .qual-program-name{font-size:13px;font-weight:600;color:var(--navy);flex:1}
+  .qual-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+  .wb{font-weight:700}
   .stage-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600}
   .stage-pre{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd}
   .stage-proc{background:var(--success-bg);color:var(--success);border:1px solid #86efac}
@@ -703,6 +761,180 @@ input[type=file]{display:none}
           <div class="tab-content" id="tab-custom">
             <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
             <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
+          </div>
+          <!-- WORKSHEET TAB -->
+          <div class="tab-content" id="tab-worksheet">
+            <div class="ws-body" id="wsBody">
+              <!-- Summary cards row -->
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div class="ws-section-title">Quick Summary</div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-outline btn-sm" onclick="wsClear()">Clear All</button>
+                  <button class="btn btn-gold btn-sm" onclick="wsCalc()">⟳ Calculate</button>
+                </div>
+              </div>
+              <div class="ws-row ws-row-4" id="wsSummaryCards">
+                <div class="ws-dti-card"><div class="ws-dti-label">Front-End DTI (HTI)</div><div class="ws-dti-value ws-dti-navy" id="wsFrontDTI">—</div><div class="ws-dti-sub">Housing / Income</div><div class="ws-dti-bar ws-dti-bar-navy" id="wsFrontBar"></div></div>
+                <div class="ws-dti-card"><div class="ws-dti-label">Back-End DTI</div><div class="ws-dti-value ws-dti-navy" id="wsBackDTI">—</div><div class="ws-dti-sub">All Debts / Income</div><div class="ws-dti-bar ws-dti-bar-navy" id="wsBackBar"></div></div>
+                <div class="ws-dti-card"><div class="ws-dti-label">LTV</div><div class="ws-dti-value ws-dti-navy" id="wsLTV">—</div><div class="ws-dti-sub">Loan / Value</div><div class="ws-dti-bar ws-dti-bar-navy" id="wsLTVBar"></div></div>
+                <div class="ws-dti-card"><div class="ws-dti-label">Cash to Borrower</div><div class="ws-dti-value ws-dti-navy" id="wsCashOut" style="font-size:20px">—</div><div class="ws-dti-sub">After costs &amp; payoffs</div><div class="ws-dti-bar ws-dti-bar-navy"></div></div>
+              </div>
+
+              <!-- Loan Details + PITI -->
+              <div class="ws-row ws-row-2">
+                <!-- Loan Details -->
+                <div class="ws-card">
+                  <div class="ws-card-hdr"><div class="ws-card-title">Loan Details</div></div>
+                  <div class="ws-card-body">
+                    <div class="ws-field"><span class="ws-field-label">Loan Amount (1st Mortgage)</span><input class="ws-input" id="ws_la1" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Interest Rate (1st)</span><input class="ws-input" id="ws_rate1" placeholder="0.000%" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Loan Term (1st) <span class="ws-field-sub">years</span></span><input class="ws-input" id="ws_term1" placeholder="30" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Amortization (1st) <span class="ws-field-sub">months or "IO"</span></span><input class="ws-input" id="ws_amort1" placeholder="360" oninput="wsCalc()"></div>
+                    <div class="ws-field" style="padding-top:10px;border-top:1px dashed var(--border)"><span class="ws-field-label" style="font-weight:600;font-size:12px;color:var(--slate-light)">SECOND MORTGAGE (optional)</span></div>
+                    <div class="ws-field"><span class="ws-field-label">Loan Amount (2nd)</span><input class="ws-input" id="ws_la2" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Interest Rate (2nd)</span><input class="ws-input" id="ws_rate2" placeholder="0.000%" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Loan Term (2nd) <span class="ws-field-sub">years</span></span><input class="ws-input" id="ws_term2" placeholder="30" oninput="wsCalc()"></div>
+                    <div class="ws-field" style="padding-top:10px;border-top:1px dashed var(--border)"><span class="ws-field-label">Property Value / Sales Price</span><input class="ws-input" id="ws_propVal" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Loan Type</span>
+                      <select class="ws-input ws-input-wide" id="ws_loanType" onchange="wsCalc()" style="text-align:left">
+                        <option value="Conventional">Conventional</option>
+                        <option value="FHA">FHA</option>
+                        <option value="VA">VA</option>
+                        <option value="HELOC">HELOC</option>
+                        <option value="DSCR">DSCR</option>
+                        <option value="Jumbo">Jumbo</option>
+                        <option value="Non-QM">Non-QM</option>
+                      </select>
+                    </div>
+                    <div class="ws-field"><span class="ws-field-label">Transaction Type</span>
+                      <select class="ws-input ws-input-wide" id="ws_txType" onchange="wsCalc()" style="text-align:left">
+                        <option value="Purchase">Purchase</option>
+                        <option value="Refinance">Refinance</option>
+                        <option value="Cash-Out Refinance">Cash-Out Refi</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <!-- PITI -->
+                <div class="ws-card">
+                  <div class="ws-card-hdr"><div class="ws-card-title">Housing Payment (PITI)</div></div>
+                  <div class="ws-card-body">
+                    <div class="ws-field"><span class="ws-field-label">P&amp;I — 1st Mortgage <span class="ws-field-sub">auto-calculated</span></span><span class="ws-calc blue" id="ws_pi1">—</span></div>
+                    <div class="ws-field"><span class="ws-field-label">P&amp;I — 2nd Mortgage <span class="ws-field-sub">auto-calculated</span></span><span class="ws-calc blue" id="ws_pi2">—</span></div>
+                    <div class="ws-field"><span class="ws-field-label">Property Tax <span class="ws-field-sub">per month</span></span><input class="ws-input" id="ws_tax" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Homeowners Insurance <span class="ws-field-sub">per month</span></span><input class="ws-input" id="ws_ins" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">HOA / Condo Fee <span class="ws-field-sub">per month</span></span><input class="ws-input" id="ws_hoa" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">MIP / PMI <span class="ws-field-sub">per month</span></span><input class="ws-input" id="ws_mip" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field" style="margin-top:4px"><span class="ws-field-label" style="font-weight:700">Total PITI</span><span class="ws-calc good" id="ws_totalPITI">—</span></div>
+                    <div style="height:1px;background:var(--border);margin:10px 0"></div>
+                    <div class="ws-field"><span class="ws-field-label">Qualifying Rate <span class="ws-field-sub">if different from note rate</span></span><input class="ws-input" id="ws_qualRate" placeholder="same" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Qualifying P&amp;I <span class="ws-field-sub">auto-calculated</span></span><span class="ws-calc blue" id="ws_qualPI">—</span></div>
+                    <div style="height:1px;background:var(--border);margin:10px 0"></div>
+                    <div class="ws-field"><span class="ws-field-label">Closing Costs</span><input class="ws-input" id="ws_closingCosts" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label">Payoffs at Closing</span><input class="ws-input" id="ws_payoffs" placeholder="$0" oninput="wsCalc()"></div>
+                    <div class="ws-field"><span class="ws-field-label" style="font-weight:700">Cash to Borrower</span><span class="ws-calc" id="ws_cashBorrower">—</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Income + Real Estate Owned -->
+              <div class="ws-row ws-row-2">
+                <!-- Income -->
+                <div class="ws-card">
+                  <div class="ws-card-hdr">
+                    <div class="ws-card-title">Income Sources</div>
+                    <button onclick="wsAddIncome()" style="background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:3px 9px;font-size:11px;font-family:var(--font-body);cursor:pointer">+ Add</button>
+                  </div>
+                  <div class="ws-card-body" style="padding:0">
+                    <table class="ws-table" id="wsIncomeTable">
+                      <thead><tr><th>Borrower</th><th>Source</th><th style="text-align:right">Monthly</th><th></th></tr></thead>
+                      <tbody id="wsIncomeTbody"></tbody>
+                      <tfoot><tr class="total-row"><td colspan="2">Total Monthly Income</td><td style="text-align:right" id="wsTotalIncome">$0.00</td><td></td></tr></tfoot>
+                    </table>
+                  </div>
+                </div>
+                <!-- Real Estate Owned -->
+                <div class="ws-card">
+                  <div class="ws-card-hdr">
+                    <div class="ws-card-title">Real Estate Owned</div>
+                    <button onclick="wsAddREO()" style="background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:3px 9px;font-size:11px;font-family:var(--font-body);cursor:pointer">+ Add Property</button>
+                  </div>
+                  <div class="ws-card-body" style="padding:0">
+                    <table class="ws-table" id="wsREOTable">
+                      <thead><tr><th>Property</th><th style="text-align:right">Gross Rent</th><th style="text-align:right">Vacancy %</th><th style="text-align:right">Net Rent</th><th></th></tr></thead>
+                      <tbody id="wsREOTbody"></tbody>
+                      <tfoot><tr class="total-row"><td>Total REO Net Rent</td><td></td><td></td><td style="text-align:right" id="wsTotalREO">$0.00</td><td></td></tr></tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Liabilities -->
+              <div class="ws-card">
+                <div class="ws-card-hdr">
+                  <div class="ws-card-title">Liabilities / Monthly Debts</div>
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;color:rgba(255,255,255,.5);padding:2px 8px;background:rgba(255,255,255,.08);border-radius:20px">DTI Debt: <span id="wsLiabTotal">$0</span></span>
+                    <button onclick="wsAddLiab()" style="background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:3px 9px;font-size:11px;font-family:var(--font-body);cursor:pointer">+ Add Creditor</button>
+                  </div>
+                </div>
+                <div class="ws-card-body" style="padding:0">
+                  <table class="ws-table" id="wsLiabTable">
+                    <thead><tr><th style="width:22%">Creditor</th><th style="width:13%;text-align:right">Balance</th><th style="width:11%;text-align:right">Payment</th><th style="width:9%;text-align:center">DTI</th><th style="width:10%;text-align:right">Actual</th><th style="width:13%;text-align:right">Payoff Amt</th><th style="width:8%;text-align:center">Payoff?</th><th style="width:6%"></th></tr></thead>
+                    <tbody id="wsLiabTbody"></tbody>
+                    <tfoot><tr class="total-row"><td>Totals</td><td style="text-align:right" id="wsLiabBalTotal">$0</td><td style="text-align:right" id="wsLiabPmtTotal">$0</td><td></td><td style="text-align:right" id="wsLiabActTotal">$0</td><td style="text-align:right" id="wsLiabPayoffTotal">$0</td><td></td><td></td></tr></tfoot>
+                  </table>
+                </div>
+              </div>
+
+              <!-- DTI Scenario Comparisons -->
+              <div class="ws-card">
+                <div class="ws-card-hdr ws-card-hdr-gold">
+                  <div class="ws-card-title ws-card-title-gold">DTI Scenarios</div>
+                  <span style="font-size:11.5px;color:#7b5c12">Auto-calculated from inputs above</span>
+                </div>
+                <div class="ws-card-body" style="padding:0">
+                  <table class="ws-table" id="wsScenarioTable">
+                    <thead><tr><th style="width:36%">Scenario</th><th style="width:14%;text-align:center">HTI (Front)</th><th style="width:14%;text-align:center">DTI (Back)</th><th style="width:16%;text-align:center">Income Used</th><th style="width:20%;text-align:center">Result</th></tr></thead>
+                    <tbody id="wsScenarioTbody"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--slate-light);font-size:13px">Enter income and liabilities above, then click Calculate.</td></tr></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Qualification Calculator -->
+              <div class="ws-card">
+                <div class="ws-card-hdr" style="background:#1a3155">
+                  <div class="ws-card-title" style="color:#93c5fd">Maximum Qualification Calculator</div>
+                  <span style="font-size:11px;color:rgba(147,197,253,.6)">What can the borrower qualify for?</span>
+                </div>
+                <div class="ws-card-body">
+                  <p style="font-size:12.5px;color:var(--slate-light);margin-bottom:14px">Based on the income and non-housing debts above, these are the maximum housing payments (PITI) allowable under each loan program.</p>
+                  <div class="qual-row" id="wsQualCards">
+                    <div class="qual-card"><div class="qual-card-label">Conventional (50% DTI)</div><div class="qual-result" id="qc_conv">—</div><div class="qual-result-sub">Max PITI</div></div>
+                    <div class="qual-card"><div class="qual-card-label">FHA Front 46.99%</div><div class="qual-result" id="qc_fha_front">—</div><div class="qual-result-sub">Max PITI (front-end limit)</div></div>
+                    <div class="qual-card"><div class="qual-card-label">FHA Back 56.99%</div><div class="qual-result" id="qc_fha_back">—</div><div class="qual-result-sub">Max PITI (back-end limit)</div></div>
+                    <div class="qual-card"><div class="qual-card-label">VA (41% Back)</div><div class="qual-result" id="qc_va">—</div><div class="qual-result-sub">Max PITI</div></div>
+                  </div>
+                  <!-- Custom qualifier -->
+                  <div style="background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:4px">
+                    <div style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px">Custom Program Qualifier</div>
+                    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+                      <div><div style="font-size:11px;color:var(--slate-light);margin-bottom:4px">Program Name</div><input class="ws-input ws-input-wide" id="qc_custom_name" placeholder="e.g. DSCR, Jumbo" style="text-align:left"></div>
+                      <div><div style="font-size:11px;color:var(--slate-light);margin-bottom:4px">Max Front-End %</div><input class="ws-input" id="qc_custom_front" placeholder="e.g. 45" oninput="wsCalc()" type="number"></div>
+                      <div><div style="font-size:11px;color:var(--slate-light);margin-bottom:4px">Max Back-End %</div><input class="ws-input" id="qc_custom_back" placeholder="e.g. 50" oninput="wsCalc()" type="number"></div>
+                      <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:160px">
+                        <div style="font-size:10.5px;color:var(--slate-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Max PITI</div>
+                        <div style="font-size:18px;font-weight:700;color:var(--navy)" id="qc_custom_result">—</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--slate-light);line-height:1.6">
+                ⚠ <strong>Internal analysis tool only.</strong> Estimates based on inputs — not a commitment to lend. No SSN or personal identifying information should be entered here.
+              </div>
+            </div>
           </div>
         </div>
         <!-- Notes panel — sits inside the split when pinned, fixed when not -->
@@ -1520,6 +1752,7 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (tab === 'custom') loadCustomValues();
   if (tab === 'docs') renderDocTab();
+  if (tab === 'worksheet') wsInit();
 }
 
 //                                        
@@ -1682,9 +1915,11 @@ function renderFileDetail() {
   if (tabBar) {
     tabBar.innerHTML = isPreSub
       ? `<button class="tab-btn active" onclick="switchTab('docs',this)">Client Documents</button>
+         <button class="tab-btn" onclick="switchTab('worksheet',this)">📊 Worksheet</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
+         <button class="tab-btn" onclick="switchTab('worksheet',this)">📊 Worksheet</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`;
   }
   // Reset to correct default tab
@@ -3437,7 +3672,276 @@ async function permanentDelete(fid) {
 }
 
 // ═══════════════════════════════════════════════
-//  PRE-SUBMISSION
+//  LOAN WORKSHEET
+// ═══════════════════════════════════════════════
+let wsData = { income:[], reo:[], liab:[] };
+
+function wsInit() {
+  // Load saved worksheet data for this file
+  const f = cache.files.find(x=>x.id===currentFileId);
+  const saved = f?.worksheet || {};
+  // Restore inputs
+  const fields = ['ws_la1','ws_rate1','ws_term1','ws_amort1','ws_la2','ws_rate2','ws_term2','ws_propVal','ws_tax','ws_ins','ws_hoa','ws_mip','ws_qualRate','ws_closingCosts','ws_payoffs','ws_loanType','ws_txType'];
+  fields.forEach(id => { const el = document.getElementById(id); if (el && saved[id] !== undefined) el.value = saved[id]; });
+  wsData.income = saved.income || [];
+  wsData.reo = saved.reo || [];
+  wsData.liab = saved.liab || [];
+  // Pre-populate borrower names from file if income empty
+  if (!wsData.income.length && f?.b1) {
+    wsData.income.push({borrower:f.b1, source:'', monthly:''});
+    if (f.b2) wsData.income.push({borrower:f.b2, source:'', monthly:''});
+  }
+  wsRenderIncome(); wsRenderREO(); wsRenderLiab(); wsCalc();
+}
+
+// ── Helpers ──
+function wsParseNum(val) {
+  if (!val && val !== 0) return 0;
+  return parseFloat(String(val).replace(/[$,%]/g,'').trim()) || 0;
+}
+function wsFmt(n, decimals=2) {
+  return '$' + n.toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+}
+function wsPct(n) { return n.toFixed(3) + '%'; }
+function wsPctBadge(pct, front, warn) {
+  if (pct === null || isNaN(pct)) return '<span style="color:var(--slate-light)">—</span>';
+  const cls = pct > warn ? 'ws-dti-red' : pct > front ? 'ws-dti-warn' : 'ws-dti-green';
+  return `<span class="${cls}" style="font-weight:700">${pct.toFixed(3)}%</span>`;
+}
+function wsCalcPI(loanAmt, annualRate, termYears, amortMonths) {
+  if (!loanAmt || !annualRate || !termYears) return 0;
+  const la = wsParseNum(loanAmt);
+  const r = wsParseNum(annualRate) / 100 / 12;
+  const amort = amortMonths && String(amortMonths).toUpperCase() !== 'IO' ? wsParseNum(amortMonths) : termYears * 12;
+  if (!la || !r || !amort) return 0;
+  if (r === 0) return la / amort;
+  return la * r * Math.pow(1+r, amort) / (Math.pow(1+r, amort) - 1);
+}
+
+// ── Income ──
+function wsRenderIncome() {
+  const tbody = document.getElementById('wsIncomeTbody');
+  tbody.innerHTML = wsData.income.map((row, i) => `
+    <tr>
+      <td><input class="right" value="${esc(row.borrower||'')}" oninput="wsData.income[${i}].borrower=this.value;wsSaveAndCalc()" style="width:90px;text-align:left"></td>
+      <td><input value="${esc(row.source||'')}" oninput="wsData.income[${i}].source=this.value;wsSaveAndCalc()" style="width:100%"></td>
+      <td><input class="right" value="${esc(row.monthly||'')}" oninput="wsData.income[${i}].monthly=this.value;wsSaveAndCalc()" style="width:90px"></td>
+      <td style="text-align:center"><button onclick="wsData.income.splice(${i},1);wsRenderIncome();wsSaveAndCalc()" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:13px;padding:0 3px">✕</button></td>
+    </tr>`).join('');
+  // Update total
+  const total = wsData.income.reduce((s,r) => s + wsParseNum(r.monthly), 0);
+  document.getElementById('wsTotalIncome').textContent = wsFmt(total);
+}
+function wsAddIncome() {
+  wsData.income.push({borrower:'', source:'', monthly:''});
+  wsRenderIncome();
+}
+
+// ── REO ──
+function wsRenderREO() {
+  const tbody = document.getElementById('wsREOTbody');
+  tbody.innerHTML = wsData.reo.map((row, i) => {
+    const net = wsParseNum(row.gross) * (1 - wsParseNum(row.vacancy)/100);
+    wsData.reo[i]._net = net;
+    return `<tr>
+      <td><input value="${esc(row.prop||'')}" oninput="wsData.reo[${i}].prop=this.value;wsSaveAndCalc()" style="width:100%;text-align:left"></td>
+      <td><input class="right" value="${esc(row.gross||'')}" oninput="wsData.reo[${i}].gross=this.value;wsRenderREO();wsSaveAndCalc()" style="width:80px"></td>
+      <td><input class="right" value="${esc(row.vacancy||'75')}" oninput="wsData.reo[${i}].vacancy=this.value;wsRenderREO();wsSaveAndCalc()" style="width:60px"></td>
+      <td style="text-align:right;font-weight:600">${wsFmt(net)}</td>
+      <td style="text-align:center"><button onclick="wsData.reo.splice(${i},1);wsRenderREO();wsSaveAndCalc()" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:13px;padding:0 3px">✕</button></td>
+    </tr>`;
+  }).join('');
+  const total = wsData.reo.reduce((s,r) => s + (r._net||0), 0);
+  document.getElementById('wsTotalREO').textContent = wsFmt(total);
+}
+function wsAddREO() {
+  wsData.reo.push({prop:'', gross:'', vacancy:'75'});
+  wsRenderREO();
+}
+
+// ── Liabilities ──
+function wsRenderLiab() {
+  const tbody = document.getElementById('wsLiabTbody');
+  tbody.innerHTML = wsData.liab.map((row, i) => {
+    const inc = row.dti !== false;
+    const isPayoff = row.payoff || false;
+    return `<tr>
+      <td><input value="${esc(row.creditor||'')}" oninput="wsData.liab[${i}].creditor=this.value;wsSaveAndCalc()" style="width:100%;text-align:left"></td>
+      <td><input class="right" value="${esc(row.balance||'')}" oninput="wsData.liab[${i}].balance=this.value;wsSaveAndCalc()" style="width:90px"></td>
+      <td><input class="right" value="${esc(row.payment||'')}" oninput="wsData.liab[${i}].payment=this.value;wsSaveAndCalc()" style="width:80px"></td>
+      <td style="text-align:center"><button class="dti-toggle ${inc?'dti-inc':'dti-exc'}" onclick="wsData.liab[${i}].dti=!wsData.liab[${i}].dti;wsRenderLiab();wsSaveAndCalc()">${inc?'Include':'Exclude'}</button></td>
+      <td style="text-align:right;font-weight:${inc?'600':'400'};color:${inc?'var(--navy)':'var(--slate-light)'}"><input class="right" value="${esc(row.actual||row.payment||'')}" oninput="wsData.liab[${i}].actual=this.value;wsSaveAndCalc()" style="width:80px"></td>
+      <td><input class="right" value="${esc(row.payoffAmt||'')}" oninput="wsData.liab[${i}].payoffAmt=this.value;wsSaveAndCalc()" style="width:90px" placeholder="—"></td>
+      <td style="text-align:center"><button onclick="wsData.liab[${i}].payoff=!wsData.liab[${i}].payoff;wsRenderLiab();wsSaveAndCalc()" style="background:none;border:1px solid var(--border);border-radius:5px;padding:2px 6px;font-size:11px;cursor:pointer;font-family:var(--font-body);color:${isPayoff?'var(--success)':'var(--slate-light)'}">${isPayoff?'✓ Yes':'No'}</button></td>
+      <td style="text-align:center"><button onclick="wsData.liab.splice(${i},1);wsRenderLiab();wsSaveAndCalc()" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:13px;padding:0 3px">✕</button></td>
+    </tr>`;
+  }).join('');
+  // Totals
+  const balTotal = wsData.liab.reduce((s,r) => s + wsParseNum(r.balance), 0);
+  const pmtTotal = wsData.liab.reduce((s,r) => s + wsParseNum(r.payment), 0);
+  const actTotal = wsData.liab.filter(r=>r.dti!==false).reduce((s,r) => s + wsParseNum(r.actual||r.payment), 0);
+  const payoffTotal = wsData.liab.filter(r=>r.payoff).reduce((s,r) => s + wsParseNum(r.payoffAmt), 0);
+  document.getElementById('wsLiabBalTotal').textContent = wsFmt(balTotal, 0);
+  document.getElementById('wsLiabPmtTotal').textContent = wsFmt(pmtTotal);
+  document.getElementById('wsLiabActTotal').textContent = wsFmt(actTotal);
+  document.getElementById('wsLiabPayoffTotal').textContent = wsFmt(payoffTotal);
+  document.getElementById('wsLiabTotal').textContent = wsFmt(actTotal);
+}
+function wsAddLiab() {
+  wsData.liab.push({creditor:'', balance:'', payment:'', dti:true, payoff:false, payoffAmt:''});
+  wsRenderLiab();
+}
+
+// ── Main Calculate ──
+function wsCalc() {
+  // Loan inputs
+  const la1 = wsParseNum(document.getElementById('ws_la1')?.value);
+  const rate1 = wsParseNum(document.getElementById('ws_rate1')?.value);
+  const term1 = wsParseNum(document.getElementById('ws_term1')?.value) || 30;
+  const amort1Raw = document.getElementById('ws_amort1')?.value || '';
+  const la2 = wsParseNum(document.getElementById('ws_la2')?.value);
+  const rate2 = wsParseNum(document.getElementById('ws_rate2')?.value);
+  const term2 = wsParseNum(document.getElementById('ws_term2')?.value) || 30;
+  const propVal = wsParseNum(document.getElementById('ws_propVal')?.value);
+  const tax = wsParseNum(document.getElementById('ws_tax')?.value);
+  const ins = wsParseNum(document.getElementById('ws_ins')?.value);
+  const hoa = wsParseNum(document.getElementById('ws_hoa')?.value);
+  const mip = wsParseNum(document.getElementById('ws_mip')?.value);
+  const closingCosts = wsParseNum(document.getElementById('ws_closingCosts')?.value);
+  const payoffs = wsParseNum(document.getElementById('ws_payoffs')?.value);
+  const qualRateRaw = document.getElementById('ws_qualRate')?.value || '';
+  // P&I calculations
+  const amort1 = amort1Raw.toUpperCase() === 'IO' ? null : (wsParseNum(amort1Raw) || term1*12);
+  const pi1 = amort1Raw.toUpperCase() === 'IO'
+    ? (la1 * (rate1/100/12)) // interest only
+    : wsCalcPI(la1, rate1+'', term1+'', amort1+'');
+  const pi2 = la2 && rate2 ? wsCalcPI(la2, rate2+'', term2+'', (term2*12)+'') : 0;
+  // Qualifying PI
+  const qualRate = wsParseNum(qualRateRaw) || rate1;
+  const qualPI = qualRate !== rate1 && qualRate ? wsCalcPI(la1, qualRate+'', term1+'', amort1+'') : pi1;
+  // Display P&I
+  const pi1El = document.getElementById('ws_pi1');
+  const pi2El = document.getElementById('ws_pi2');
+  if (pi1El) pi1El.textContent = pi1 > 0 ? wsFmt(pi1) : '—';
+  if (pi2El) pi2El.textContent = pi2 > 0 ? wsFmt(pi2) : '—';
+  const qualPIEl = document.getElementById('ws_qualPI');
+  if (qualPIEl) qualPIEl.textContent = qualPI > 0 ? wsFmt(qualPI) : '—';
+  // Total PITI
+  const totalPITI = pi1 + pi2 + tax + ins + hoa + mip;
+  const pitiEl = document.getElementById('ws_totalPITI');
+  if (pitiEl) { pitiEl.textContent = totalPITI > 0 ? wsFmt(totalPITI) : '—'; pitiEl.className = 'ws-calc ' + (totalPITI > 0 ? 'good' : ''); }
+  // LTV
+  const totalLoan = la1 + la2;
+  const ltv = propVal ? (totalLoan / propVal * 100) : null;
+  const ltvEl = document.getElementById('wsLTV');
+  if (ltvEl) {
+    ltvEl.textContent = ltv !== null ? ltv.toFixed(1)+'%' : '—';
+    ltvEl.className = 'ws-dti-value ' + (ltv === null ? 'ws-dti-navy' : ltv > 80 ? 'ws-dti-warn' : 'ws-dti-green');
+    document.getElementById('wsLTVBar').className = 'ws-dti-bar ' + (ltv === null ? 'ws-dti-bar-navy' : ltv > 80 ? 'ws-dti-bar-warn' : 'ws-dti-bar-green');
+  }
+  // Cash to borrower
+  const cashOut = la1 + la2 - closingCosts - payoffs;
+  const cashEl = document.getElementById('ws_cashBorrower');
+  const cashSummEl = document.getElementById('wsCashOut');
+  if (cashEl) { cashEl.textContent = (la1||la2) ? wsFmt(cashOut) : '—'; cashEl.className = 'ws-calc ' + (cashOut >= 0 ? 'good' : 'bad'); }
+  if (cashSummEl) { cashSummEl.textContent = (la1||la2) ? wsFmt(cashOut) : '—'; cashSummEl.className = 'ws-dti-value ' + (cashOut >= 0 ? 'ws-dti-green' : 'ws-dti-red'); cashSummEl.style.fontSize = '18px'; }
+  // Income totals
+  const baseIncome = wsData.income.reduce((s,r) => s + wsParseNum(r.monthly), 0);
+  const reoIncome = wsData.reo.reduce((s,r) => s + (r._net||0), 0);
+  // DTI debts
+  const nonHousingDebt = wsData.liab.filter(r=>r.dti!==false).reduce((s,r) => s + wsParseNum(r.actual||r.payment), 0);
+  // Scenarios
+  const scenarios = [
+    { name:'All Income + Negating Subject PITI', sub:'REO net rent included; subject PITI removed from liabilities', income:baseIncome+reoIncome, housing:totalPITI, addHousing:false },
+    { name:'All Income + Full PITI Included', sub:'REO net rent included; subject PITI counts as debt', income:baseIncome+reoIncome, housing:totalPITI, addHousing:true },
+    { name:'Base Income Only + Negating PITI', sub:'No REO income; subject PITI removed', income:baseIncome, housing:totalPITI, addHousing:false },
+    { name:'Base Income Only + Full PITI', sub:'Most conservative — no REO income, PITI included', income:baseIncome, housing:totalPITI, addHousing:true },
+  ];
+  const tbody = document.getElementById('wsScenarioTbody');
+  if (tbody && baseIncome) {
+    tbody.innerHTML = scenarios.map(sc => {
+      const inc = sc.income;
+      if (!inc) return '';
+      const totalDebt = sc.addHousing ? nonHousingDebt + sc.housing : nonHousingDebt;
+      const front = inc ? (sc.housing / inc * 100) : null;
+      const back = inc ? (totalDebt / inc * 100) : null;
+      const status = !back ? '—' : back > 57 ? `<span class="qual-badge" style="background:var(--danger-bg);color:var(--danger)">✕ High DTI</span>` : back > 50 ? `<span class="qual-badge" style="background:var(--warning-bg);color:var(--warning)">⚠ Review</span>` : `<span class="qual-badge" style="background:var(--success-bg);color:var(--success)">✓ Likely OK</span>`;
+      return `<tr>
+        <td><div style="font-weight:600;font-size:12.5px;color:var(--navy)">${esc(sc.name)}</div><div style="font-size:11px;color:var(--slate-light)">${esc(sc.sub)}</div></td>
+        <td style="text-align:center">${wsPctBadge(front, 36, 45)}</td>
+        <td style="text-align:center">${wsPctBadge(back, 43, 50)}</td>
+        <td style="text-align:center;font-size:12px;color:var(--slate)">${wsFmt(inc, 0)}/mo</td>
+        <td style="text-align:center">${status}</td>
+      </tr>`;
+    }).join('');
+  } else if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--slate-light);font-size:13px">Enter income and liabilities above, then click Calculate.</td></tr>';
+  }
+  // Summarize front/back DTI using first scenario (with REO, negating PITI)
+  const refIncome = baseIncome + reoIncome;
+  const frontDTI = refIncome ? totalPITI / refIncome * 100 : null;
+  const backDTI = refIncome ? (nonHousingDebt + totalPITI) / refIncome * 100 : null;
+  // Wait — first scenario negates PITI so back = nonHousingDebt + PITI with PITI not doubled
+  const frontEl = document.getElementById('wsFrontDTI');
+  const backEl = document.getElementById('wsBackDTI');
+  const frontBarEl = document.getElementById('wsFrontBar');
+  const backBarEl = document.getElementById('wsBackBar');
+  if (frontEl) {
+    frontEl.textContent = frontDTI !== null ? frontDTI.toFixed(2)+'%' : '—';
+    frontEl.className = 'ws-dti-value ' + (frontDTI === null ? 'ws-dti-navy' : frontDTI > 45 ? 'ws-dti-red' : frontDTI > 36 ? 'ws-dti-warn' : 'ws-dti-green');
+    if (frontBarEl) frontBarEl.className = 'ws-dti-bar ' + (frontDTI === null ? 'ws-dti-bar-navy' : frontDTI > 45 ? 'ws-dti-bar-red' : frontDTI > 36 ? 'ws-dti-bar-warn' : 'ws-dti-bar-green');
+  }
+  if (backEl) {
+    backEl.textContent = backDTI !== null ? backDTI.toFixed(2)+'%' : '—';
+    backEl.className = 'ws-dti-value ' + (backDTI === null ? 'ws-dti-navy' : backDTI > 50 ? 'ws-dti-red' : backDTI > 43 ? 'ws-dti-warn' : 'ws-dti-green');
+    if (backBarEl) backBarEl.className = 'ws-dti-bar ' + (backDTI === null ? 'ws-dti-bar-navy' : backDTI > 50 ? 'ws-dti-bar-red' : backDTI > 43 ? 'ws-dti-bar-warn' : 'ws-dti-bar-green');
+  }
+  // Max qualification calculator
+  // Max PITI = (maxDTI * income) - nonHousingDebt
+  const qCalc = (pct, income) => {
+    const max = (pct/100 * income) - nonHousingDebt;
+    return max > 0 ? wsFmt(max) : '<span style="color:var(--danger);font-size:14px">Exceeds limit</span>';
+  };
+  if (refIncome) {
+    document.getElementById('qc_conv').innerHTML = qCalc(50, refIncome);
+    document.getElementById('qc_fha_front').innerHTML = wsFmt(0.4699 * refIncome); // FHA front: 46.99% of income
+    document.getElementById('qc_fha_back').innerHTML = qCalc(56.99, refIncome);
+    document.getElementById('qc_va').innerHTML = qCalc(41, refIncome);
+    // Custom
+    const cf = wsParseNum(document.getElementById('qc_custom_front')?.value);
+    const cb = wsParseNum(document.getElementById('qc_custom_back')?.value);
+    if (cf || cb) {
+      const maxFront = cf ? wsFmt(cf/100 * refIncome) : '—';
+      const maxBack = cb ? qCalc(cb, refIncome) : '—';
+      document.getElementById('qc_custom_result').innerHTML = cb ? qCalc(cb, refIncome) : maxFront;
+    }
+  }
+  // Save worksheet data
+  wsSave();
+}
+
+async function wsSave() {
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (!f) return;
+  const fields = ['ws_la1','ws_rate1','ws_term1','ws_amort1','ws_la2','ws_rate2','ws_term2','ws_propVal','ws_tax','ws_ins','ws_hoa','ws_mip','ws_qualRate','ws_closingCosts','ws_payoffs','ws_loanType','ws_txType'];
+  const saved = {};
+  fields.forEach(id => { const el = document.getElementById(id); if (el) saved[id] = el.value; });
+  saved.income = wsData.income;
+  saved.reo = wsData.reo;
+  saved.liab = wsData.liab;
+  f.worksheet = saved;
+  await syncToCloud();
+}
+
+function wsSaveAndCalc() { wsCalc(); wsSave(); }
+
+function wsClear() {
+  if (!confirm('Clear all worksheet data for this file?')) return;
+  wsData = { income:[], reo:[], liab:[] };
+  const f = cache.files.find(x=>x.id===currentFileId);
+  if (f) { f.worksheet = {}; syncToCloud(); }
+  wsInit();
+}
 // ═══════════════════════════════════════════════
 let preFilter = 'all';
 
