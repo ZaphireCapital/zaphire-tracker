@@ -1791,7 +1791,7 @@ function condCard(c) {
   }).join('');
   const condLabel = JSON.stringify('#'+(c.num||'?')+' — '+c.desc).replace(/'/g,"&#39;");
   const reqDocRow = `<div class="cond-req-doc-row">
-    <button class="cond-req-doc-btn" onclick="openDocItemModalForCond(${condLabel})">📋 Request Doc from Client</button>
+    <button class="cond-req-doc-btn" onclick='openDocItemModalForCond(${condLabel})'>📋 Request Doc from Client</button>
     ${linkedDocs.length ? `<div class="cond-linked-docs">${linkedBadges}</div>` : ''}
   </div>`;
   return `<div class="condition-card${uwCardClass}">
@@ -4174,21 +4174,31 @@ function openDocItemModalForCond(condLink) {
   document.getElementById('di_status').value = 'needed';
   document.getElementById('di_template').checked = false;
   document.getElementById('di_note').value = '';
-  // Populate For dropdown
+  // For dropdown — default to b1
   const forSel = document.getElementById('di_for');
   forSel.innerHTML = `<option value="${esc(b1)}">${esc(b1)}</option>` +
     (b2 ? `<option value="${esc(b2)}">${esc(b2)}</option><option value="${esc(both)}">${esc(both)}</option>` : '');
-  // Populate condition dropdown and pre-select this condition
+  forSel.value = b1;
+  // Condition dropdown — pre-select this condition
   const conds = (cache.conditions[currentFileId]||[]);
   const condSel = document.getElementById('di_cond');
   condSel.innerHTML = '<option value="">— None —</option>' +
     conds.map(c=>`<option value="${esc('#'+(c.num||'?')+' — '+c.desc)}" ${('#'+(c.num||'?')+' — '+c.desc)===condLink?'selected':''}>${esc('#'+(c.num||'?')+' — '+c.desc)}</option>`).join('');
-  // If not found in list, add it
   if (!conds.find(c=>('#'+(c.num||'?')+' — '+c.desc)===condLink)) {
     condSel.innerHTML += `<option value="${esc(condLink)}" selected>${esc(condLink)}</option>`;
   }
   condSel.value = condLink;
+  // Wire name field to auto-fill spec from template
+  const nameField = document.getElementById('di_name');
+  nameField.oninput = function() {
+    const specField = document.getElementById('di_spec');
+    if (specField.value.trim()) return;
+    const tmpl = getDocTemplates().find(t=>t.name.toLowerCase()===this.value.toLowerCase());
+    if (tmpl?.spec) specField.value = tmpl.spec;
+  };
   document.getElementById('docItemModal').classList.add('open');
+  // Focus the name field
+  setTimeout(()=>document.getElementById('di_name').focus(), 150);
 }
 
 function jumpToCondition(condLink) {
