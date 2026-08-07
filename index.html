@@ -754,7 +754,7 @@ input[type=file]{display:none}
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"></span>Settings</button>
       <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
       <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon"></span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
-      <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon">🗑</span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
+      <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon"></span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
     <div class="sidebar-footer">
       <div class="user-pill">
@@ -2018,13 +2018,13 @@ function renderFileDetail() {
   if (tabBar) {
     tabBar.innerHTML = isPreSub
       ? `<button class="tab-btn active" onclick="switchTab('docs',this)">Client Documents</button>
-         <button class="tab-btn" onclick="switchTab('worksheet',this)">📊 Worksheet</button>
-         <button class="tab-btn" onclick="switchTab('ratesheet',this)">📋 Rate Sheet</button>
+         <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
+         <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
-         <button class="tab-btn" onclick="switchTab('worksheet',this)">📊 Worksheet</button>
-         <button class="tab-btn" onclick="switchTab('ratesheet',this)">📋 Rate Sheet</button>
+         <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
+         <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`;
   }
   // Reset to correct default tab
@@ -3776,8 +3776,14 @@ async function permanentDelete(fid) {
   toast('File permanently deleted');
 }
 
-// ═══════════════════════════════════════════════
-//  LOAN WORKSHEET
+// ── Debounced save — buffers all worksheet/rate sheet changes, writes to Supabase once after 1.5s idle ──
+let _debounceSaveTimer = null;
+function debouncedSave() {
+  clearTimeout(_debounceSaveTimer);
+  _debounceSaveTimer = setTimeout(async () => {
+    try { await syncToCloud(); } catch(e) { console.warn('Debounced save failed:', e); }
+  }, 1500);
+}
 // ═══════════════════════════════════════════════
 let wsData = { income:[], reo:[], liab:[] };
 
@@ -4035,7 +4041,7 @@ async function wsSave() {
   saved.reo = wsData.reo;
   saved.liab = wsData.liab;
   f.worksheet = saved;
-  await syncToCloud();
+  debouncedSave();
 }
 
 function wsSaveAndCalc() { wsCalc(); wsSave(); }
@@ -4044,7 +4050,7 @@ function wsClear() {
   if (!confirm('Clear all worksheet data for this file?')) return;
   wsData = { income:[], reo:[], liab:[] };
   const f = cache.files.find(x=>x.id===currentFileId);
-  if (f) { f.worksheet = {}; syncToCloud(); }
+  if (f) { f.worksheet = {}; debouncedSave(); }
   wsInit();
 }
 // ═══════════════════════════════════════════════
@@ -4496,7 +4502,7 @@ function rsSaveOptions(opts) {
   const f = cache.files.find(x=>x.id===currentFileId);
   if (!f) return;
   f.rateSheet = opts;
-  syncToCloud();
+  debouncedSave();
 }
 
 // ── Init ──
