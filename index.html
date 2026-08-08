@@ -4964,19 +4964,12 @@ function rsRenderPreviewTab(c) {
   const loanVals=s.slice(0,n).map((sc,i)=>{const L=calcLoan(sc),L0=calcLoan(sc0);return i===0?`<strong>${rsFmt(L)}</strong>`:(Math.abs(L-L0)<0.01?ditto:`<strong>${rsFmt(L)}</strong>`);});
   const termVals=s.slice(0,n).map((sc,i)=>{const t=sc.term||propTerm,t0=sc0.term||propTerm;return i===0?String(t):(t===t0?ditto:String(t));});
   const miVals=s.slice(0,n).map((sc,i)=>i===0?rsFmt(sc.mortIns||0):((sc.mortIns||0)===(sc0.mortIns||0)?ditto:rsFmt(sc.mortIns||0)));
-  const logoSrc = cache.logo || null;
-  const logoHtml = logoSrc
-    ? `<img src="${logoSrc}" style="width:40px;height:40px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0">`
-    : '';
   const optBanner=c.optionNote?`<div class="rs-ws-banner"><div class="rs-ws-badge">Option</div><div style="color:#fff;font-size:13px;font-weight:600">${esc(c.optionNote)}</div></div>`:'';
   const wsHtml=`<div class="rs-ws">
     <div class="rs-ws-hdr">
-      <div style="display:flex;align-items:center;gap:10px;min-width:200px">
-        ${logoHtml}
-        <div><div class="rs-ws-logo-txt">Zaphire Capital</div><div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px">NMLS ${cache.settings?.nmls||'2511614'}</div></div>
-      </div>
-      <div class="rs-ws-title" style="text-align:center;flex:1">Mortgage Comparison Worksheet</div>
-      <div style="text-align:right;min-width:200px"><div class="rs-ws-off-name">${esc(oName)}</div>${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}${oPhone?`<div class="rs-ws-off-det">${esc(oPhone)}</div>`:''}${oEmail?`<div class="rs-ws-off-det">${esc(oEmail)}</div>`:''}</div>
+      <div><div class="rs-ws-logo-txt">Zaphire Capital</div><div style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:2px">NMLS ${cache.settings?.nmls||'2511614'}</div></div>
+      <div class="rs-ws-title">Mortgage Comparison Worksheet</div>
+      <div style="text-align:right"><div class="rs-ws-off-name">${esc(oName)}</div>${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}${oPhone?`<div class="rs-ws-off-det">${esc(oPhone)}</div>`:''}${oEmail?`<div class="rs-ws-off-det">${esc(oEmail)}</div>`:''}</div>
     </div>
     ${optBanner}
     <div class="rs-ws-meta">
@@ -5021,31 +5014,24 @@ function rsRenderPreviewTab(c) {
 
 function rsPrint() {
   const opts=rsGetOptions(); const c=opts[rsActiveIdx]; if(!c)return;
+  // Build a temporary preview to grab the ws HTML
+  const tmp=document.createElement('div');
   rsRenderPreviewTab(c);
   const wsEl=document.getElementById('rsPreview')?.querySelector('.rs-ws');
   if(!wsEl){toast('Switch to Worksheet Preview first');return;}
   const n=(c.scenarios||[]).length;
   const ft=n<=5?8.5:n<=7?7.8:7.2;
   const fc=n<=5?130:110;
-  // Logo — pull from cache if uploaded, else empty string
-  const logo=cache.logo||'';
-  const logoTag=logo
-    ? `<img src="${logo}" style="width:42px;height:42px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
-    : '';
   const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-  @page{size:landscape;margin:0.15in}
+  @page{size:landscape;margin:0.2in}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:Arial,sans-serif;background:#fff;font-size:${ft}pt}
-  .rs-ws-hdr{display:flex;align-items:center;padding:6px 10px;gap:12px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-hdr-left{display:flex;align-items:center;gap:8px;min-width:${logo?'210':'160'}pt}
-  .rs-ws-hdr-left-text{display:flex;flex-direction:column;gap:1px}
-  .rs-ws-logo-txt{font-size:${ft+2}pt;font-weight:700;color:#c9a84c;line-height:1.1}
-  .rs-ws-nmls{font-size:${ft-1.5}pt;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
-  .rs-ws-title{color:#fff;font-size:${ft+2.5}pt;font-weight:700;text-align:center;flex:1}
-  .rs-ws-hdr-right{text-align:right;min-width:${logo?'210':'160'}pt}
-  .rs-ws-off-name{color:#fff;font-size:${ft}pt;font-weight:600}
-  .rs-ws-off-det{color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.5}
-  .rs-ws-banner{background:linear-gradient(90deg,#1e5fa8,#1a6bbf);padding:4px 10px;display:flex;align-items:center;gap:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-logo-txt{font-size:${ft+2}pt;font-weight:700;color:#c9a84c}
+  .rs-ws-title{color:#fff;font-size:${ft+2.5}pt;font-weight:700;text-align:center}
+  .rs-ws-off-name{color:#fff;font-size:${ft}pt;font-weight:600;text-align:right}
+  .rs-ws-off-det{color:rgba(255,255,255,.6);font-size:${ft-1}pt;text-align:right}
+  .rs-ws-banner{background:linear-gradient(90deg,#1e5fa8,#1a6bbf);padding:5px 10px;display:flex;align-items:center;gap:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-badge{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);border-radius:3px;padding:1px 6px;color:#fff;font-size:${ft-2}pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
   .rs-ws-meta{display:grid;grid-template-columns:1fr 1fr 1fr;padding:3px 9px;background:#f0f0f5;border-bottom:1px solid #ccc;font-size:${ft-0.5}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-lbl{color:#555}.rs-ws-val{font-weight:600}
@@ -5053,7 +5039,7 @@ function rsPrint() {
   .rs-ws-tbl th{padding:2px 3px;text-align:center;font-size:${ft-0.8}pt;background:#0a1628;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
   .rs-ws-tbl th:first-child{background:#1a3155;text-align:left;width:${fc}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-tbl th.rs-ws-cur-h{background:#2a4f8a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-tbl td{padding:1.5px 3px;text-align:center;border-bottom:0.4px solid #ddd;overflow:hidden;white-space:nowrap;font-size:${ft}pt}
+  .rs-ws-tbl td{padding:1.8px 3px;text-align:center;border-bottom:0.4px solid #ddd;overflow:hidden;white-space:nowrap;font-size:${ft}pt}
   .rs-ws-tbl td:first-child{text-align:left;color:#555;background:#fafaf8;font-size:${ft-1}pt;white-space:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-cc{background:#e8f0fe!important;color:#1a3a6b;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-sh td{background:#1e5fa8!important;color:#fff!important;font-weight:600;font-size:${ft-1.2}pt;text-transform:uppercase;padding:1.5px 3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -5063,18 +5049,7 @@ function rsPrint() {
   .rs-ws-cash td{font-weight:700;background:#fef5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-pre td{color:#6b3fa0;background:#f5f0ff!important;font-size:${ft-1.2}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-disc{font-size:${ft-2}pt;color:rgba(255,255,255,.4);text-align:center;padding:3px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  </style></head><body>
-  <script>
-    // Swap in the logo after DOM is ready — the outerHTML snapshot has inline src already
-  </script>
-  ${wsEl.outerHTML.replace(
-    /(<div class="rs-ws-hdr"[^>]*>)([\s\S]*?)(<div class="rs-ws-title")/,
-    (_, hdrOpen, hdrLeft, titleDiv) => {
-      // Replace the left section with Option A logo layout
-      return `${hdrOpen}<div class="rs-ws-hdr-left">${logoTag}<div class="rs-ws-hdr-left-text"><div class="rs-ws-logo-txt">Zaphire Capital</div><div class="rs-ws-nmls">NMLS ${cache.settings?.nmls||'2511614'}</div></div></div>${titleDiv}`;
-    }
-  )}
-  </body></html>`;
+  </style></head><body>${wsEl.outerHTML}</body></html>`;
   const pw=window.open('','_blank','width=1200,height=800');
   if(!pw){alert('Allow popups to print.');return;}
   pw.document.write(printHTML); pw.document.close();
