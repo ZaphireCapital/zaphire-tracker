@@ -4811,14 +4811,20 @@ function rsRenderScenariosTab(c) {
   const propTerm=c.proposedTerm||30;
   const termVals=s.map((sc,i)=>{const t=sc.term||propTerm,t0=sc0.term||propTerm;return i===0?(isDiffTerm?scNum(i,'term',t,1,55):String(t)):((t===t0)?ditto:(isDiffTerm?scNum(i,'term',t,1,55):String(t)));});
   const miVals=s.map((sc,i)=>i===0?scCur(i,'mortIns',sc.mortIns||0):((sc.mortIns||0)===(sc0.mortIns||0)?ditto:scCur(i,'mortIns',sc.mortIns||0)));
+  // Loan amount for comp calculation — use sc0 loan as representative base
+  const compBaseLoan = calcLoan(sc0) || (c.appraisal||0)*(1-(c.dpPct!=null?c.dpPct:20)/100);
   const corSection = c.costRateMethod!=='none'?`
   <div class="rs-card" style="border:1.5px solid #ffe082;margin-top:14px">
-    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7f5c00;margin-bottom:8px">📊 Cost of Rate <span style="font-weight:400;font-size:9.5px;color:var(--slate-light)">(internal only)</span></div>
+    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7f5c00;margin-bottom:8px">📊 Cost of Rate Calculator <span style="font-weight:400;font-size:9.5px;color:var(--slate-light)">(internal only)</span></div>
     <div class="rs-sc-wrap"><table class="rs-sc-tbl">
-      <thead><tr><th style="text-align:left;min-width:180px">Component</th>${Array.from({length:n},(_,i)=>`<th>Sc ${i+1}</th>`).join('')}</tr></thead>
+      <thead><tr><th style="text-align:left;min-width:200px;background:#7f5c00">Component</th>${Array.from({length:n},(_,i)=>`<th>Sc ${i+1}</th>`).join('')}</tr></thead>
       <tbody>
         <tr class="rs-cor"><td>Cost of Rate from Lender (%)</td>${s.map((sc,i)=>`<td>${scNum(i,'corLender',sc.corLender||0,0.001,68)}</td>`).join('')}</tr>
-        <tr class="rs-cor"><td>Company Discount (%) <span style="font-size:10px;color:var(--slate-light)">always −</span></td>${s.map((sc,i)=>`<td><input class="rs-sc-num" type="number" step="0.001" value="${Math.abs(sc.corDiscount||0).toFixed(3)}" style="width:68px;border-color:#f0c040" onfocus="this.select()" onchange="rsUSQ(${i},'corDiscount',Math.abs(parseFloat(this.value)));rsDebouncedRefreshSc()"><div style="font-size:10px;color:var(--success)">= −${Math.abs(sc.corDiscount||0).toFixed(3)}%</div></td>`).join('')}</tr>
+        <tr class="rs-cor"><td>Discount — Zaphire Capital (%) <span style="font-size:10px;color:var(--slate-light)">always −</span></td>${s.map((sc,i)=>`<td><input class="rs-sc-num" type="number" step="0.001" value="${Math.abs(sc.corDiscount||0).toFixed(3)}" style="width:68px;border-color:#f0c040" onfocus="this.select()" onchange="rsUSQ(${i},'corDiscount',Math.abs(parseFloat(this.value)));rsDebouncedRefreshSc()"><div style="font-size:10px;color:var(--success)">= −${Math.abs(sc.corDiscount||0).toFixed(3)}%</div></td>`).join('')}</tr>
+        ${c.compType==='borrower_paid'&&c.costRateMethod==='multiple'
+          ? `<tr class="rs-cor"><td>Loan Origination % <span style="font-size:10px;color:var(--slate-light)">(per-scenario)</span></td>${s.map((sc,i)=>`<td>${scNum(i,'loanOrigPct',sc.loanOrigPct||0,0.001,68)}</td>`).join('')}</tr>`
+          : `<tr class="rs-cor"><td>Loan Origination % <span style="font-size:10px;color:var(--slate-light)">(auto all)</span></td>${s.map(()=>`<td style="font-weight:600">${(c.loanOrigPct||0).toFixed(3)}%</td>`).join('')}</tr>`
+        }
         <tr class="rs-tot"><td><strong>Final Cost of Rate (%)</strong></td>${s.map(sc=>{const f=getCorFinal(sc);return`<td style="font-weight:700;color:${f<0?'var(--success)':f>0?'#1e5fa8':'inherit'}">${f.toFixed(3)}%</td>`;}).join('')}</tr>
         <tr><td>Cost of Rate ($)</td>${s.map(sc=>{const d=corDollar(sc);return`<td style="font-weight:600;color:${d<0?'var(--success)':d>0?'#1e5fa8':'inherit'}">${rsFmt(d)}</td>`;}).join('')}</tr>
       </tbody>
@@ -4859,19 +4865,33 @@ function rsRenderScenariosTab(c) {
         ${row(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.map(sc=>{const v=cashToClose(sc);return`<strong style="color:${v<=0?'var(--success)':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-cash',false)}
       </tbody>
     </table></div>${corSection}
-  <div class="rs-card" style="margin-top:14px;border:1.5px solid #e2ddd4">
-    <div class="rs-section" style="margin-top:0">Compensation <span style="font-size:9px;color:var(--slate-light);font-weight:400;text-transform:none">(internal only — never shown on client worksheet)</span></div>
+  <div class="rs-card" style="margin-top:14px;border:1.5px solid #ffd0d0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:26px;height:26px;border-radius:6px;background:#fff0f0;display:flex;align-items:center;justify-content:center;font-size:14px">💰</div>
+        <div class="rs-section" style="margin:0;border:none;padding:0">Compensation</div>
+      </div>
+      <span style="font-size:10px;font-weight:700;letter-spacing:.07em;background:#fff0f0;color:#a0361a;border:1px solid #ffd0d0;border-radius:20px;padding:2px 9px">🔒 Internal Only</span>
+    </div>
     <div style="display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px">
       <button class="rs-topt ${c.compType==='lender_paid'?'sel':''}" onclick="rsUC('compType','lender_paid');rsRefreshSc()">Lender Paid</button>
       <button class="rs-topt ${c.compType==='borrower_paid'?'sel':''}" onclick="rsUC('compType','borrower_paid');rsRefreshSc()">Borrower Paid</button>
     </div>
     ${c.compType==='lender_paid'?'<div class="rs-info-box" style="margin-bottom:10px">🏦 Not disclosed to borrower — does not appear on worksheet.</div>':''}
     ${c.compType==='borrower_paid'?'<div class="rs-warn-box" style="margin-bottom:10px">👤 Not shown on worksheet. Cost of Rate IS disclosed per scenario.</div>':''}
-    <div class="rs-grid3">
-      <div class="rs-fg"><label>Company Comp (%)</label><input type="number" step="0.001" value="${c.lenderPaidPct||2.5}" onchange="rsUC('lenderPaidPct',parseFloat(this.value));rsRefreshSc()"></div>
-      <div class="rs-fg"><label>Est. Comp Amount</label><div class="rs-cur-wrap" style="opacity:.65"><span class="rs-cur-pfx">$</span><input type="text" readonly tabindex="-1" value="${rsFmt((c.appraisal||0)*(c.lenderPaidPct||2.5)/100).replace('$','').trim()}" style="background:#f8f6f1"></div></div>
-      <div class="rs-fg"><label>Cost of Rate Method</label><select onchange="rsUC('costRateMethod',this.value);rsRefreshSc()"><option value="multiple" ${(c.costRateMethod||'multiple')==='multiple'?'selected':''}>Per-Scenario</option><option value="single" ${c.costRateMethod==='single'?'selected':''}>Single (all same)</option></select></div>
+    <div class="rs-grid2" style="margin-bottom:${c.compType==='borrower_paid'?'10':'0'}px">
+      <div class="rs-fg"><label>Company Comp (%) — Not Disclosed</label><input type="number" step="0.001" value="${c.lenderPaidPct||2.5}" onchange="rsUC('lenderPaidPct',parseFloat(this.value));rsRefreshSc()"></div>
+      <div class="rs-fg"><label>Est. Comp Amount <span style="font-size:9px;color:var(--slate-light);font-weight:400">(based on loan amount)</span></label><div class="rs-cur-wrap" style="opacity:.65"><span class="rs-cur-pfx">$</span><input type="text" readonly tabindex="-1" value="${rsFmt(compBaseLoan*(c.lenderPaidPct||2.5)/100).replace('$','').trim()}" style="background:#f8f6f1"></div></div>
     </div>
+    ${c.compType==='borrower_paid'?`
+    <div class="rs-grid2">
+      <div class="rs-fg"><label>Loan Origination % <span style="font-size:9px;color:var(--slate-light);font-weight:400">(sets default for all scenarios)</span></label>
+        <input type="number" step="0.001" value="${c.loanOrigPct||0}" onchange="const _v=parseFloat(this.value)||0;rsUCQ('loanOrigPct',_v);const _opts=rsGetOptions();if(_opts[rsActiveIdx])(_opts[rsActiveIdx].scenarios||[]).forEach(sc=>{sc.loanOrigPct=_v;});rsSaveOptions(_opts);rsRefreshSc()">
+        <div style="font-size:11px;color:var(--slate-light);margin-top:3px">Auto-applied in Cost of Rate calc above</div>
+      </div>
+      <div class="rs-fg"><label>Cost of Rate Method</label><select onchange="rsUC('costRateMethod',this.value);rsRefreshSc()"><option value="multiple" ${(c.costRateMethod||'multiple')==='multiple'?'selected':''}>Per-Scenario</option><option value="single" ${c.costRateMethod==='single'?'selected':''}>Single (all same)</option></select></div>
+    </div>`:
+    `<div class="rs-fg"><label>Cost of Rate Method</label><select onchange="rsUC('costRateMethod',this.value);rsRefreshSc()"><option value="multiple" ${(c.costRateMethod||'multiple')==='multiple'?'selected':''}>Per-Scenario</option><option value="single" ${c.costRateMethod==='single'?'selected':''}>Single (all same)</option></select></div>`}
   </div>`;
 }
 
