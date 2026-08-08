@@ -4686,6 +4686,35 @@ function rsRenderSetupTab(c) {
         <div class="rs-fg"><label>Other Label</label><input type="text" value="${esc(c.propOtherLabel||'')}" placeholder="HOA, Flood Ins..." onchange="rsUC('propOtherLabel',this.value)"></div>
         <div class="rs-fg"><label>Other (mo)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.propOther||0).replace('$','').trim()}" data-raw="${c.propOther||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('propOther',+this.dataset.raw))" oninput="rsCiI(this)"></div></div>
       </div>
+      ${(()=>{
+        // LTV / CLTV display — pulled from appraisal, proposed loan, and current balance
+        const propLoan = c.loanType==='heloc' ? (c.helocLoan||0) : Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100));
+        const hasFeeHere = c.loanProduct==='fha'||c.loanProduct==='va';
+        const proposedLoan = propLoan * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
+        const existingBalance = c.loanType==='heloc' ? (c.curBalance||0) : 0;
+        const ltv = appr ? (proposedLoan / appr * 100) : null;
+        const cltv = appr ? ((proposedLoan + existingBalance) / appr * 100) : null;
+        const fmtPct = v => v !== null ? v.toFixed(2)+'%' : '—';
+        const pctColor = v => v === null ? 'var(--navy)' : v > 95 ? 'var(--danger)' : v > 80 ? 'var(--warning)' : 'var(--success)';
+        const showCltv = existingBalance > 0 || c.loanType==='heloc';
+        return `<div style="display:flex;gap:10px;margin-top:4px">
+          <div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">LTV</div>
+            <div style="font-size:20px;font-weight:700;color:${pctColor(ltv)}">${fmtPct(ltv)}</div>
+            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">Proposed Loan ÷ Appraisal</div>
+          </div>
+          ${showCltv ? `<div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">CLTV</div>
+            <div style="font-size:20px;font-weight:700;color:${pctColor(cltv)}">${fmtPct(cltv)}</div>
+            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">Proposed + Existing ÷ Appraisal</div>
+          </div>` : ''}
+          <div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">Proposed Loan</div>
+            <div style="font-size:20px;font-weight:700;color:var(--navy)">${rsFmt(proposedLoan)}</div>
+            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">${hasFeeHere ? 'Base + fee rolled in' : 'Base loan amount'}</div>
+          </div>
+        </div>`;
+      })()}
     </div>
     ${curMortgageSection}
     <div class="rs-card">
@@ -4699,21 +4728,8 @@ function rsRenderSetupTab(c) {
         <button class="btn btn-outline btn-sm" onclick="rsAddPrepaid()">+ Add Item</button>
       </div>
       <div id="rsPrepaidList">${prepaidHtml||'<div style="font-size:12px;color:var(--slate-light);padding:4px 0">No items yet.</div>'}</div>
-    </div>
-    <div class="rs-card">
-      <div class="rs-section" style="margin-top:0">Compensation <span style="font-size:9px;color:var(--slate-light);font-weight:400;text-transform:none">(internal only)</span></div>
-      <div style="display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px">
-        <button class="rs-topt ${c.compType==='lender_paid'?'sel':''}" onclick="rsUC('compType','lender_paid');rsRefreshSetup()">Lender Paid</button>
-        <button class="rs-topt ${c.compType==='borrower_paid'?'sel':''}" onclick="rsUC('compType','borrower_paid');rsRefreshSetup()">Borrower Paid</button>
-      </div>
-      ${c.compType==='lender_paid'?'<div class="rs-info-box">🏦 Not disclosed to borrower; does not appear on worksheet.</div>':''}
-      ${c.compType==='borrower_paid'?'<div class="rs-warn-box">👤 Not shown on worksheet. Cost of Rate IS disclosed.</div>':''}
-      <div class="rs-grid2">
-        <div class="rs-fg"><label>Company Comp (%) — Not Disclosed</label><input type="number" step="0.01" value="${c.lenderPaidPct||2.5}" onchange="rsUC('lenderPaidPct',parseFloat(this.value))"></div>
-        <div class="rs-fg"><label>Est. Comp Amount</label><div class="rs-cur-wrap" style="opacity:.65"><span class="rs-cur-pfx">$</span><input type="text" readonly tabindex="-1" value="${rsFmt((c.appraisal||0)*(c.lenderPaidPct||2.5)/100).replace('$','').trim()}" style="background:#f8f6f1"></div></div>
-      </div>
-      <div class="rs-fg"><label>Cost of Rate Method</label><select onchange="rsUC('costRateMethod',this.value);rsRefreshSetup()"><option value="multiple" ${(c.costRateMethod||'multiple')==='multiple'?'selected':''}>Per-Scenario</option><option value="single" ${c.costRateMethod==='single'?'selected':''}>Single (all same)</option></select></div>
     </div>`;
+
 }
 
 function rsCalcFields() {
@@ -4842,7 +4858,21 @@ function rsRenderScenariosTab(c) {
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(()=>`<td style="color:var(--success)">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${row(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.map(sc=>{const v=cashToClose(sc);return`<strong style="color:${v<=0?'var(--success)':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-cash',false)}
       </tbody>
-    </table></div>${corSection}`;
+    </table></div>${corSection}
+  <div class="rs-card" style="margin-top:14px;border:1.5px solid #e2ddd4">
+    <div class="rs-section" style="margin-top:0">Compensation <span style="font-size:9px;color:var(--slate-light);font-weight:400;text-transform:none">(internal only — never shown on client worksheet)</span></div>
+    <div style="display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;margin-bottom:10px">
+      <button class="rs-topt ${c.compType==='lender_paid'?'sel':''}" onclick="rsUC('compType','lender_paid');rsRefreshSc()">Lender Paid</button>
+      <button class="rs-topt ${c.compType==='borrower_paid'?'sel':''}" onclick="rsUC('compType','borrower_paid');rsRefreshSc()">Borrower Paid</button>
+    </div>
+    ${c.compType==='lender_paid'?'<div class="rs-info-box" style="margin-bottom:10px">🏦 Not disclosed to borrower — does not appear on worksheet.</div>':''}
+    ${c.compType==='borrower_paid'?'<div class="rs-warn-box" style="margin-bottom:10px">👤 Not shown on worksheet. Cost of Rate IS disclosed per scenario.</div>':''}
+    <div class="rs-grid3">
+      <div class="rs-fg"><label>Company Comp (%)</label><input type="number" step="0.001" value="${c.lenderPaidPct||2.5}" onchange="rsUC('lenderPaidPct',parseFloat(this.value));rsRefreshSc()"></div>
+      <div class="rs-fg"><label>Est. Comp Amount</label><div class="rs-cur-wrap" style="opacity:.65"><span class="rs-cur-pfx">$</span><input type="text" readonly tabindex="-1" value="${rsFmt((c.appraisal||0)*(c.lenderPaidPct||2.5)/100).replace('$','').trim()}" style="background:#f8f6f1"></div></div>
+      <div class="rs-fg"><label>Cost of Rate Method</label><select onchange="rsUC('costRateMethod',this.value);rsRefreshSc()"><option value="multiple" ${(c.costRateMethod||'multiple')==='multiple'?'selected':''}>Per-Scenario</option><option value="single" ${c.costRateMethod==='single'?'selected':''}>Single (all same)</option></select></div>
+    </div>
+  </div>`;
 }
 
 function rsAddScenario() {
