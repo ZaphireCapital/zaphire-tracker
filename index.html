@@ -4662,11 +4662,13 @@ function rsRenderSetupTab(c) {
         <div class="rs-fg"><label>Credit Score</label><input type="text" value="${esc(c.credit||'')}" onchange="rsUC('credit',this.value)"></div>
       </div>
       <div class="rs-section">Loan Parameters</div>
-      <div class="rs-grid3">
+      <div class="rs-grid2">
         <div class="rs-fg"><label>Transaction Type</label><select onchange="rsUC('loanType',this.value);rsRefreshSetup()"><option value="purchase" ${c.loanType==='purchase'?'selected':''}>Purchase</option><option value="refi" ${c.loanType==='refi'?'selected':''}>Refinance</option><option value="heloc" ${c.loanType==='heloc'?'selected':''}>HELOC</option></select></div>
         <div class="rs-fg"><label>Loan Product</label><select onchange="rsUC('loanProduct',this.value);rsRefreshSetup()"><option value="conventional" ${(c.loanProduct||'conventional')==='conventional'?'selected':''}>Conventional</option><option value="fha" ${c.loanProduct==='fha'?'selected':''}>FHA</option><option value="va" ${c.loanProduct==='va'?'selected':''}>VA</option><option value="dscr" ${c.loanProduct==='dscr'?'selected':''}>DSCR</option></select></div>
+        <div class="rs-fg"><label>Mortgage Position</label><select onchange="rsUC('mortgageOrder',this.value)"><option value="first" ${(c.mortgageOrder||'first')==='first'?'selected':''}>1st Mortgage</option><option value="second" ${c.mortgageOrder==='second'?'selected':''}>2nd Mortgage</option></select></div>
         <div class="rs-fg"><label>Comparison Type</label><select onchange="rsUC('comparisonType',this.value);rsRefreshSetup()"><option value="same_ltv" ${isSameLtv?'selected':''}>Same LTV / Loan Amount</option><option value="different_ltv" ${isDiffLtv?'selected':''}>Different Down Pmt / LTV</option><option value="different_term" ${isDiffTerm?'selected':''}>Different Durations</option></select></div>
       </div>
+      ${isH?'<div class="rs-info-box" style="margin-bottom:10px">⚠ HELOC: 2nd lien. Enter the existing 1st mortgage details in Current Mortgage Expenses below — they will appear in the "Current" comparison column.</div>':''}
       <div class="rs-fg"><label>Proposed Term (years)</label>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
           <input type="number" step="1" min="1" max="50" value="${c.proposedTerm||30}" style="width:70px;padding:5px 8px;border:1.5px solid var(--border-strong);border-radius:6px;font-family:var(--font-body);font-size:12.5px" onchange="rsUC('proposedTerm',parseInt(this.value)||30);rsRefreshSetup()">
@@ -4687,32 +4689,51 @@ function rsRenderSetupTab(c) {
         <div class="rs-fg"><label>Other (mo)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.propOther||0).replace('$','').trim()}" data-raw="${c.propOther||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('propOther',+this.dataset.raw))" oninput="rsCiI(this)"></div></div>
       </div>
       ${(()=>{
-        // LTV / CLTV display — pulled from appraisal, proposed loan, and current balance
-        const propLoan = c.loanType==='heloc' ? (c.helocLoan||0) : Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100));
+        // LTV / CLTV — correct per loan type
         const hasFeeHere = c.loanProduct==='fha'||c.loanProduct==='va';
-        const proposedLoan = propLoan * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
-        const existingBalance = c.loanType==='heloc' ? (c.curBalance||0) : 0;
+        let proposedLoan, existingLien, ltvLabel, cltvLabel;
+        if (c.loanType==='heloc') {
+          // HELOC: proposed = HELOC amount; existing = 1st mortgage balance (curBalance)
+          proposedLoan = (c.helocLoan||0) * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
+          existingLien = c.curBalance||0;
+          ltvLabel = 'HELOC ÷ Appraisal';
+          cltvLabel = '(1st Mtg + HELOC) ÷ Appraisal';
+        } else if (c.loanType==='refi') {
+          proposedLoan = Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100)) * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
+          existingLien = 0; // refi pays off existing; no subordinate unless specified
+          ltvLabel = 'New Loan ÷ Appraisal';
+          cltvLabel = 'Combined ÷ Appraisal';
+        } else {
+          proposedLoan = Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100)) * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
+          existingLien = 0;
+          ltvLabel = 'Loan ÷ Purchase Price';
+          cltvLabel = 'Combined ÷ Purchase Price';
+        }
         const ltv = appr ? (proposedLoan / appr * 100) : null;
-        const cltv = appr ? ((proposedLoan + existingBalance) / appr * 100) : null;
+        const cltv = appr && existingLien > 0 ? ((proposedLoan + existingLien) / appr * 100) : null;
         const fmtPct = v => v !== null ? v.toFixed(2)+'%' : '—';
         const pctColor = v => v === null ? 'var(--navy)' : v > 95 ? 'var(--danger)' : v > 80 ? 'var(--warning)' : 'var(--success)';
-        const showCltv = existingBalance > 0 || c.loanType==='heloc';
-        return `<div style="display:flex;gap:10px;margin-top:4px">
+        return `<div style="display:flex;gap:10px;margin-top:10px">
           <div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
             <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">LTV</div>
             <div style="font-size:20px;font-weight:700;color:${pctColor(ltv)}">${fmtPct(ltv)}</div>
-            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">Proposed Loan ÷ Appraisal</div>
+            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">${ltvLabel}</div>
           </div>
-          ${showCltv ? `<div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
+          ${cltv!==null ? `<div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
             <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">CLTV</div>
             <div style="font-size:20px;font-weight:700;color:${pctColor(cltv)}">${fmtPct(cltv)}</div>
-            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">Proposed + Existing ÷ Appraisal</div>
+            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">${cltvLabel}</div>
           </div>` : ''}
           <div style="flex:1;background:#f8f6f1;border:1px solid var(--border);border-radius:8px;padding:10px 14px">
-            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">Proposed Loan</div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--slate-light);margin-bottom:4px">${c.loanType==='heloc'?'HELOC Amount':'Proposed Loan'}</div>
             <div style="font-size:20px;font-weight:700;color:var(--navy)">${rsFmt(proposedLoan)}</div>
-            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">${hasFeeHere ? 'Base + fee rolled in' : 'Base loan amount'}</div>
+            <div style="font-size:10.5px;color:var(--slate-light);margin-top:2px">${hasFeeHere ? 'Base + fee rolled in' : c.loanType==='heloc'?'2nd lien amount':'Base loan amount'}</div>
           </div>
+          ${c.loanType==='heloc'&&existingLien>0?`<div style="flex:1;background:#e8f4fd;border:1px solid #b8d9f5;border-radius:8px;padding:10px 14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:#1a5f8a;margin-bottom:4px">1st Mtg Balance</div>
+            <div style="font-size:20px;font-weight:700;color:#1a5f8a">${rsFmt(existingLien)}</div>
+            <div style="font-size:10.5px;color:#1a5f8a;margin-top:2px">Existing lien (curBalance)</div>
+          </div>`:''}
         </div>`;
       })()}
     </div>
@@ -4847,10 +4868,10 @@ function rsRenderScenariosTab(c) {
         ${c.loanType==='heloc'?`<tr class="rs-tot"><td>HELOC Interest Only (mo)</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(sc=>`<td>${rsFmt(rsCalcIO(calcLoan(sc),sc.rate||0))}</td>`).join('')}</tr>
         <tr class="rs-tot"><td>HELOC Fully Amortized (mo)</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(sc=>`<td><strong>${rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm))}</strong></td>`).join('')}</tr>`:
         row('Principal &amp; Interest',rsFmt(c.curPmt||0),s.map(sc=>rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm))),'rs-tot')}
-        ${row('Home Insurance',rsFmt(c.curHomeIns||0),s.map((_,i)=>i===0?rsFmt(c.propHomeIns||0):ditto))}
-        ${row('Property Taxes',rsFmt(c.curPropTax||0),s.map((_,i)=>i===0?rsFmt(c.propPropTax||0):ditto))}
-        ${row('Mortgage Insurance (mo)',rsFmt(c.curMortIns||0),s.map((_,i)=>i===0?rsFmt(c.propMortIns||0):ditto))}
-        ${(c.propOther||0)>0?row(esc(c.propOtherLabel||'Other Monthly'),rsFmt(c.curOther||0),s.map((_,i)=>i===0?rsFmt(c.propOther||0):ditto)):''}
+        ${row('Home Insurance',showCur?rsFmt(c.curHomeIns||0):'—',s.map((_,i)=>c.loanType==='heloc'?ditto:i===0?rsFmt(c.propHomeIns||0):ditto))}
+        ${row('Property Taxes',showCur?rsFmt(c.curPropTax||0):'—',s.map((_,i)=>c.loanType==='heloc'?ditto:i===0?rsFmt(c.propPropTax||0):ditto))}
+        ${row('Mortgage Insurance (mo)',showCur?rsFmt(c.curMortIns||0):'—',s.map((_,i)=>c.loanType==='heloc'?ditto:i===0?rsFmt(c.propMortIns||0):ditto))}
+        ${(c.propOther||0)>0?row(esc(c.propOtherLabel||'Other Monthly'),showCur?rsFmt(c.curOther||0):'—',s.map((_,i)=>i===0?rsFmt(c.propOther||0):ditto)):''}
         ${c.loanType==='heloc'?row('Total (Current Mtg + HELOC)',rsFmt(curTotal),s.map(sc=>rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm)+(c.curPmt||0)+(c.propHomeIns||0)+(c.propPropTax||0)+(c.propMortIns||0)+(c.propOther||0))),'rs-tot'):
         row('Total Monthly PITI',rsFmt(curTotal),s.map(sc=>`<strong>${rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm)+(c.propHomeIns||0)+(c.propPropTax||0)+(c.propMortIns||0)+(c.propOther||0))}</strong>`),'rs-tot')}
         ${showCur&&c.loanType!=='heloc'?row('Monthly Savings','',s.map(sc=>{const sv=curTotal-rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm)-(c.propHomeIns||0)-(c.propPropTax||0)-(c.propMortIns||0)-(c.propOther||0);return`<span style="color:${sv>=0?'var(--success)':'#1e5fa8'}">${rsFmt(sv)}</span>`}),'rs-sav'):''}
@@ -4968,9 +4989,9 @@ function rsRenderPreviewTab(c) {
           <tr class="rs-ws-tot"><td>HELOC Interest Only (mo)</td><td class="rs-ws-cc">—</td>${s.slice(0,n).map(sc=>`<td>${rsFmt(rsCalcIO(calcLoan(sc),sc.rate||0))}</td>`).join('')}</tr>
           <tr class="rs-ws-tot"><td>HELOC Fully Amortized (mo)</td><td class="rs-ws-cc">—</td>${s.slice(0,n).map(sc=>`<td><strong>${rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm))}</strong></td>`).join('')}</tr>
         `:wr('Mortgage Payment (mo)',rsFmt(c.curPmt||0),s.slice(0,n).map(sc=>rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm))),'rs-ws-tot')}
-        ${wr('Home Insurance',rsFmt(c.curHomeIns||0),s.slice(0,n).map((_,i)=>i===0?rsFmt(c.propHomeIns||0):ditto))}
-        ${wr('Property Taxes',rsFmt(c.curPropTax||0),s.slice(0,n).map((_,i)=>i===0?rsFmt(c.propPropTax||0):ditto))}
-        ${wr('Mortgage Insurance',rsFmt(c.curMortIns||0),s.slice(0,n).map((_,i)=>i===0?rsFmt(c.propMortIns||0):ditto))}
+        ${wr('Home Insurance',rsFmt(c.curHomeIns||0),s.slice(0,n).map((_,i)=>c.loanType==='heloc'?ditto:i===0?rsFmt(c.propHomeIns||0):ditto))}
+        ${wr('Property Taxes',rsFmt(c.curPropTax||0),s.slice(0,n).map((_,i)=>c.loanType==='heloc'?ditto:i===0?rsFmt(c.propPropTax||0):ditto))}
+        ${wr('Mortgage Insurance',rsFmt(c.curMortIns||0),s.slice(0,n).map((_,i)=>c.loanType==='heloc'?ditto:i===0?rsFmt(c.propMortIns||0):ditto))}
         ${(c.propOther||0)>0?wr(esc(c.propOtherLabel||'Other Monthly'),rsFmt(c.curOther||0),s.slice(0,n).map((_,i)=>i===0?rsFmt(c.propOther||0):ditto)):''}
         ${c.loanType==='heloc'?wr('Total (Current Mtg + HELOC)',rsFmt(curTotal),s.slice(0,n).map(sc=>rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm)+(c.curPmt||0)+(c.propHomeIns||0)+(c.propPropTax||0)+(c.propMortIns||0)+(c.propOther||0))),'rs-ws-tot'):
         wr('Total Monthly Payment',rsFmt(curTotal),s.slice(0,n).map(sc=>`<strong>${rsFmt(rsCalcPmt(calcLoan(sc),sc.rate||0,sc.term||propTerm)+(c.propHomeIns||0)+(c.propPropTax||0)+(c.propMortIns||0)+(c.propOther||0))}</strong>`),'rs-ws-tot')}
