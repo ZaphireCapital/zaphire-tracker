@@ -5029,15 +5029,15 @@ function rsPrint() {
   const fc=n<=5?130:110;
   // Count data rows to calculate padding needed to fill page
   const rowCount = wsEl.querySelectorAll('tr').length || 18;
-  // Target ~80% of landscape page height
-  const usableForTable = 490;
+  // Option C — airy rows, bigger border on top/left/right
+  const usableForTable = 580;
   const tdPad = Math.max(2, Math.min(8, Math.floor((usableForTable / rowCount - ft * 1.4) / 2)));
   const logo=cache.logo||'';
   const logoTag=logo
     ? `<img src="${logo}" style="width:40px;height:40px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
     : '';
   const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-  @page{size:landscape;margin:0.1in}
+  @page{size:landscape;margin:0.35in 0.35in 0.1in 0.35in}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;font-family:Arial,sans-serif;background:#fff;font-size:${ft}pt}
   body{display:flex;flex-direction:column}
