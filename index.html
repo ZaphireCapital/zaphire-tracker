@@ -5027,52 +5027,63 @@ function rsPrint() {
   const n=(c.scenarios||[]).length;
   const ft=n<=5?8.5:n<=7?7.8:7.2;
   const fc=n<=5?130:110;
-  // Logo — pull from cache if uploaded, else empty string
+  // Count data rows to calculate padding needed to fill page
+  const rowCount = wsEl.querySelectorAll('tr').length || 18;
+  // Landscape page usable height at 0.1in margins ≈ 740pt
+  // Header ~44pt + banner ~14pt + meta ~14pt + disc ~12pt = ~84pt fixed
+  // Remaining for table: ~656pt divided by rows
+  const usableForTable = 656;
+  const tdPad = Math.max(3, Math.min(12, Math.floor((usableForTable / rowCount - ft * 1.4) / 2)));
   const logo=cache.logo||'';
   const logoTag=logo
-    ? `<img src="${logo}" style="width:42px;height:42px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
+    ? `<img src="${logo}" style="width:40px;height:40px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
     : '';
   const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-  @page{size:landscape;margin:0.15in}
+  @page{size:landscape;margin:0.1in}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Arial,sans-serif;background:#fff;font-size:${ft}pt}
-  .rs-ws-hdr{display:flex;align-items:center;padding:6px 10px;gap:12px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-hdr-left{display:flex;align-items:center;gap:8px;min-width:${logo?'210':'160'}pt}
+  html,body{height:100%;font-family:Arial,sans-serif;background:#fff;font-size:${ft}pt}
+  body{display:flex;flex-direction:column}
+  .rs-ws{display:flex;flex-direction:column;height:100%;min-height:100%}
+  .rs-ws-hdr{display:flex;align-items:center;padding:5px 10px;gap:12px;background:#0a1628;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-hdr-left{display:flex;align-items:center;gap:8px;min-width:${logo?'200':'150'}pt}
   .rs-ws-hdr-left-text{display:flex;flex-direction:column;gap:1px}
   .rs-ws-logo-txt{font-size:${ft+2}pt;font-weight:700;color:#c9a84c;line-height:1.1}
   .rs-ws-nmls{font-size:${ft-1.5}pt;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
   .rs-ws-title{color:#fff;font-size:${ft+2.5}pt;font-weight:700;text-align:center;flex:1}
-  .rs-ws-hdr-right{text-align:right;min-width:${logo?'210':'160'}pt}
+  .rs-ws-hdr-right{text-align:right;min-width:${logo?'200':'150'}pt}
   .rs-ws-off-name{color:#fff;font-size:${ft}pt;font-weight:600}
   .rs-ws-off-det{color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.5}
-  .rs-ws-banner{background:linear-gradient(90deg,#1e5fa8,#1a6bbf);padding:4px 10px;display:flex;align-items:center;gap:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-banner{background:linear-gradient(90deg,#1e5fa8,#1a6bbf);padding:3px 10px;display:flex;align-items:center;gap:7px;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-badge{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);border-radius:3px;padding:1px 6px;color:#fff;font-size:${ft-2}pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-  .rs-ws-meta{display:grid;grid-template-columns:1fr 1fr 1fr;padding:3px 9px;background:#f0f0f5;border-bottom:1px solid #ccc;font-size:${ft-0.5}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-meta{display:grid;grid-template-columns:1fr 1fr 1fr;padding:2px 9px;background:#f0f0f5;border-bottom:1px solid #ccc;font-size:${ft-0.5}pt;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-lbl{color:#555}.rs-ws-val{font-weight:600}
-  .rs-ws-tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+  .rs-ws-tbl-wrap{flex:1;display:flex;flex-direction:column}
+  .rs-ws-tbl{width:100%;border-collapse:collapse;table-layout:fixed;height:100%}
   .rs-ws-tbl th{padding:2px 3px;text-align:center;font-size:${ft-0.8}pt;background:#0a1628;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
   .rs-ws-tbl th:first-child{background:#1a3155;text-align:left;width:${fc}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-tbl th.rs-ws-cur-h{background:#2a4f8a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-tbl td{padding:1.5px 3px;text-align:center;border-bottom:0.4px solid #ddd;overflow:hidden;white-space:nowrap;font-size:${ft}pt}
+  .rs-ws-tbl td{padding:${tdPad}px 3px;text-align:center;border-bottom:0.4px solid #ddd;overflow:hidden;white-space:nowrap;font-size:${ft}pt}
   .rs-ws-tbl td:first-child{text-align:left;color:#555;background:#fafaf8;font-size:${ft-1}pt;white-space:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-cc{background:#e8f0fe!important;color:#1a3a6b;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-sh td{background:#1e5fa8!important;color:#fff!important;font-weight:600;font-size:${ft-1.2}pt;text-transform:uppercase;padding:1.5px 3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-sh td{background:#1e5fa8!important;color:#fff!important;font-weight:600;font-size:${ft-1.2}pt;text-transform:uppercase;padding:${Math.max(2,tdPad-1)}px 3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-tot td{font-weight:700;background:#fdf8f0!important;border-top:1px solid #ccc;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-sav td{color:#27ae60!important;font-weight:700;background:#f0faf5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-ctot td{font-weight:700;background:#0a1628!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-cash td{font-weight:700;background:#fef5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-pre td{color:#6b3fa0;background:#f5f0ff!important;font-size:${ft-1.2}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-disc{font-size:${ft-2}pt;color:rgba(255,255,255,.4);text-align:center;padding:3px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-disc{font-size:${ft-2}pt;color:rgba(255,255,255,.4);text-align:center;padding:3px;background:#0a1628;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   </style></head><body>
-  ${wsEl.outerHTML.replace(
-    /(<div class="rs-ws-hdr"[^>]*>)([\s\S]*?)(<div class="rs-ws-title")/,
-    (_, hdrOpen, hdrLeft, titleDiv) => {
-      // Replace the left section with Option A logo layout
-      return `${hdrOpen}<div class="rs-ws-hdr-left">${logoTag}<div class="rs-ws-hdr-left-text"><div class="rs-ws-logo-txt">Zaphire Capital</div><div class="rs-ws-nmls">NMLS ${cache.settings?.nmls||'2511614'}</div></div></div>${titleDiv}`;
-    }
-  )}
+  ${wsEl.outerHTML
+    .replace(
+      /(<div class="rs-ws-hdr"[^>]*>)([\s\S]*?)(<div class="rs-ws-title")/,
+      (_, hdrOpen, hdrLeft, titleDiv) =>
+        `${hdrOpen}<div class="rs-ws-hdr-left">${logoTag}<div class="rs-ws-hdr-left-text"><div class="rs-ws-logo-txt">Zaphire Capital</div><div class="rs-ws-nmls">NMLS ${cache.settings?.nmls||'2511614'}</div></div></div>${titleDiv}`
+    )
+    .replace('<table class="rs-ws-tbl">', '<div class="rs-ws-tbl-wrap"><table class="rs-ws-tbl">')
+    .replace('</table>', '</table></div>')
+  }
   </body></html>`;
-  const pw=window.open('','_blank','width=1200,height=800');
+  const pw=window.open('','_blank','width=1400,height=900');
   if(!pw){alert('Allow popups to print.');return;}
   pw.document.write(printHTML); pw.document.close();
   pw.onload=()=>{pw.focus();pw.print();};
