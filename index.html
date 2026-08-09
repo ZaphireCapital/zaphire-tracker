@@ -5029,11 +5029,9 @@ function rsPrint() {
   const fc=n<=5?130:110;
   // Count data rows to calculate padding needed to fill page
   const rowCount = wsEl.querySelectorAll('tr').length || 18;
-  // Landscape page usable height at 0.1in margins ≈ 740pt
-  // Header ~44pt + banner ~14pt + meta ~14pt + disc ~12pt = ~84pt fixed
-  // Remaining for table: ~656pt divided by rows
-  const usableForTable = 656;
-  const tdPad = Math.max(3, Math.min(12, Math.floor((usableForTable / rowCount - ft * 1.4) / 2)));
+  // Landscape usable height — tuned down so table fills ~85% of the page
+  const usableForTable = 540;
+  const tdPad = Math.max(2, Math.min(9, Math.floor((usableForTable / rowCount - ft * 1.4) / 2)));
   const logo=cache.logo||'';
   const logoTag=logo
     ? `<img src="${logo}" style="width:40px;height:40px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
