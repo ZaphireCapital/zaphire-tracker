@@ -4493,6 +4493,7 @@ function rsNewOption(f) {
     curHomeIns:0, curPropTax:0, curMortIns:0, curOther:0,
     appraisal:0, dpPct:20, helocLoan:0,
     closingCosts:0, prepaidItems:0, prepaidClosingItems:[],
+    helocPayoff:false, helocPayoffAmt:0, helocPayoffLabel:'',
     compType:'lender_paid', lenderPaidPct:2.5, costRateMethod:'multiple', singleCostRate:0, loanOrigPct:0,
     scenarios:[rsNewScenario(0,30), rsNewScenario(0,30), rsNewScenario(0,30)]
   };
@@ -4794,7 +4795,24 @@ function rsRenderSetupTab(c) {
         <div class="rs-fg"><label>Est. Closing Costs</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.closingCosts||0).replace('$','').trim()}" data-raw="${c.closingCosts||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('closingCosts',+this.dataset.raw))" oninput="rsCiI(this)"></div></div>
         <div class="rs-fg"><label>Est. Prepaid Items</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.prepaidItems||0).replace('$','').trim()}" data-raw="${c.prepaidItems||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('prepaidItems',+this.dataset.raw))" oninput="rsCiI(this)"></div></div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      ${isH&&c.mortgageOrder==='second'?`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1.5px solid ${c.helocPayoff?'#6ee7b7':'var(--border)'};border-radius:8px;margin-bottom:${c.helocPayoff?'10':'0'}px;background:${c.helocPayoff?'#f0fdf4':'#f8f6f1'}">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:${c.helocPayoff?'var(--success)':'var(--navy)'}">Paying off debt(s) with this HELOC?</div>
+          <div style="font-size:11.5px;color:var(--slate-light);margin-top:2px">Hides payoff row from table when off</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;font-weight:${c.helocPayoff?'700':'400'};color:${c.helocPayoff?'var(--success)':'var(--slate-light)'}">${c.helocPayoff?'Yes':'No'}</span>
+          <button onclick="(function(){const opts=rsGetOptions();if(!opts[rsActiveIdx])return;opts[rsActiveIdx].helocPayoff=!opts[rsActiveIdx].helocPayoff;rsSaveOptions(opts);rsRefreshSetup();})()" style="width:40px;height:22px;border-radius:11px;background:${c.helocPayoff?'var(--success)':'#d1d5db'};border:none;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s">
+            <div style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;left:${c.helocPayoff?'20':'2'}px;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s"></div>
+          </button>
+        </div>
+      </div>
+      ${c.helocPayoff?`
+      <div class="rs-fg" style="margin-bottom:8px"><label>Description <span style="font-size:9px;color:var(--slate-light);font-weight:400;text-transform:none">(shows as row label on table)</span></label><input type="text" value="${esc(c.helocPayoffLabel||'')}" placeholder="e.g. Car loan + credit card payoff" style="padding:5px 8px;border:1.5px solid #6ee7b7;border-radius:6px;font-family:var(--font-body);font-size:12.5px;width:100%;outline:none" onchange="rsUC('helocPayoffLabel',this.value)"></div>
+      <div class="rs-fg" style="margin-bottom:0"><label>Total Payoff Amount ($)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.helocPayoffAmt||0).replace('$','').trim()}" data-raw="${c.helocPayoffAmt||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('helocPayoffAmt',+this.dataset.raw))" oninput="rsCiI(this)" style="border-color:#6ee7b7"></div></div>`:''}
+      `:''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:${isH&&c.mortgageOrder==='second'&&!c.helocPayoff?'10':'0'}px">
         <div class="rs-section" style="margin:0;border:none;padding:0">Items Paid Prior to Closing</div>
         <button class="btn btn-outline btn-sm" onclick="rsAddPrepaid()">+ Add Item</button>
       </div>
@@ -4867,7 +4885,15 @@ function rsRenderScenariosTab(c) {
   function corDollar(sc){if(c.costRateMethod==='single')return calcLoan(sc)*(c.singleCostRate||0)/100;return calcLoan(sc)*getCorFinal(sc)/100;}
   function totalClose(sc){return(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc);}
   function prePaidTotal(){return(c.prepaidClosingItems||[]).reduce((a,x)=>a+(x.amount||0),0);}
-  function dpAmt(sc){if(c.loanType==='heloc')return -(calcLoan(sc));if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);return (c.curBalance||0)-calcLoan(sc);}
+  function dpAmt(sc){
+    if(c.loanType==='heloc'){
+      // For HELOC: cash received = loan amount minus payoff (if any) minus closing costs
+      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+      return -(calcLoan(sc)) + payoff; // negate because HELOC gives cash
+    }
+    if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
+    return (c.curBalance||0)-calcLoan(sc);
+  }
   function cashToClose(sc){return dpAmt(sc)+(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc)-prePaidTotal();}
   const ditto='<span class="rs-ditto">″</span>';
   const addBtn=n<10?`<button class="btn btn-outline btn-sm" onclick="rsAddScenario()">+ Add Scenario</button>`:`<span style="font-size:12px;color:var(--slate-light)">Max 10</span>`;
@@ -4931,7 +4957,12 @@ function rsRenderScenariosTab(c) {
         ${c.costRateMethod!=='none'?row('Cost of Rate','—',s.map(sc=>{const d=corDollar(sc);return`<span style="color:${d<0?'var(--success)':d>0?'#1e5fa8':'inherit'}">${rsFmt(d)}</span>`})):''}
         ${row('Total Closing Costs','—',s.map(sc=>rsFmt(totalClose(sc))),'rs-ctot',false)}
         ${sh(c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / (Due Borrower)')}
-        ${showCur?row('Balance to Pay Off','—',s.map(()=>rsFmt(c.curBalance||0)),'',false):''}
+        ${(()=>{
+          const isHeloc2nd = c.loanType==='heloc' && c.mortgageOrder==='second';
+          if(isHeloc2nd && !c.helocPayoff) return ''; // hidden when no payoff
+          if(isHeloc2nd && c.helocPayoff) return row(esc(c.helocPayoffLabel||'Balance Being Paid Off'),'—',s.map(()=>rsFmt(c.helocPayoffAmt||0)),'',false);
+          return showCur ? row('Balance to Pay Off','—',s.map(()=>rsFmt(c.curBalance||0)),'',false) : '';
+        })()}
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(()=>`<td style="color:var(--success)">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${row(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.map(sc=>{const v=cashToClose(sc);return`<strong style="color:${v<=0?'var(--success)':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-cash',false)}
       </tbody>
@@ -5003,7 +5034,14 @@ function rsRenderPreviewTab(c) {
   function corDollar(sc){if(c.costRateMethod==='single')return calcLoan(sc)*(c.singleCostRate||0)/100;return calcLoan(sc)*getCorFinal(sc)/100;}
   function totalClose(sc){return(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc);}
   function prePaidTotal(){return(c.prepaidClosingItems||[]).reduce((a,x)=>a+(x.amount||0),0);}
-  function dpAmt2(sc){if(c.loanType==='heloc')return -(calcLoan(sc));if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);return (c.curBalance||0)-calcLoan(sc);}
+  function dpAmt2(sc){
+    if(c.loanType==='heloc'){
+      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+      return -(calcLoan(sc)) + payoff;
+    }
+    if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
+    return (c.curBalance||0)-calcLoan(sc);
+  }
   function cash2close(sc){return dpAmt2(sc)+(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc)-prePaidTotal();}
   const ditto='<span style="color:#ccc">″</span>';
   const curHdrTh=showCur?`<th class="rs-ws-cur-h">Current</th>`:'';
@@ -5059,7 +5097,12 @@ function rsRenderPreviewTab(c) {
         ${c.costRateMethod!=='none'?wr('Cost of Rate','—',s.slice(0,n).map(sc=>{const d=corDollar(sc);return`<span style="color:${d<0?'#27ae60':d>0?'#1e5fa8':'inherit'}">${rsFmt(d)}</span>`})):''}
         ${wr('Total Closing Costs','—',s.slice(0,n).map(sc=>rsFmt(totalClose(sc))),'rs-ws-ctot',false)}
         ${wsh(c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / (Due Borrower)')}
-        ${showCur?wr('Balance to Pay Off','—',s.slice(0,n).map(()=>rsFmt(c.curBalance||0)),'',false):''}
+        ${(()=>{
+          const isHeloc2nd = c.loanType==='heloc' && c.mortgageOrder==='second';
+          if(isHeloc2nd && !c.helocPayoff) return '';
+          if(isHeloc2nd && c.helocPayoff) return wr(esc(c.helocPayoffLabel||'Balance Being Paid Off'),'—',s.slice(0,n).map(()=>rsFmt(c.helocPayoffAmt||0)),'',false);
+          return showCur ? wr('Balance to Pay Off','—',s.slice(0,n).map(()=>rsFmt(c.curBalance||0)),'',false) : '';
+        })()}
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-ws-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-ws-cc">—</td>':''}${s.slice(0,n).map(()=>`<td style="color:#27ae60">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${wr(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.slice(0,n).map(sc=>{const v=cash2close(sc);return`<strong style="color:${v<=0?'#27ae60':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-ws-cash',false)}
       </tbody>
