@@ -3998,8 +3998,8 @@ function wsCalc() {
   const totalPITI = pi1 + pi2 + tax + ins + hoa + mip;
   const pitiEl = document.getElementById('ws_totalPITI');
   if (pitiEl) { pitiEl.textContent = totalPITI > 0 ? wsFmt(totalPITI) : '—'; pitiEl.className = 'ws-calc ' + (totalPITI > 0 ? 'good' : ''); }
-  // LTV
-  const totalLoan = la1Adjusted + la2;
+  // LTV — always use base loan amount, NOT the MIP/fee-adjusted amount
+  const totalLoan = la1 + la2;
   const ltv = propVal ? (totalLoan / propVal * 100) : null;
   const ltvEl = document.getElementById('wsLTV');
   if (ltvEl) {
@@ -4796,18 +4796,20 @@ function rsRenderSetupTab(c) {
         const hasFeeHere = c.loanProduct==='fha'||c.loanProduct==='va';
         let proposedLoan, existingLien, ltvLabel, cltvLabel;
         if (c.loanType==='heloc') {
-          // HELOC: proposed = HELOC amount; existing = 1st mortgage balance (curBalance)
-          proposedLoan = (c.helocLoan||0) * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
+          // HELOC: LTV = HELOC amount ÷ appraisal (no fee on HELOC)
+          proposedLoan = (c.helocLoan||0);
           existingLien = c.curBalance||0;
           ltvLabel = 'HELOC ÷ Appraisal';
           cltvLabel = '(1st Mtg + HELOC) ÷ Appraisal';
         } else if (c.loanType==='refi') {
-          proposedLoan = Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100)) * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
-          existingLien = 0; // refi pays off existing; no subordinate unless specified
+          // LTV uses BASE loan — do NOT include upfront MIP/VA fee
+          proposedLoan = Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100));
+          existingLien = 0;
           ltvLabel = 'New Loan ÷ Appraisal';
           cltvLabel = 'Combined ÷ Appraisal';
         } else {
-          proposedLoan = Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100)) * (hasFeeHere ? 1+(c.fundingFeePct||0)/100 : 1);
+          // Purchase — LTV uses BASE loan
+          proposedLoan = Math.max(0, appr*(1-(c.dpPct!=null?c.dpPct:20)/100));
           existingLien = 0;
           ltvLabel = 'Loan ÷ Purchase Price';
           cltvLabel = 'Combined ÷ Purchase Price';
