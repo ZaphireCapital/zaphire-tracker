@@ -891,6 +891,20 @@ input[type=file]{display:none}
                         <option value="Non-QM">Non-QM</option>
                       </select>
                     </div>
+                    <!-- FHA Upfront MIP block — shown when FHA selected -->
+                    <div id="ws_fha_block" style="display:none;background:#eef5ff;border:1px solid #c5d8f5;border-radius:8px;padding:10px 12px;margin-top:6px">
+                      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1e5fa8;margin-bottom:8px">FHA Upfront MIP</div>
+                      <div class="ws-field"><span class="ws-field-label">MIP Rate (%)</span><input class="ws-input" id="ws_mipRate" placeholder="1.750" oninput="wsCalc()"></div>
+                      <div class="ws-field"><span class="ws-field-label">Fee Amount <span class="ws-field-sub">auto-calculated</span></span><span class="ws-calc blue" id="ws_mipFeeAmt">—</span></div>
+                      <div class="ws-field"><span class="ws-field-label">Total Loan w/MIP <span class="ws-field-sub">used for P&amp;I calc</span></span><span class="ws-calc blue" id="ws_mipTotalLoan">—</span></div>
+                    </div>
+                    <!-- VA Funding Fee block — shown when VA selected -->
+                    <div id="ws_va_block" style="display:none;background:#eef5ff;border:1px solid #c5d8f5;border-radius:8px;padding:10px 12px;margin-top:6px">
+                      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1e5fa8;margin-bottom:8px">VA Funding Fee</div>
+                      <div class="ws-field"><span class="ws-field-label">Funding Fee (%)</span><input class="ws-input" id="ws_vaFeePct" placeholder="2.300" oninput="wsCalc()"></div>
+                      <div class="ws-field"><span class="ws-field-label">Fee Amount <span class="ws-field-sub">auto-calculated</span></span><span class="ws-calc blue" id="ws_vaFeeAmt">—</span></div>
+                      <div class="ws-field"><span class="ws-field-label">Total Loan w/Fee <span class="ws-field-sub">used for P&amp;I calc</span></span><span class="ws-calc blue" id="ws_vaTotalLoan">—</span></div>
+                    </div>
                     <div class="ws-field"><span class="ws-field-label">Transaction Type</span>
                       <select class="ws-input ws-input-wide" id="ws_txType" onchange="wsCalc()" style="text-align:left">
                         <option value="Purchase">Purchase</option>
@@ -3806,7 +3820,7 @@ function wsInit() {
   const f = cache.files.find(x=>x.id===currentFileId);
   const saved = f?.worksheet || {};
   // Restore inputs
-  const fields = ['ws_la1','ws_rate1','ws_term1','ws_amort1','ws_la2','ws_rate2','ws_term2','ws_propVal','ws_tax','ws_ins','ws_hoa','ws_mip','ws_qualRate','ws_closingCosts','ws_payoffs','ws_loanType','ws_txType'];
+  const fields = ['ws_la1','ws_rate1','ws_term1','ws_amort1','ws_la2','ws_rate2','ws_term2','ws_propVal','ws_tax','ws_ins','ws_hoa','ws_mip','ws_mipRate','ws_vaFeePct','ws_qualRate','ws_closingCosts','ws_payoffs','ws_loanType','ws_txType'];
   fields.forEach(id => { const el = document.getElementById(id); if (el && saved[id] !== undefined) el.value = saved[id]; });
   wsData.income = saved.income || [];
   wsData.reo = saved.reo || [];
@@ -3935,15 +3949,44 @@ function wsCalc() {
   const closingCosts = wsParseNum(document.getElementById('ws_closingCosts')?.value);
   const payoffs = wsParseNum(document.getElementById('ws_payoffs')?.value);
   const qualRateRaw = document.getElementById('ws_qualRate')?.value || '';
-  // P&I calculations
+  const loanType = document.getElementById('ws_loanType')?.value || '';
+
+  // Show/hide FHA MIP and VA funding fee blocks
+  const fhaBlock = document.getElementById('ws_fha_block');
+  const vaBlock = document.getElementById('ws_va_block');
+  if (fhaBlock) fhaBlock.style.display = loanType === 'FHA' ? '' : 'none';
+  if (vaBlock) vaBlock.style.display = loanType === 'VA' ? '' : 'none';
+
+  // Calculate MIP-adjusted loan amount for FHA / VA
+  let la1Adjusted = la1;
+  if (loanType === 'FHA' && la1) {
+    const mipRate = wsParseNum(document.getElementById('ws_mipRate')?.value);
+    const feeAmt = la1 * mipRate / 100;
+    la1Adjusted = la1 + feeAmt;
+    const feeEl = document.getElementById('ws_mipFeeAmt');
+    const totalEl = document.getElementById('ws_mipTotalLoan');
+    if (feeEl) feeEl.textContent = wsFmt(feeAmt);
+    if (totalEl) totalEl.textContent = wsFmt(la1Adjusted);
+  }
+  if (loanType === 'VA' && la1) {
+    const vaFeePct = wsParseNum(document.getElementById('ws_vaFeePct')?.value);
+    const feeAmt = la1 * vaFeePct / 100;
+    la1Adjusted = la1 + feeAmt;
+    const feeEl = document.getElementById('ws_vaFeeAmt');
+    const totalEl = document.getElementById('ws_vaTotalLoan');
+    if (feeEl) feeEl.textContent = wsFmt(feeAmt);
+    if (totalEl) totalEl.textContent = wsFmt(la1Adjusted);
+  }
+
+  // P&I calculations — use MIP/fee-adjusted loan for FHA/VA
   const amort1 = amort1Raw.toUpperCase() === 'IO' ? null : (wsParseNum(amort1Raw) || term1*12);
   const pi1 = amort1Raw.toUpperCase() === 'IO'
-    ? (la1 * (rate1/100/12)) // interest only
-    : wsCalcPI(la1, rate1+'', term1+'', amort1+'');
+    ? (la1Adjusted * (rate1/100/12))
+    : wsCalcPI(la1Adjusted, rate1+'', term1+'', amort1+'');
   const pi2 = la2 && rate2 ? wsCalcPI(la2, rate2+'', term2+'', (term2*12)+'') : 0;
-  // Qualifying PI
+  // Qualifying PI — also use adjusted loan
   const qualRate = wsParseNum(qualRateRaw) || rate1;
-  const qualPI = qualRate !== rate1 && qualRate ? wsCalcPI(la1, qualRate+'', term1+'', amort1+'') : pi1;
+  const qualPI = qualRate !== rate1 && qualRate ? wsCalcPI(la1Adjusted, qualRate+'', term1+'', amort1+'') : pi1;
   // Display P&I
   const pi1El = document.getElementById('ws_pi1');
   const pi2El = document.getElementById('ws_pi2');
@@ -3956,7 +3999,7 @@ function wsCalc() {
   const pitiEl = document.getElementById('ws_totalPITI');
   if (pitiEl) { pitiEl.textContent = totalPITI > 0 ? wsFmt(totalPITI) : '—'; pitiEl.className = 'ws-calc ' + (totalPITI > 0 ? 'good' : ''); }
   // LTV
-  const totalLoan = la1 + la2;
+  const totalLoan = la1Adjusted + la2;
   const ltv = propVal ? (totalLoan / propVal * 100) : null;
   const ltvEl = document.getElementById('wsLTV');
   if (ltvEl) {
@@ -4048,7 +4091,7 @@ function wsCalc() {
 async function wsSave() {
   const f = cache.files.find(x=>x.id===currentFileId);
   if (!f) return;
-  const fields = ['ws_la1','ws_rate1','ws_term1','ws_amort1','ws_la2','ws_rate2','ws_term2','ws_propVal','ws_tax','ws_ins','ws_hoa','ws_mip','ws_qualRate','ws_closingCosts','ws_payoffs','ws_loanType','ws_txType'];
+  const fields = ['ws_la1','ws_rate1','ws_term1','ws_amort1','ws_la2','ws_rate2','ws_term2','ws_propVal','ws_tax','ws_ins','ws_hoa','ws_mip','ws_mipRate','ws_vaFeePct','ws_qualRate','ws_closingCosts','ws_payoffs','ws_loanType','ws_txType'];
   const saved = {};
   fields.forEach(id => { const el = document.getElementById(id); if (el) saved[id] = el.value; });
   saved.income = wsData.income;
