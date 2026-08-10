@@ -1838,7 +1838,16 @@ function showPage(page, fid) {
   if (page === 'presubmission') renderPreSubmission();
   if (page === 'files') renderFiles();
   if (page === 'closedfiles') renderClosedFiles();
-  if (page === 'filedetail' && fid) { currentFileId = fid; renderFileDetail(); updateDocsDrawerBadge(); updateNotesBadge(); }
+  if (page === 'filedetail' && fid) {
+    if (fid !== currentFileId) {
+      rsActiveIdx = null;  // reset rate sheet state
+      wsData = { income:[], reo:[], liab:[] }; // reset worksheet state
+    }
+    currentFileId = fid;
+    renderFileDetail();
+    updateDocsDrawerBadge();
+    updateNotesBadge();
+  }
   if (page !== 'filedetail') { closeDocsDrawer(); closeNotesPanel(); }
   if (page === 'settings' || page === 'customfields') renderSettings();
   if (page === 'customfields') { document.getElementById('page-settings').classList.add('active'); document.getElementById('page-customfields')?.classList.remove('active'); }
@@ -4514,6 +4523,7 @@ function rsSaveOptions(opts) {
 // ── Init ──
 function rsInit() {
   const opts = rsGetOptions();
+  // Always re-validate rsActiveIdx against the current file's option count
   if (rsActiveIdx === null || rsActiveIdx >= opts.length) rsActiveIdx = opts.length ? 0 : null;
   rsRenderSidebar();
   if (rsActiveIdx !== null) rsRenderWorkspace();
