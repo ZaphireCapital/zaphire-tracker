@@ -4661,20 +4661,22 @@ function rsRenderSetupTab(c) {
         <div class="rs-fg"><label>Co-Borrower</label><input type="text" value="${esc(c.coborrower||'')}" onchange="rsUC('coborrower',this.value)"></div>
         <div class="rs-fg"><label>Credit Score</label><input type="text" value="${esc(c.credit||'')}" onchange="rsUC('credit',this.value)"></div>
       </div>
-      <div class="rs-section">Loan Parameters</div>
-      <div class="rs-grid2">
-        <div class="rs-fg"><label>Transaction Type</label><select onchange="rsUC('loanType',this.value);rsRefreshSetup()"><option value="purchase" ${c.loanType==='purchase'?'selected':''}>Purchase</option><option value="refi" ${c.loanType==='refi'?'selected':''}>Refinance</option><option value="heloc" ${c.loanType==='heloc'?'selected':''}>HELOC</option></select></div>
-        <div class="rs-fg"><label>Loan Product</label><select onchange="rsUC('loanProduct',this.value);rsRefreshSetup()"><option value="conventional" ${(c.loanProduct||'conventional')==='conventional'?'selected':''}>Conventional</option><option value="fha" ${c.loanProduct==='fha'?'selected':''}>FHA</option><option value="va" ${c.loanProduct==='va'?'selected':''}>VA</option><option value="dscr" ${c.loanProduct==='dscr'?'selected':''}>DSCR</option></select></div>
-        <div class="rs-fg"><label>Mortgage Position</label><select onchange="rsUC('mortgageOrder',this.value)"><option value="first" ${(c.mortgageOrder||'first')==='first'?'selected':''}>1st Mortgage</option><option value="second" ${c.mortgageOrder==='second'?'selected':''}>2nd Mortgage</option></select></div>
-        <div class="rs-fg"><label>Comparison Type</label><select onchange="rsUC('comparisonType',this.value);rsRefreshSetup()"><option value="same_ltv" ${isSameLtv?'selected':''}>Same LTV / Loan Amount</option><option value="different_ltv" ${isDiffLtv?'selected':''}>Different Down Pmt / LTV</option><option value="different_term" ${isDiffTerm?'selected':''}>Different Durations</option></select></div>
-      </div>
-      ${isH?'<div class="rs-info-box" style="margin-bottom:10px">⚠ HELOC: 2nd lien. Enter the existing 1st mortgage details in Current Mortgage Expenses below — they will appear in the "Current" comparison column.</div>':''}
-      <div class="rs-fg"><label>Proposed Term (years)</label>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start">
+    <div class="rs-card">
+      <div class="rs-section" style="margin-top:0">Loan Options</div>
+      <div class="rs-fg"><label>Loan Purpose</label><select onchange="rsUC('loanType',this.value);rsRefreshSetup()"><option value="purchase" ${c.loanType==='purchase'?'selected':''}>Purchase</option><option value="refi" ${c.loanType==='refi'?'selected':''}>Refinance</option><option value="heloc" ${c.loanType==='heloc'?'selected':''}>HELOC</option></select></div>
+      <div class="rs-fg"><label>Loan Type</label><select onchange="rsUC('loanProduct',this.value);rsRefreshSetup()"><option value="conventional" ${(c.loanProduct||'conventional')==='conventional'?'selected':''}>Conventional</option><option value="fha" ${c.loanProduct==='fha'?'selected':''}>FHA</option><option value="va" ${c.loanProduct==='va'?'selected':''}>VA</option><option value="dscr" ${c.loanProduct==='dscr'?'selected':''}>DSCR</option></select></div>
+      <div class="rs-fg"><label>Mortgage Position</label><select onchange="rsUC('mortgageOrder',this.value)"><option value="first" ${(c.mortgageOrder||'first')==='first'?'selected':''}>1st Mortgage</option><option value="second" ${c.mortgageOrder==='second'?'selected':''}>2nd Mortgage</option></select></div>
+      <div class="rs-fg"><label>Comparison Type</label><select onchange="rsUC('comparisonType',this.value);rsRefreshSetup()"><option value="same_ltv" ${isSameLtv?'selected':''}>Same LTV / Loan Amount</option><option value="different_ltv" ${isDiffLtv?'selected':''}>Different Down Pmt / LTV</option><option value="different_term" ${isDiffTerm?'selected':''}>Different Durations</option></select></div>
+      <div class="rs-section">Loan Term</div>
+      <div class="rs-fg"><label>Proposed Loan Term (years) <span style="font-size:9px;color:var(--slate-light);font-weight:400;text-transform:none">Default for all scenarios</span></label>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px">
           <input type="number" step="1" min="1" max="50" value="${c.proposedTerm||30}" style="width:70px;padding:5px 8px;border:1.5px solid var(--border-strong);border-radius:6px;font-family:var(--font-body);font-size:12.5px" onchange="rsUC('proposedTerm',parseInt(this.value)||30);rsRefreshSetup()">
           ${[10,15,20,25,30].map(y=>`<button tabindex="-1" onclick="rsUC('proposedTerm',${y});rsRefreshSetup()" style="padding:4px 10px;border:0.5px solid ${(c.proposedTerm||30)===y?'var(--navy)':'var(--border)'};border-radius:20px;font-size:12px;cursor:pointer;font-family:var(--font-body);background:${(c.proposedTerm||30)===y?'var(--navy)':'transparent'};color:${(c.proposedTerm||30)===y?'#fff':'var(--slate-light)'}">${y}yr</button>`).join('')}
         </div>
       </div>
+      ${isH?'<div class="rs-info-box" style="margin-top:10px;margin-bottom:0">⚠ HELOC: 2nd lien. Enter the existing 1st mortgage details in Current Mortgage Expenses below.</div>':''}
     </div>
     <div class="rs-card">
       <div class="rs-section" style="margin-top:0">Property &amp; Appraisal</div>
@@ -4783,6 +4785,7 @@ function rsRenderSetupTab(c) {
           </div>`:''}
         </div>`;
       })()}
+    </div>
     </div>
     ${curMortgageSection}
     <div class="rs-card">
