@@ -3975,7 +3975,7 @@ function tpcPrint() {
   function r3(l1,v1,l2,v2,l3,v3){return`<div class="r3"><div class="cl"><span class="lb">${l1}</span><span class="ul">${v1}</span></div><div class="cl"><span class="lb">${l2}</span><span class="ul">${v2}</span></div><div class="cl sm"><span class="lb">${l3}</span><span class="ul">${v3}</span></div></div>`;}
   function sec(title,body){return`<div class="sc"><div class="st">${title}</div>${body}</div>`;}
   function addrRows(k){return r3('Address:',v(k,'address'),'City:',v(k,'city'),'State:',v(k,'state'))+r2('Zip Code:',v(k,'zip'),'','');}
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><\style>
   @page{size:letter portrait;margin:.5in .6in}
   @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
   *{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:8.5pt;color:#111}
@@ -5471,7 +5471,7 @@ function rsPrint() {
   const bodyContent=bannerAndTable
     .replace('<table class="rs-ws-tbl">','<div class="rs-ws-tbl-wrap"><table class="rs-ws-tbl">')
     .replace('</table>','</table></div>');
-  const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+  const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><\style>
   @page{size:landscape;margin:6.5% 3%}
   @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
   *{box-sizing:border-box;margin:0;padding:0}
