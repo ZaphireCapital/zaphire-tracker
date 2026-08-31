@@ -5306,8 +5306,8 @@ function rsRenderPreviewTab(c) {
   const miVals=s.slice(0,n).map((sc,i)=>i===0?rsFmt(sc.mortIns||0):((sc.mortIns||0)===(sc0.mortIns||0)?ditto:rsFmt(sc.mortIns||0)));
   const logoSrc = cache.logo || null;
   const logoHtml = logoSrc
-    ? `<img src="${logoSrc}" style="width:68px;height:68px;border-radius:8px;object-fit:contain;background:#fff;border:2px solid rgba(201,168,76,.5);padding:3px;flex-shrink:0;display:block">`
-    : `<div style="width:68px;height:68px;border-radius:8px;background:rgba(255,255,255,.1);border:2px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:26px;font-weight:700;color:#c9a84c;flex-shrink:0">Z</div>`;
+    ? `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6px">`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:28px;font-weight:700;color:#c9a84c">Z</div>`;
   const lo = cache.settings.loanOfficer || {};
   const oName = lo.name || (cache.settings.users?.[0]) || 'Zaphire Capital';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
@@ -5320,17 +5320,17 @@ function rsRenderPreviewTab(c) {
   const posLabel = c.mortgageOrder==='second'?'2nd Mortgage':'1st Mortgage';
   const optBanner=c.optionNote?`<div class="rs-ws-banner"><div class="rs-ws-badge">Option</div><div style="color:#fff;font-size:13px;font-weight:600">${esc(c.optionNote)}</div></div>`:'';
   const wsHtml=`<div class="rs-ws">
-    <div class="rs-ws-hdr" style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:10px 16px">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-        ${logoHtml}
-        <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.09em;text-transform:uppercase;text-align:center">NMLS ${cache.settings?.nmls||'2511614'}</div>
+    <div class="rs-ws-hdr" style="display:grid;grid-template-columns:110px 1fr 190px;align-items:stretch;min-height:76px;background:#0a1628">
+      <div style="position:relative;border-right:1px solid rgba(255,255,255,.1)">
+        <div style="position:absolute;inset:0;padding:8px">${logoHtml}</div>
+        <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:8px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase">NMLS ${cache.settings?.nmls||'2511614'}</div>
       </div>
-      <div style="text-align:center">
-        <div class="rs-ws-title">Mortgage Comparison Worksheet</div>
-        <div style="color:rgba(255,255,255,.4);font-size:10.5px;margin-top:2px">Prepared exclusively for the borrower(s) listed below</div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 16px">
+        <div class="rs-ws-title" style="font-size:17px;font-weight:700;letter-spacing:.005em;line-height:1.1">Mortgage Comparison Worksheet</div>
+        <div style="color:rgba(255,255,255,.38);font-size:10px;margin-top:5px">Prepared exclusively for the borrower(s) listed below</div>
       </div>
-      <div style="text-align:right;min-width:180px">
-        ${oInitials?`<div style="width:32px;height:32px;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0a1628;margin-left:auto;margin-bottom:5px">${oInitials}</div>`:''}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:8px 12px;text-align:right;border-left:1px solid rgba(255,255,255,.1)">
+        ${oInitials?`<div style="width:30px;height:30px;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0a1628;margin-left:auto;margin-bottom:4px">${oInitials}</div>`:''}
         <div class="rs-ws-off-name">${esc(oName)}</div>
         ${oTitle?`<div class="rs-ws-off-det">${esc(oTitle)}</div>`:''}
         ${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}
@@ -5410,7 +5410,7 @@ function rsPrint() {
   const tdPad=Math.max(2,Math.min(8,Math.floor((usableForTable/rowCount-ft*1.4)/2)));
   const logo=cache.logo||'';
   const logoTag=logo
-    ?`<img src="${logo}" style="width:68px;height:68px;border-radius:8px;object-fit:contain;background:#fff;border:2px solid rgba(201,168,76,.5);padding:3px;flex-shrink:0;display:block">`
+    ?`<img src="${logo}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6pt">`
     :'';
   const nmls=cache.settings?.nmls||'2511614';
   // Officer info from loanOfficer settings
@@ -5427,17 +5427,17 @@ function rsPrint() {
   const posLabel=c.mortgageOrder==='second'?'2nd Mortgage':'1st Mortgage';
   const infoCell=(lbl,val,gold)=>`<div><div style="font-size:${ft-2.2}pt;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:1pt">${lbl}</div><div style="font-size:${ft-0.2}pt;font-weight:700;color:${gold?'#9a7530':'#111'}">${val||'—'}</div></div>`;
   const printHdr=`
-  <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:8px 14px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:3pt">
-      ${logoTag}
-      <div style="font-size:${ft-2}pt;color:rgba(255,255,255,.4);letter-spacing:.09em;text-transform:uppercase;text-align:center;margin-top:2pt">NMLS ${nmls}</div>
+  <div style="display:grid;grid-template-columns:110pt 1fr 160pt;align-items:stretch;min-height:72pt;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+    <div style="position:relative;border-right:1px solid rgba(255,255,255,.1)">
+      <div style="position:absolute;inset:0;padding:6pt">${logoTag}</div>
+      <div style="position:absolute;bottom:3pt;left:0;right:0;text-align:center;font-size:${ft-2}pt;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase">NMLS ${nmls}</div>
     </div>
-    <div style="text-align:center">
-      <div style="color:#fff;font-size:${ft+2.5}pt;font-weight:700">Mortgage Comparison Worksheet</div>
-      <div style="color:rgba(255,255,255,.4);font-size:${ft-1}pt;margin-top:2px">Prepared exclusively for the borrower(s) listed below</div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8pt 16pt">
+      <div style="color:#fff;font-size:${ft+5}pt;font-weight:700;letter-spacing:.005em;line-height:1.1">Mortgage Comparison Worksheet</div>
+      <div style="color:rgba(255,255,255,.38);font-size:${ft-1}pt;margin-top:4pt">Prepared exclusively for the borrower(s) listed below</div>
     </div>
-    <div style="text-align:right;min-width:160pt">
-      ${oInitials?`<div style="width:28pt;height:28pt;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:${ft+1}pt;font-weight:700;color:#0a1628;margin-left:auto;margin-bottom:3pt">${oInitials}</div>`:''}
+    <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:8pt 10pt;text-align:right;border-left:1px solid rgba(255,255,255,.1)">
+      ${oInitials?`<div style="width:26pt;height:26pt;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:${ft+1}pt;font-weight:700;color:#0a1628;margin-left:auto;margin-bottom:3pt">${oInitials}</div>`:''}
       <div style="color:#fff;font-size:${ft+0.5}pt;font-weight:700">${oName}</div>
       ${oTitle?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">${oTitle}</div>`:''}
       ${oNmls?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">NMLS: ${oNmls}</div>`:''}
