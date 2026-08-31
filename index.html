@@ -3988,7 +3988,7 @@ function tpcPrint() {
   .cl{display:flex;align-items:baseline;gap:2pt;min-width:0}.cl.sm{min-width:44pt}
   .lb{font-size:7.5pt;white-space:nowrap;color:#333;flex-shrink:0}
   .ul{flex:1;border-bottom:.5pt solid #555;min-width:28pt;font-size:8.5pt;padding-bottom:1pt;min-height:10pt}
-  </style></head><body>
+  <\/style></head><body>
   <div class="hdr">${logoTag}</div>
   <div class="dtitle">3rd Party Contact List</div>
   ${borrower||prop?`<div class="bline">${borrower?'Borrower: <strong>'+borrower+'</strong>':''}${borrower&&prop?' &nbsp;·&nbsp; ':''}${prop?'Property: <strong>'+prop+'</strong>':''}</div>`:''}
@@ -5495,7 +5495,7 @@ function rsPrint() {
   .rs-ws-cash td{font-weight:700;background:#fef5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-pre td{color:#6b3fa0;background:#f5f0ff!important;font-size:${ft-1.2}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-disc{font-size:${ft-2}pt;color:rgba(255,255,255,.4);text-align:center;padding:3px;background:#0a1628;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  </style></head><body>
+  <\/style></head><body>
   <div class="rs-ws">
   ${printHdr}
   ${bodyContent}
@@ -6272,7 +6272,7 @@ function printDocChecklist() {
   }).join('');
   const win = window.open('','_blank');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Document Checklist — ${esc(names)}</title>
-  <style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@media print{body{margin:0}}</style></head><body>
+  <\style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@media print{body{margin:0}}<\/style></head><body>
   <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #0a1628">
     <div style="display:flex;align-items:center;gap:12px">
       ${logo}
