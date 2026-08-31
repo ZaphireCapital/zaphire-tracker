@@ -1178,6 +1178,22 @@ input[type=file]{display:none}
         </div>
       </div>
       <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Loan Officer Contact Info</div></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Appears in the top-right corner of every printed Mortgage Comparison Worksheet. Fill in once and it updates all printouts automatically.</p>
+      <div style="background:var(--white);border:1.5px solid var(--gold);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Officer Name</label><input class="form-input" type="text" id="lo_name" placeholder="Deric Zaphire"></div>
+          <div class="form-group"><label class="form-label">Individual NMLS #</label><input class="form-input" type="text" id="lo_nmls" placeholder="124512"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="lo_phone" placeholder="(917) 796-5022"></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="text" id="lo_email" placeholder="dericz@zaphirecapital.com"></div>
+          <div class="form-group"><label class="form-label">Title / Role <span style="font-size:10px;color:var(--slate-light);font-weight:400;text-transform:none">(optional)</span></label><input class="form-input" type="text" id="lo_title" placeholder="Mortgage Broker"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;align-items:center">
+          <button class="btn btn-gold" onclick="saveLoanOfficer()">Save Officer Info</button>
+          <span style="font-size:12px;color:var(--slate-light)">Saved info appears on Worksheet Preview and printed PDFs automatically.</span>
+        </div>
+      </div>
+      <div class="divider"></div>
       <div class="section-header"><div class="section-title">Document Checklist Print Settings</div></div>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
         <p style="font-size:13px;color:var(--slate-light);margin-bottom:18px;line-height:1.6">Customize the header and footer that appear on every printed Client Document Checklist. Changes sync to all team members.</p>
@@ -1761,6 +1777,13 @@ const DEFAULTS = {
     phone: '',
     intro: 'Please provide the following documents at your earliest convenience. Items marked ✓ have been received and accepted. Review each item\'s requirements carefully before submitting to ensure completeness.',
     footer: 'Zaphire Capital · NMLS# 2511614 · Stamford, CT'
+  },
+  loanOfficer: {
+    name: '',
+    nmls: '',
+    phone: '',
+    email: '',
+    title: ''
   }
 };
 
@@ -2727,7 +2750,26 @@ function renderSettings() {
   renderUserTags();
   renderLenderTracks();
   loadPrintSettingsToForm();
+  loadLoanOfficerToForm();
   renderCFList();
+}
+
+function loadLoanOfficerToForm() {
+  const lo = cache.settings.loanOfficer || {};
+  ['name','nmls','phone','email','title'].forEach(k => {
+    const el = document.getElementById('lo_'+k);
+    if (el) el.value = lo[k] || '';
+  });
+}
+
+async function saveLoanOfficer() {
+  if (!cache.settings.loanOfficer) cache.settings.loanOfficer = {};
+  ['name','nmls','phone','email','title'].forEach(k => {
+    const el = document.getElementById('lo_'+k);
+    if (el) cache.settings.loanOfficer[k] = el.value.trim();
+  });
+  await saveSettings();
+  toast('Loan officer info saved');
 }
 
 function renderAllTags() {
@@ -5229,13 +5271,7 @@ function rsRemoveScenario() {
 function rsRenderPreviewTab(c) {
   const panel=document.getElementById('rsPreview'); if(!panel)return;
   if(!c){panel.innerHTML='';return;}
-  // Officer info from settings
-  const users=cache.settings?.users||[];
-  const officer=users[0]||{name:'Zaphire Capital',nmls:''};
-  const oName=officer.name||'Zaphire Capital';
-  const oNmls=officer.nmls||cache.settings?.nmls||'2511614';
-  const oPhone=officer.phone||'';
-  const oEmail=officer.email||'';
+  // Officer info now sourced from cache.settings.loanOfficer inside wsHtml block below
   const s=c.scenarios||[], n=Math.min(s.length,10);
   const showCur=c.loanType==='refi'||c.loanType==='heloc';
   const isDiffLtv=c.comparisonType==='different_ltv';
@@ -5269,23 +5305,37 @@ function rsRenderPreviewTab(c) {
   const miVals=s.slice(0,n).map((sc,i)=>i===0?rsFmt(sc.mortIns||0):((sc.mortIns||0)===(sc0.mortIns||0)?ditto:rsFmt(sc.mortIns||0)));
   const logoSrc = cache.logo || null;
   const logoHtml = logoSrc
-    ? `<img src="${logoSrc}" style="width:44px;height:44px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0">`
-    : '';
+    ? `<img src="${logoSrc}" style="width:68px;height:68px;border-radius:8px;object-fit:contain;background:#fff;border:2px solid rgba(201,168,76,.5);padding:3px;flex-shrink:0;display:block">`
+    : `<div style="width:68px;height:68px;border-radius:8px;background:rgba(255,255,255,.1);border:2px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:26px;font-weight:700;color:#c9a84c;flex-shrink:0">Z</div>`;
+  const lo = cache.settings.loanOfficer || {};
+  const oName = lo.name || (cache.settings.users?.[0]) || 'Zaphire Capital';
+  const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
+  const oPhone = lo.phone || '';
+  const oEmail = lo.email || '';
+  const oTitle = lo.title || '';
+  const oInitials = oName.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
   const txLabel = {purchase:'Purchase',refi:'Refinance',heloc:'HELOC'}[c.loanType]||'';
   const prodLabel = {conventional:'Conventional',fha:'FHA',va:'VA',dscr:'DSCR'}[c.loanProduct||'conventional'];
   const posLabel = c.mortgageOrder==='second'?'2nd Mortgage':'1st Mortgage';
   const optBanner=c.optionNote?`<div class="rs-ws-banner"><div class="rs-ws-badge">Option</div><div style="color:#fff;font-size:13px;font-weight:600">${esc(c.optionNote)}</div></div>`:'';
   const wsHtml=`<div class="rs-ws">
-    <div class="rs-ws-hdr" style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:9px 14px">
-      <div style="display:flex;align-items:center;gap:9px">
+    <div class="rs-ws-hdr" style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:10px 16px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
         ${logoHtml}
-        <div><div class="rs-ws-logo-txt">Zaphire Capital</div><div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px">NMLS ${cache.settings?.nmls||'2511614'}</div></div>
+        <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.09em;text-transform:uppercase;text-align:center">NMLS ${cache.settings?.nmls||'2511614'}</div>
       </div>
       <div style="text-align:center">
         <div class="rs-ws-title">Mortgage Comparison Worksheet</div>
         <div style="color:rgba(255,255,255,.4);font-size:10.5px;margin-top:2px">Prepared exclusively for the borrower(s) listed below</div>
       </div>
-      <div style="text-align:right"><div class="rs-ws-off-name">${esc(oName)}</div>${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}${oPhone?`<div class="rs-ws-off-det">${esc(oPhone)}</div>`:''}${oEmail?`<div class="rs-ws-off-det">${esc(oEmail)}</div>`:''}</div>
+      <div style="text-align:right;min-width:180px">
+        ${oInitials?`<div style="width:32px;height:32px;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#0a1628;margin-left:auto;margin-bottom:5px">${oInitials}</div>`:''}
+        <div class="rs-ws-off-name">${esc(oName)}</div>
+        ${oTitle?`<div class="rs-ws-off-det">${esc(oTitle)}</div>`:''}
+        ${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}
+        ${oPhone?`<div class="rs-ws-off-det">${esc(oPhone)}</div>`:''}
+        ${oEmail?`<div class="rs-ws-off-det">${esc(oEmail)}</div>`:''}
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:#f5f3ee;border-bottom:1px solid #ddd;padding:7px 14px;gap:4px 16px">
       <div>
@@ -5341,7 +5391,7 @@ function rsRenderPreviewTab(c) {
         ${wr(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.slice(0,n).map(sc=>{const v=cash2close(sc);return`<strong style="color:${v<=0?'#27ae60':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-ws-cash',false)}
       </tbody>
     </table>
-    <div class="rs-ws-disc">This worksheet is for comparison purposes only and does not constitute a loan commitment. All figures are estimates. · ${esc(oName)} · NMLS ${esc(oNmls)}</div>
+    <div class="rs-ws-disc">This worksheet is for comparison purposes only and does not constitute a loan commitment. All figures are estimates. · ${esc(oName)}${oNmls?' · NMLS '+esc(oNmls):''}</div>
   </div>`.replace('{{type}}',{purchase:'Purchase',refi:'Refinance',heloc:'HELOC'}[c.loanType]||'');
   panel.innerHTML = `${wsHtml}<div style="margin-top:10px;text-align:right"><button class="btn btn-navy" onclick="rsPrint()">🖨 Print PDF</button></div>`;
 }
@@ -5359,33 +5409,36 @@ function rsPrint() {
   const tdPad=Math.max(2,Math.min(8,Math.floor((usableForTable/rowCount-ft*1.4)/2)));
   const logo=cache.logo||'';
   const logoTag=logo
-    ?`<img src="${logo}" style="width:44px;height:44px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
+    ?`<img src="${logo}" style="width:68px;height:68px;border-radius:8px;object-fit:contain;background:#fff;border:2px solid rgba(201,168,76,.5);padding:3px;flex-shrink:0;display:block">`
     :'';
   const nmls=cache.settings?.nmls||'2511614';
-  // Officer info
-  const users=(cache.settings?.users||[]).filter(u=>u.active!==false);
-  const officer=users[0]||{name:'Zaphire Capital',nmls:''};
-  const oName=officer.name||'Zaphire Capital';
-  const oNmls=officer.nmls||nmls;
-  const oPhone=officer.phone||'';
-  const oEmail=officer.email||'';
+  // Officer info from loanOfficer settings
+  const lo=cache.settings.loanOfficer||{};
+  const oName=lo.name||(cache.settings.users?.[0])||'Zaphire Capital';
+  const oNmls=lo.nmls||nmls;
+  const oPhone=lo.phone||'';
+  const oEmail=lo.email||'';
+  const oTitle=lo.title||'';
+  const oInitials=oName.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
   // Deal metadata
   const txLabel={purchase:'Purchase',refi:'Refinance',heloc:'HELOC'}[c.loanType]||'';
   const prodLabel={conventional:'Conventional',fha:'FHA',va:'VA',dscr:'DSCR'}[c.loanProduct||'conventional'];
   const posLabel=c.mortgageOrder==='second'?'2nd Mortgage':'1st Mortgage';
   const infoCell=(lbl,val,gold)=>`<div><div style="font-size:${ft-2.2}pt;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:1pt">${lbl}</div><div style="font-size:${ft-0.2}pt;font-weight:700;color:${gold?'#9a7530':'#111'}">${val||'—'}</div></div>`;
   const printHdr=`
-  <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:7px 12px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact">
-    <div style="display:flex;align-items:center;gap:8px">
+  <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:8px 14px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3pt">
       ${logoTag}
-      <div><div style="font-size:${ft+2}pt;font-weight:700;color:#c9a84c;line-height:1.1">Zaphire Capital</div><div style="font-size:${ft-1.5}pt;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px">NMLS ${nmls}</div></div>
+      <div style="font-size:${ft-2}pt;color:rgba(255,255,255,.4);letter-spacing:.09em;text-transform:uppercase;text-align:center;margin-top:2pt">NMLS ${nmls}</div>
     </div>
     <div style="text-align:center">
       <div style="color:#fff;font-size:${ft+2.5}pt;font-weight:700">Mortgage Comparison Worksheet</div>
       <div style="color:rgba(255,255,255,.4);font-size:${ft-1}pt;margin-top:2px">Prepared exclusively for the borrower(s) listed below</div>
     </div>
-    <div style="text-align:right">
+    <div style="text-align:right;min-width:160pt">
+      ${oInitials?`<div style="width:28pt;height:28pt;border-radius:50%;background:#c9a84c;display:flex;align-items:center;justify-content:center;font-size:${ft+1}pt;font-weight:700;color:#0a1628;margin-left:auto;margin-bottom:3pt">${oInitials}</div>`:''}
       <div style="color:#fff;font-size:${ft+0.5}pt;font-weight:700">${oName}</div>
+      ${oTitle?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">${oTitle}</div>`:''}
       ${oNmls?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">NMLS: ${oNmls}</div>`:''}
       ${oPhone?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">${oPhone}</div>`:''}
       ${oEmail?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">${oEmail}</div>`:''}
