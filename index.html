@@ -584,7 +584,26 @@ input[type=file]{display:none}
   .qual-program-name{font-size:13px;font-weight:600;color:var(--navy);flex:1}
   .qual-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
   .wb{font-weight:700}
-  /* ── Rate Sheet Tab ── */
+  /* ── 3rd Party Contacts Tab ── */
+  .tpc-body{padding:20px}
+  .tpc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .tpc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(10,22,40,.06)}
+  .tpc-card-full{grid-column:1/-1}
+  .tpc-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--navy)}
+  .tpc-card-title{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold)}
+  .tpc-card-body{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
+  .tpc-row{display:grid;gap:8px}
+  .tpc-r1{grid-template-columns:1fr}
+  .tpc-r2{grid-template-columns:1fr 1fr}
+  .tpc-r4{grid-template-columns:2fr 1.2fr .55fr 1fr}
+  .tpc-fg{display:flex;flex-direction:column;gap:3px}
+  .tpc-label{font-size:10px;font-weight:600;color:var(--slate-light);text-transform:uppercase;letter-spacing:.06em}
+  .tpc-input{padding:5px 8px;border:1.5px solid var(--border-strong);border-radius:6px;font-family:var(--font-body);font-size:12.5px;background:var(--white);color:var(--navy);width:100%;outline:none}
+  .tpc-input:focus{border-color:var(--gold);background:#fffdf7}
+  .tpc-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600}
+  .tpc-chip-done{background:var(--success-bg);color:var(--success)}
+  .tpc-chip-part{background:#fef3c7;color:#7b5c12}
+  .tpc-chip-empty{background:#f0ece4;color:var(--slate-light)}
   .rs-body{display:flex;min-height:520px}
   .rs-sidebar{width:210px;min-width:210px;border-right:1px solid var(--border);background:#f8f6f1;display:flex;flex-direction:column;padding:12px 10px;gap:5px;overflow-y:auto}
   .rs-sidebar-hdr{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--slate-light);padding:4px 2px 6px;border-bottom:1px solid var(--border);margin-bottom:2px}
@@ -1052,8 +1071,25 @@ input[type=file]{display:none}
               </div>
             </div>
           </div>
-        </div>
-        <!-- Notes panel — sits inside the split when pinned, fixed when not -->
+          <!-- 3RD PARTY CONTACTS TAB -->
+          <div class="tab-content" id="tab-contacts">
+            <div class="tpc-body" id="tpcBody">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:10px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0">📋</div>
+                  <div>
+                    <div style="font-family:var(--font-display);font-size:17px;font-weight:500">3rd Party Contact List</div>
+                    <div style="font-size:12px;color:var(--slate-light);margin-top:2px">All contacts associated with this file — saves automatically</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-outline btn-sm" onclick="tpcClear()">Clear All</button>
+                  <button class="btn btn-sm" style="background:var(--navy);color:var(--gold);border:none" onclick="tpcPrint()">🖨 Print Form</button>
+                </div>
+              </div>
+              <div class="tpc-grid" id="tpcGrid"></div>
+            </div>
+          </div>
         <div class="notes-panel" id="notesPanel">
           <div class="notes-panel-hdr" id="notesPanelHdr">
             <div class="notes-panel-title dark">📝 File Notes <span class="notes-cnt-badge dark" id="notesCntBadge">0</span></div>
@@ -1879,6 +1915,7 @@ function switchTab(tab, btn) {
   if (tab === 'docs') renderDocTab();
   if (tab === 'worksheet') wsInit();
   if (tab === 'ratesheet') rsInit();
+  if (tab === 'contacts') tpcInit();
 }
 
 //                                        
@@ -2045,11 +2082,13 @@ function renderFileDetail() {
       ? `<button class="tab-btn active" onclick="switchTab('docs',this)">Client Documents</button>
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
          <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
+         <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
          <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
+         <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`;
   }
   // Restore the correct active tab — if user was on worksheet/ratesheet/custom, keep them there
@@ -3804,6 +3843,127 @@ async function permanentDelete(fid) {
   toast('File permanently deleted');
 }
 
+// ═══════════════════════════════════════════════
+//  3RD PARTY CONTACTS
+// ═══════════════════════════════════════════════
+const TPC_SECTIONS = [
+  {key:'closingAgent',title:'Closing Agent / Escrow Officer',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Contact's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  {key:'titleCompany',title:'Title Company',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Title Officer Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Title Officer's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  {key:'insurance',title:'Insurance Company',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Agent's Name",span:1},{key:'policyNum',label:'Policy #',span:'full'},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  {key:'sellingAgent',title:'Selling Agent',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Real Estate Agent's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  {key:'listingAgent',title:'Listing Agent',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Real Estate Agent's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  {key:'appraiser',title:'Appraiser',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Appraiser's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License # (if applicable)',span:1},{key:'contactLicense',label:"Appraiser's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  {key:'hoa',title:'Homeowners Association (If Applicable)',full:true,fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Contact's Name",span:1},{key:'phone',label:"Contact's Phone",span:1},{key:'email',label:'Email',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'}]},
+];
+
+function tpcGetData() {
+  const f=cache.files.find(x=>x.id===currentFileId);
+  if(!f)return{};
+  if(!f.thirdPartyContacts)f.thirdPartyContacts={};
+  return f.thirdPartyContacts;
+}
+function tpcSave() {
+  const f=cache.files.find(x=>x.id===currentFileId);
+  if(!f)return;
+  const data={};
+  TPC_SECTIONS.forEach(sec=>{
+    data[sec.key]={};
+    sec.fields.forEach(field=>{
+      const el=document.getElementById('tpc_'+sec.key+'_'+field.key);
+      if(el)data[sec.key][field.key]=el.value;
+    });
+  });
+  f.thirdPartyContacts=data;
+  debouncedSave();
+}
+function tpcChip(secData,fields) {
+  const keys=fields.filter(f=>!['city','state','zip'].includes(f.key)).map(f=>f.key);
+  const filled=keys.filter(k=>(secData?.[k]||'').trim().length>0).length;
+  if(filled===0)return'<span class="tpc-chip tpc-chip-empty">○ Empty</span>';
+  if(filled>=keys.length-1)return'<span class="tpc-chip tpc-chip-done">✓ Complete</span>';
+  return'<span class="tpc-chip tpc-chip-part">◑ Partial</span>';
+}
+function tpcInit() {
+  const data=tpcGetData();
+  const grid=document.getElementById('tpcGrid');
+  if(!grid)return;
+  grid.innerHTML=TPC_SECTIONS.map(sec=>{
+    const sd=data[sec.key]||{};
+    const chip=tpcChip(sd,sec.fields);
+    let rows='',i=0;
+    const ff=sec.fields;
+    while(i<ff.length){
+      const f=ff[i];
+      if(f.span==='full'){
+        rows+=`<div class="tpc-row tpc-r1"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+        i++;
+      } else if(f.span==='addr'){
+        const c=ff[i+1],s=ff[i+2],z=ff[i+3];
+        rows+=`<div class="tpc-row tpc-r4"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(c.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${c.key}" value="${esc(sd[c.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(s.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${s.key}" value="${esc(sd[s.key]||'')}" placeholder="—" maxlength="2" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(z.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${z.key}" value="${esc(sd[z.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+        i+=4;
+      } else if(f.span===1&&ff[i+1]?.span===1){
+        const f2=ff[i+1];
+        rows+=`<div class="tpc-row tpc-r2"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(f2.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f2.key}" value="${esc(sd[f2.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+        i+=2;
+      } else {
+        rows+=`<div class="tpc-row tpc-r1"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+        i++;
+      }
+    }
+    return`<div class="tpc-card${sec.full?' tpc-card-full':''}"><div class="tpc-card-hdr"><div class="tpc-card-title">${esc(sec.title)}</div>${chip}</div><div class="tpc-card-body">${rows}</div></div>`;
+  }).join('');
+}
+function tpcClear() {
+  if(!confirm('Clear all 3rd party contact info for this file?'))return;
+  const f=cache.files.find(x=>x.id===currentFileId);
+  if(!f)return;
+  f.thirdPartyContacts={};
+  debouncedSave();
+  tpcInit();
+}
+function tpcPrint() {
+  const data=tpcGetData();
+  const f=cache.files.find(x=>x.id===currentFileId);
+  const borrower=f?(f.b1||'')+(f.b2?' & '+f.b2:''):'';
+  const prop=f?.prop||'';
+  const logo=cache.logo||'';
+  const logoTag=logo?`<img src="${logo}" style="max-height:60px;object-fit:contain">`:`<div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#c9a84c">Zaphire Capital</div>`;
+  function v(sec,key){return((data[sec]||{})[key]||'').trim();}
+  function r2(l1,v1,l2,v2){return`<div class="r2"><div class="cl"><span class="lb">${l1}</span><span class="ul">${v1}</span></div><div class="cl"><span class="lb">${l2}</span><span class="ul">${v2}</span></div></div>`;}
+  function r3(l1,v1,l2,v2,l3,v3){return`<div class="r3"><div class="cl"><span class="lb">${l1}</span><span class="ul">${v1}</span></div><div class="cl"><span class="lb">${l2}</span><span class="ul">${v2}</span></div><div class="cl sm"><span class="lb">${l3}</span><span class="ul">${v3}</span></div></div>`;}
+  function sec(title,body){return`<div class="sc"><div class="st">${title}</div>${body}</div>`;}
+  function addrRows(k){return r3('Address:',v(k,'address'),'City:',v(k,'city'),'State:',v(k,'state'))+r2('Zip Code:',v(k,'zip'),'','');}
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+  @page{size:letter portrait;margin:.5in .6in}
+  @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
+  *{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:8.5pt;color:#111}
+  .hdr{text-align:center;margin-bottom:12pt}
+  .dtitle{font-size:12pt;font-weight:700;text-align:center;letter-spacing:.08em;text-transform:uppercase;margin:10pt 0 6pt}
+  .bline{text-align:center;font-size:8.5pt;color:#444;margin-bottom:14pt;border-bottom:.5pt solid #ccc;padding-bottom:6pt}
+  .sc{margin-bottom:12pt}.st{font-size:9.5pt;font-weight:700;border-bottom:.75pt solid #111;padding-bottom:2pt;margin-bottom:4pt}
+  .r2{display:grid;grid-template-columns:1fr 1fr;gap:3pt;margin-bottom:3pt}
+  .r3{display:grid;grid-template-columns:1.7fr 1fr .45fr;gap:3pt;margin-bottom:3pt}
+  .cl{display:flex;align-items:baseline;gap:2pt;min-width:0}.cl.sm{min-width:44pt}
+  .lb{font-size:7.5pt;white-space:nowrap;color:#333;flex-shrink:0}
+  .ul{flex:1;border-bottom:.5pt solid #555;min-width:28pt;font-size:8.5pt;padding-bottom:1pt;min-height:10pt}
+  </style></head><body>
+  <div class="hdr">${logoTag}</div>
+  <div class="dtitle">3rd Party Contact List</div>
+  ${borrower||prop?`<div class="bline">${borrower?'Borrower: <strong>'+borrower+'</strong>':''}${borrower&&prop?' &nbsp;·&nbsp; ':''}${prop?'Property: <strong>'+prop+'</strong>':''}</div>`:''}
+  ${sec('Closing Agent / Escrow Officer',r2('Company Name:',v('closingAgent','companyName'),'Contact Name:',v('closingAgent','contactName'))+addrRows('closingAgent')+r2("Company's License #:",v('closingAgent','compLicense'),"Contact's License # (If Applicable):",v('closingAgent','contactLicense'))+r2('Email:',v('closingAgent','email'),"Contact's Phone:",v('closingAgent','phone')))}
+  ${sec('Title Company',r2('Company Name:',v('titleCompany','companyName'),'Title Officer Name:',v('titleCompany','contactName'))+addrRows('titleCompany')+r2("Company's License #:",v('titleCompany','compLicense'),"Title Officer's License # (If Applicable):",v('titleCompany','contactLicense'))+r2('Email:',v('titleCompany','email'),"Contact's Phone:",v('titleCompany','phone')))}
+  ${sec('Insurance Company',r2('Company Name:',v('insurance','companyName'),"Agent's Name:",v('insurance','contactName'))+r2('Policy #:',v('insurance','policyNum'),'','')+addrRows('insurance')+r2("Company's License #:",v('insurance','compLicense'),"Insurance Agent's License # (If Applicable):",v('insurance','contactLicense'))+r2('Email:',v('insurance','email'),"Contact's Phone:",v('insurance','phone')))}
+  ${sec('Selling Agent',r2('Company Name:',v('sellingAgent','companyName'),"Real Estate Agent's Name:",v('sellingAgent','contactName'))+addrRows('sellingAgent')+r2("Company's License #:",v('sellingAgent','compLicense'),"Real Estate Agent's License #:",v('sellingAgent','contactLicense'))+r2('Email:',v('sellingAgent','email'),"Contact's Phone:",v('sellingAgent','phone')))}
+  ${sec('Listing Agent',r2('Company Name:',v('listingAgent','companyName'),"Real Estate Agent's Name:",v('listingAgent','contactName'))+addrRows('listingAgent')+r2("Company's License #:",v('listingAgent','compLicense'),"Real Estate Agent's License #:",v('listingAgent','contactLicense'))+r2('Email:',v('listingAgent','email'),"Contact's Phone:",v('listingAgent','phone')))}
+  ${sec('Appraiser',r2('Company Name:',v('appraiser','companyName'),"Appraiser's Name:",v('appraiser','contactName'))+addrRows('appraiser')+r2('Company License (If Applicable) #:',v('appraiser','compLicense'),"Appraiser's License #:",v('appraiser','contactLicense'))+r2('Email:',v('appraiser','email'),"Contact's Phone:",v('appraiser','phone')))}
+  ${sec('Homeowners Association (If Applicable)',r2('Company Name:',v('hoa','companyName'),"Contact's Name:",v('hoa','contactName'))+addrRows('hoa')+r2('Email:',v('hoa','email'),"Contact's Phone:",v('hoa','phone')))}
+  </body></html>`;
+  const pw=window.open('','_blank','width=900,height=1100');
+  if(!pw){alert('Allow popups to print.');return;}
+  pw.document.write(html);pw.document.close();
+  pw.onload=()=>{pw.focus();pw.print();};
+}
+
 // ── Debounced save — buffers all worksheet/rate sheet changes, writes to Supabase once after 1.5s idle ──
 let _debounceSaveTimer = null;
 function debouncedSave() {
@@ -5109,24 +5269,43 @@ function rsRenderPreviewTab(c) {
   const miVals=s.slice(0,n).map((sc,i)=>i===0?rsFmt(sc.mortIns||0):((sc.mortIns||0)===(sc0.mortIns||0)?ditto:rsFmt(sc.mortIns||0)));
   const logoSrc = cache.logo || null;
   const logoHtml = logoSrc
-    ? `<img src="${logoSrc}" style="width:40px;height:40px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0">`
+    ? `<img src="${logoSrc}" style="width:44px;height:44px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0">`
     : '';
+  const txLabel = {purchase:'Purchase',refi:'Refinance',heloc:'HELOC'}[c.loanType]||'';
+  const prodLabel = {conventional:'Conventional',fha:'FHA',va:'VA',dscr:'DSCR'}[c.loanProduct||'conventional'];
+  const posLabel = c.mortgageOrder==='second'?'2nd Mortgage':'1st Mortgage';
   const optBanner=c.optionNote?`<div class="rs-ws-banner"><div class="rs-ws-badge">Option</div><div style="color:#fff;font-size:13px;font-weight:600">${esc(c.optionNote)}</div></div>`:'';
   const wsHtml=`<div class="rs-ws">
-    <div class="rs-ws-hdr">
-      <div style="display:flex;align-items:center;gap:10px;min-width:200px">
+    <div class="rs-ws-hdr" style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:9px 14px">
+      <div style="display:flex;align-items:center;gap:9px">
         ${logoHtml}
         <div><div class="rs-ws-logo-txt">Zaphire Capital</div><div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px">NMLS ${cache.settings?.nmls||'2511614'}</div></div>
       </div>
-      <div class="rs-ws-title" style="text-align:center;flex:1">Mortgage Comparison Worksheet</div>
-      <div style="text-align:right;min-width:200px"><div class="rs-ws-off-name">${esc(oName)}</div>${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}${oPhone?`<div class="rs-ws-off-det">${esc(oPhone)}</div>`:''}${oEmail?`<div class="rs-ws-off-det">${esc(oEmail)}</div>`:''}</div>
+      <div style="text-align:center">
+        <div class="rs-ws-title">Mortgage Comparison Worksheet</div>
+        <div style="color:rgba(255,255,255,.4);font-size:10.5px;margin-top:2px">Prepared exclusively for the borrower(s) listed below</div>
+      </div>
+      <div style="text-align:right"><div class="rs-ws-off-name">${esc(oName)}</div>${oNmls?`<div class="rs-ws-off-det">NMLS: ${esc(oNmls)}</div>`:''}${oPhone?`<div class="rs-ws-off-det">${esc(oPhone)}</div>`:''}${oEmail?`<div class="rs-ws-off-det">${esc(oEmail)}</div>`:''}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:#f5f3ee;border-bottom:1px solid #ddd;padding:7px 14px;gap:4px 16px">
+      <div>
+        <div style="margin-bottom:5px"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Borrower</div><div style="font-size:12px;font-weight:700;color:#111">${esc(c.borrower||'—')}</div></div>
+        <div><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Co-Borrower</div><div style="font-size:12px;font-weight:700;color:#111">${esc(c.coborrower||'—')}</div></div>
+      </div>
+      <div>
+        <div style="margin-bottom:5px"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Credit Score</div><div style="font-size:12px;font-weight:700;color:#111">${esc(c.credit||'—')}</div></div>
+        <div><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Transaction</div><div style="font-size:12px;font-weight:700;color:#111">${esc(txLabel)}</div></div>
+      </div>
+      <div>
+        <div style="margin-bottom:5px"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Loan Type</div><div style="font-size:12px;font-weight:700;color:#111">${esc(txLabel)} · ${esc(prodLabel)}</div></div>
+        <div><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Mortgage Position</div><div style="font-size:12px;font-weight:700;color:#111">${esc(posLabel)}</div></div>
+      </div>
+      <div>
+        <div style="margin-bottom:5px"><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Deal / Option</div><div style="font-size:12px;font-weight:700;color:#9a7530">${esc(c.dealLabel||c.optionName||'—')}</div></div>
+        <div><div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888">Option Name</div><div style="font-size:12px;font-weight:700;color:#111">${esc(c.optionName||'—')}</div></div>
+      </div>
     </div>
     ${optBanner}
-    <div class="rs-ws-meta">
-      <div><span class="rs-ws-lbl">Borrower: </span><span class="rs-ws-val">${esc(c.borrower||'—')}</span>${c.coborrower?`<br><span class="rs-ws-lbl">Co-Borrower: </span><span class="rs-ws-val">${esc(c.coborrower)}</span>`:''}</div>
-      <div><span class="rs-ws-lbl">Credit: </span><span class="rs-ws-val">${esc(c.credit||'—')}</span></div>
-      <div><span class="rs-ws-lbl">Loan: </span><span class="rs-ws-val">{{type}} · ${esc({conventional:'Conventional',fha:'FHA',va:'VA',dscr:'DSCR'}[c.loanProduct||'conventional'])}</span><br><span class="rs-ws-lbl">Deal: </span><span class="rs-ws-val">${esc(c.dealLabel||'—')}</span></div>
-    </div>
     <table class="rs-ws-tbl">
       <thead><tr><th style="text-align:left">Mortgage Scenarios</th>${curHdrTh}${scThs}</tr></thead>
       <tbody>
@@ -5175,63 +5354,103 @@ function rsPrint() {
   const n=(c.scenarios||[]).length;
   const ft=n<=5?8.5:n<=7?7.8:7.2;
   const fc=n<=5?130:110;
-  // Count data rows to calculate padding needed to fill page
-  const rowCount = wsEl.querySelectorAll('tr').length || 18;
-  // Option C — airy rows, bigger border on top/left/right
-  const usableForTable = 580;
-  const tdPad = Math.max(2, Math.min(8, Math.floor((usableForTable / rowCount - ft * 1.4) / 2)));
+  const rowCount=wsEl.querySelectorAll('tr').length||18;
+  const usableForTable=580;
+  const tdPad=Math.max(2,Math.min(8,Math.floor((usableForTable/rowCount-ft*1.4)/2)));
   const logo=cache.logo||'';
   const logoTag=logo
-    ? `<img src="${logo}" style="width:40px;height:40px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
-    : '';
+    ?`<img src="${logo}" style="width:44px;height:44px;border-radius:5px;object-fit:contain;background:#fff;border:1.5px solid rgba(201,168,76,.5);padding:2px;flex-shrink:0;display:block">`
+    :'';
+  const nmls=cache.settings?.nmls||'2511614';
+  // Officer info
+  const users=(cache.settings?.users||[]).filter(u=>u.active!==false);
+  const officer=users[0]||{name:'Zaphire Capital',nmls:''};
+  const oName=officer.name||'Zaphire Capital';
+  const oNmls=officer.nmls||nmls;
+  const oPhone=officer.phone||'';
+  const oEmail=officer.email||'';
+  // Deal metadata
+  const txLabel={purchase:'Purchase',refi:'Refinance',heloc:'HELOC'}[c.loanType]||'';
+  const prodLabel={conventional:'Conventional',fha:'FHA',va:'VA',dscr:'DSCR'}[c.loanProduct||'conventional'];
+  const posLabel=c.mortgageOrder==='second'?'2nd Mortgage':'1st Mortgage';
+  const infoCell=(lbl,val,gold)=>`<div><div style="font-size:${ft-2.2}pt;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#888;margin-bottom:1pt">${lbl}</div><div style="font-size:${ft-0.2}pt;font-weight:700;color:${gold?'#9a7530':'#111'}">${val||'—'}</div></div>`;
+  const printHdr=`
+  <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:7px 12px;background:#0a1628;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+    <div style="display:flex;align-items:center;gap:8px">
+      ${logoTag}
+      <div><div style="font-size:${ft+2}pt;font-weight:700;color:#c9a84c;line-height:1.1">Zaphire Capital</div><div style="font-size:${ft-1.5}pt;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px">NMLS ${nmls}</div></div>
+    </div>
+    <div style="text-align:center">
+      <div style="color:#fff;font-size:${ft+2.5}pt;font-weight:700">Mortgage Comparison Worksheet</div>
+      <div style="color:rgba(255,255,255,.4);font-size:${ft-1}pt;margin-top:2px">Prepared exclusively for the borrower(s) listed below</div>
+    </div>
+    <div style="text-align:right">
+      <div style="color:#fff;font-size:${ft+0.5}pt;font-weight:700">${oName}</div>
+      ${oNmls?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">NMLS: ${oNmls}</div>`:''}
+      ${oPhone?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">${oPhone}</div>`:''}
+      ${oEmail?`<div style="color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.6">${oEmail}</div>`:''}
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:#f5f3ee;border-bottom:1px solid #ddd;padding:5px 12px;gap:6pt 14pt;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+    <div style="display:flex;flex-direction:column;gap:4pt">
+      ${infoCell('Borrower',c.borrower)}
+      ${infoCell('Co-Borrower',c.coborrower)}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4pt">
+      ${infoCell('Credit Score',c.credit)}
+      ${infoCell('Transaction',txLabel)}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4pt">
+      ${infoCell('Loan Type',txLabel+(prodLabel?' · '+prodLabel:''))}
+      ${infoCell('Mortgage Position',posLabel)}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4pt">
+      ${infoCell('Deal / Option',c.dealLabel||c.optionName,true)}
+      ${infoCell('Option Name',c.optionName)}
+    </div>
+  </div>`;
+  // Extract just the banner + table from the rendered preview outerHTML
+  const rawHtml=wsEl.outerHTML;
+  const tableStart=rawHtml.indexOf('<div class="rs-ws-banner"');
+  const bannerAndTable=tableStart>=0
+    ?rawHtml.slice(tableStart,rawHtml.lastIndexOf('</div>')+6)
+    :rawHtml.slice(rawHtml.indexOf('<table'),rawHtml.lastIndexOf('</div>')+6);
+  const bodyContent=bannerAndTable
+    .replace('<table class="rs-ws-tbl">','<div class="rs-ws-tbl-wrap"><table class="rs-ws-tbl">')
+    .replace('</table>','</table></div>');
   const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
   @page{size:landscape;margin:6.5% 3%}
+  @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;font-family:Arial,sans-serif;background:#fff;font-size:${ft}pt}
   body{display:flex;flex-direction:column}
   .rs-ws{display:flex;flex-direction:column;height:100%;min-height:100%}
-  .rs-ws-hdr{display:flex;align-items:center;padding:5px 10px;gap:12px;background:#0a1628;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-hdr-left{display:flex;align-items:center;gap:8px;min-width:${logo?'200':'150'}pt}
-  .rs-ws-hdr-left-text{display:flex;flex-direction:column;gap:1px}
-  .rs-ws-logo-txt{font-size:${ft+2}pt;font-weight:700;color:#c9a84c;line-height:1.1}
-  .rs-ws-nmls{font-size:${ft-1.5}pt;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
-  .rs-ws-title{color:#fff;font-size:${ft+2.5}pt;font-weight:700;text-align:center;flex:1}
-  .rs-ws-hdr-right{text-align:right;min-width:${logo?'200':'150'}pt}
-  .rs-ws-off-name{color:#fff;font-size:${ft}pt;font-weight:600}
-  .rs-ws-off-det{color:rgba(255,255,255,.55);font-size:${ft-1}pt;line-height:1.5}
   .rs-ws-banner{background:linear-gradient(90deg,#1e5fa8,#1a6bbf);padding:3px 10px;display:flex;align-items:center;gap:7px;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-badge{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);border-radius:3px;padding:1px 6px;color:#fff;font-size:${ft-2}pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-  .rs-ws-meta{display:grid;grid-template-columns:1fr 1fr 1fr;padding:2px 9px;background:#f0f0f5;border-bottom:1px solid #ccc;font-size:${ft-0.5}pt;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-lbl{color:#555}.rs-ws-val{font-weight:600}
   .rs-ws-tbl-wrap{flex:1;display:flex;flex-direction:column}
   .rs-ws-tbl{width:100%;border-collapse:collapse;table-layout:fixed;height:100%}
-  .rs-ws-tbl th{padding:2px 3px;text-align:center;font-size:${ft-0.8}pt;background:#0a1628;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
+  .rs-ws-tbl th{padding:2px 3px;text-align:center;font-size:${ft-0.8}pt;background:#0a1628;color:#fff;border-right:1px solid rgba(255,255,255,.12);-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
   .rs-ws-tbl th:first-child{background:#1a3155;text-align:left;width:${fc}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-tbl th.rs-ws-cur-h{background:#2a4f8a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-tbl td{padding:${tdPad}px 3px;text-align:center;border-bottom:0.4px solid #ddd;overflow:hidden;white-space:nowrap;font-size:${ft}pt}
+  .rs-ws-tbl td{padding:${tdPad}px 3px;text-align:center;border-bottom:0.5px solid #e0e0e0;border-right:0.5px solid #e8e8e8;overflow:hidden;white-space:nowrap;font-size:${ft}pt}
   .rs-ws-tbl td:first-child{text-align:left;color:#555;background:#fafaf8;font-size:${ft-1}pt;white-space:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-cc{background:#e8f0fe!important;color:#1a3a6b;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-sh td{background:#1e5fa8!important;color:#fff!important;font-weight:600;font-size:${ft-1.2}pt;text-transform:uppercase;padding:${Math.max(2,tdPad-1)}px 3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-tot td{font-weight:700;background:#fdf8f0!important;border-top:1px solid #ccc;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-sh td{background:#1e5fa8!important;color:#fff!important;font-weight:600;font-size:${ft-1.2}pt;text-transform:uppercase;padding:${Math.max(2,tdPad-1)}px 3px;border-right:1px solid rgba(255,255,255,.12);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-tot td{font-weight:700;background:#fdf8f0!important;border-top:1.5px solid #bbb;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-sav td{color:#27ae60!important;font-weight:700;background:#f0faf5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rs-ws-ctot td{font-weight:700;background:#0a1628!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rs-ws-ctot td{font-weight:700;background:#0a1628!important;color:#fff!important;border-right:1px solid rgba(255,255,255,.12);-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-cash td{font-weight:700;background:#fef5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-pre td{color:#6b3fa0;background:#f5f0ff!important;font-size:${ft-1.2}pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .rs-ws-disc{font-size:${ft-2}pt;color:rgba(255,255,255,.4);text-align:center;padding:3px;background:#0a1628;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   </style></head><body>
-  ${wsEl.outerHTML
-    .replace(
-      /(<div class="rs-ws-hdr"[^>]*>)([\s\S]*?)(<div class="rs-ws-title")/,
-      (_, hdrOpen, hdrLeft, titleDiv) =>
-        `${hdrOpen}<div class="rs-ws-hdr-left">${logoTag}<div class="rs-ws-hdr-left-text"><div class="rs-ws-logo-txt">Zaphire Capital</div><div class="rs-ws-nmls">NMLS ${cache.settings?.nmls||'2511614'}</div></div></div>${titleDiv}`
-    )
-    .replace('<table class="rs-ws-tbl">', '<div class="rs-ws-tbl-wrap"><table class="rs-ws-tbl">')
-    .replace('</table>', '</table></div>')
-  }
+  <div class="rs-ws">
+  ${printHdr}
+  ${bodyContent}
+  </div>
   </body></html>`;
   const pw=window.open('','_blank','width=1400,height=900');
   if(!pw){alert('Allow popups to print.');return;}
-  pw.document.write(printHTML); pw.document.close();
+  pw.document.write(printHTML);pw.document.close();
   pw.onload=()=>{pw.focus();pw.print();};
 }
 // ═══════════════════════════════════════════════
