@@ -584,7 +584,65 @@ input[type=file]{display:none}
   .qual-program-name{font-size:13px;font-weight:600;color:var(--navy);flex:1}
   .qual-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
   .wb{font-weight:700}
-  /* ── Contact Directory Page ── */
+  /* ── Pre-Approval Tab ── */
+  .pa-body{display:grid;grid-template-columns:210px 1fr 340px;height:100%;overflow:hidden;min-height:600px}
+  .pa-sidebar{border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
+  .pa-sb-hdr{padding:10px 14px;border-bottom:1px solid var(--border);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
+  .pa-sb-list{flex:1;overflow-y:auto;padding:8px}
+  .pa-letter-item{padding:8px 11px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;background:var(--white)}
+  .pa-letter-item:hover{border-color:var(--border-strong)}
+  .pa-letter-item.active{border-color:var(--gold);background:#fffdf7}
+  .pa-letter-item .li-name{font-size:12.5px;font-weight:600;color:var(--navy)}
+  .pa-letter-item .li-meta{font-size:11px;color:var(--slate-light);margin-top:2px}
+  .pa-letter-item .li-price{font-size:11px;font-weight:600;color:var(--success);margin-top:2px}
+  .pa-sb-foot{padding:10px;border-top:1px solid var(--border)}
+  .pa-sb-add{width:100%;padding:8px;border:1.5px dashed var(--border-strong);border-radius:8px;background:none;font-family:var(--font-body);font-size:12px;color:var(--slate-light);cursor:pointer;text-align:center}
+  .pa-sb-add:hover{border-color:var(--gold);color:var(--navy)}
+  .pa-editor{border-right:1px solid var(--border);overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+  .pa-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .pa-section-hdr{padding:8px 13px;border-bottom:1px solid var(--border);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);background:var(--cream);display:flex;align-items:center;justify-content:space-between}
+  .pa-section-body{padding:13px}
+  .pa-loan-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+  .pa-loan-wrap{position:relative}
+  .pa-loan-pfx{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--slate-light);pointer-events:none}
+  .pa-loan-sfx{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--slate-light);pointer-events:none}
+  .pa-loan-input{width:100%;padding:5px 10px 5px 22px;border:1.5px solid var(--border-strong);border-radius:6px;font-family:var(--font-body);font-size:12.5px;background:var(--white);color:var(--navy);outline:none}
+  .pa-loan-input.derived{background:var(--cream);color:var(--slate-light)}
+  .pa-loan-input:focus{border-color:var(--gold)}
+  .pa-dp-toggle{display:flex;border:1.5px solid var(--border-strong);border-radius:6px;overflow:hidden;height:31px;flex-shrink:0}
+  .pa-dp-toggle button{border:none;background:var(--white);padding:0 9px;font-size:11.5px;color:var(--slate-light);font-family:var(--font-body);cursor:pointer}
+  .pa-dp-toggle button.on{background:var(--navy);color:#fff}
+  .pa-cond-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+  .pa-cond-item{display:flex;align-items:center;gap:6px}
+  .pa-cond-item input{flex:1;padding:5px 9px;border:1.5px solid var(--border-strong);border-radius:6px;font-family:var(--font-body);font-size:12px;background:var(--white);color:var(--navy);outline:none}
+  .pa-cond-item input:focus{border-color:var(--gold)}
+  .pa-cond-remove{background:none;border:none;color:var(--slate-light);font-size:16px;cursor:pointer;padding:0 3px;line-height:1}
+  .pa-cond-remove:hover{color:#a32d2d}
+  .pa-cond-add{background:none;border:1.5px dashed var(--border-strong);border-radius:6px;padding:5px 10px;font-family:var(--font-body);font-size:11.5px;color:var(--slate-light);cursor:pointer}
+  .pa-cond-add:hover{border-color:var(--gold);color:var(--navy)}
+  .pa-actions{display:flex;gap:8px;flex-wrap:wrap;padding:6px 0 4px}
+  .pa-preview{background:#d8d4cd;overflow-y:auto;padding:14px}
+  .pa-preview-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7a766c;margin-bottom:10px;text-align:center}
+  .pa-letter{background:#fff;width:100%;max-width:320px;margin:0 auto;padding:24px 22px;font-family:'Times New Roman',Georgia,serif;font-size:9.5px;line-height:1.5;color:#000;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  .pa-letter .pa-lh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+  .pa-letter .pa-logo-txt{font-weight:800;font-size:14px;letter-spacing:2px;color:#1c2b4a;font-family:Arial,sans-serif;line-height:1}
+  .pa-letter .pa-logo-sub{font-size:6.5px;letter-spacing:4px;color:#6b6b66;display:block;margin-top:1px}
+  .pa-letter .pa-logo-img{max-height:40px;max-width:120px;object-fit:contain}
+  .pa-letter .pa-addr{text-align:right;font-size:7.5px;line-height:1.5;color:#333}
+  .pa-letter hr{border:none;border-top:1px solid #000;margin:4px 0 12px}
+  .pa-letter .pa-tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+  .pa-letter .pa-grp-h{font-family:Arial,sans-serif;font-size:7px;letter-spacing:.6px;text-transform:uppercase;color:#444;border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:3px}
+  .pa-letter .pa-trow{display:flex;justify-content:space-between;gap:6px;padding:2.5px 1px;border-bottom:.5px solid #d8d5cc}
+  .pa-letter .pa-trow:last-child{border-bottom:none}
+  .pa-letter .pa-tk{color:#555;white-space:nowrap;font-size:8.5px}
+  .pa-letter .pa-tv{font-weight:700;text-align:right;font-size:8.5px}
+  .pa-letter ul{margin:4px 0 8px;padding-left:14px}
+  .pa-letter li{margin-bottom:2px;font-size:9px}
+  .pa-letter p{margin:0 0 8px;font-size:9.5px}
+  .pa-letter .pa-sig{margin-top:20px;font-size:9.5px}
+  .pa-letter .pa-foot{margin-top:22px;font-size:7px;border-top:1px solid #ccc;padding-top:5px;line-height:1.5;color:#555}
+  .pa-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:400px;color:var(--slate-light);text-align:center;gap:10px}
+  .pa-prefill-badge{display:inline-flex;align-items:center;gap:4px;background:#e8f4fd;border:1px solid #90caf9;border-radius:5px;padding:2px 9px;font-size:11px;font-weight:600;color:#0d47a1;margin-bottom:2px}
   .cd-body{display:flex;flex-direction:column;height:100%;overflow:hidden}
   .cd-filter-bar{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--cream);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
   .cd-search-wrap{position:relative;flex:1;min-width:180px}
@@ -1127,6 +1185,29 @@ input[type=file]{display:none}
                 </div>
               </div>
               <div class="tpc-grid" id="tpcGrid"></div>
+            </div>
+          </div>
+          <!-- PRE-APPROVAL TAB -->
+          <div class="tab-content" id="tab-preapproval">
+            <div class="pa-body">
+              <div class="pa-sidebar">
+                <div class="pa-sb-hdr">Letters</div>
+                <div class="pa-sb-list" id="paLetterList"></div>
+                <div class="pa-sb-foot">
+                  <button class="pa-sb-add" onclick="paAddLetter()">＋ New Letter</button>
+                </div>
+              </div>
+              <div class="pa-editor" id="paEditor">
+                <div class="pa-empty" id="paEmpty">
+                  <div style="font-size:32px;opacity:.2">📄</div>
+                  <div style="font-size:14px;font-weight:500">No letters yet</div>
+                  <div style="font-size:12.5px">Click &ldquo;+ New Letter&rdquo; to create a pre-approval letter.</div>
+                </div>
+              </div>
+              <div class="pa-preview" id="paPreview">
+                <div class="pa-preview-lbl">Live preview</div>
+                <div id="paLetterHtml"></div>
+              </div>
             </div>
           </div>
         <div class="notes-panel" id="notesPanel">
@@ -1761,6 +1842,7 @@ async function syncToCloud() {
       sbSet('lenders', cache.lenders || []),
       sbSet('contactDir', cache.contactDir || []),
       sbSet('docs', cache.docs || {})
+      // preapprovals stored per-file inside cache.files — no separate key needed
     ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
@@ -2007,6 +2089,7 @@ function switchTab(tab, btn) {
   if (tab === 'worksheet') wsInit();
   if (tab === 'ratesheet') rsInit();
   if (tab === 'contacts') tpcInit();
+  if (tab === 'preapproval') paInit();
 }
 
 //                                        
@@ -2174,12 +2257,14 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
          <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
+         <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
          <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
+         <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`;
   }
   // Restore the correct active tab — if user was on worksheet/ratesheet/custom, keep them there
@@ -3954,8 +4039,413 @@ async function permanentDelete(fid) {
 }
 
 // ═══════════════════════════════════════════════
-//  CONTACT DIRECTORY
+//  PRE-APPROVAL LETTERS
 // ═══════════════════════════════════════════════
+let paActiveId = null;
+
+const PA_DEFAULT_BODY = {
+  intro: 'ZAPHIRE CAPITAL is pleased to advise you that, based on our review of your credit report as well as an analysis of the income and assets you have represented, you are pre-approved for mortgage financing under the terms and conditions set forth below:',
+  condLead: 'This pre-approval is subject, but not limited to, the receipt of the following conditions:',
+  afterCond: 'You should contact ZAPHIRE CAPITAL as soon as you select a property and agree upon a purchase price so that we can discuss the terms and conditions of the actual mortgage loan.',
+  closing: 'Feel free to contact the undersigned should you have any questions regarding the foregoing information.'
+};
+
+const PA_DEFAULT_CONDITIONS = [
+  'Fully executed contract',
+  'Acceptable appraisal ordered by ZAPHIRE CAPITAL.',
+  'Verification of income and employment.'
+];
+
+function paGetFile() { return cache.files.find(x => x.id === currentFileId); }
+function paGetLetters() { const f = paGetFile(); if (!f) return []; if (!f.preapprovals) f.preapprovals = []; return f.preapprovals; }
+function paGetActive() { return paGetLetters().find(l => l.id === paActiveId) || null; }
+function paSave() { debouncedSave(); }
+
+function paFmtMoney(n) {
+  const v = parseFloat(String(n).replace(/[,$]/g,'')) || 0;
+  return '$' + v.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+function paFmtPct(n) { return (parseFloat(n)||0).toFixed(2) + '%'; }
+function paFmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+}
+
+function paCalc(changed, val) {
+  const l = paGetActive(); if (!l) return;
+  const clean = v => parseFloat(String(v).replace(/[,$%]/g,'')) || 0;
+  let price = clean(l.price), down = clean(l.downMode==='percent'?l.downPct:l.downDollar), loan = clean(l.loan), ltv = clean(l.ltv);
+  if (changed === 'price') { price = clean(val); l.price = price; }
+  if (changed === 'down') {
+    if (l.downMode === 'percent') { l.downPct = clean(val); down = clean(val); }
+    else { l.downDollar = clean(val); down = clean(val); }
+  }
+  if (changed === 'loan') { loan = clean(val); l.loan = loan; }
+  if (changed === 'ltv') { ltv = clean(val); l.ltv = ltv; }
+  // Resolve
+  if (changed === 'price' || changed === 'down') {
+    const dp = l.downMode === 'percent' ? price * down / 100 : down;
+    loan = Math.max(0, price - dp);
+    ltv = price > 0 ? (loan / price * 100) : 0;
+    l.downDollar = dp; l.downPct = price > 0 ? dp/price*100 : 0;
+    l.loan = loan; l.ltv = ltv;
+  } else if (changed === 'loan') {
+    ltv = price > 0 ? (loan / price * 100) : 0;
+    const dp = price - loan;
+    l.downDollar = dp; l.downPct = price > 0 ? dp/price*100 : 0;
+    l.ltv = ltv;
+  } else if (changed === 'ltv') {
+    loan = price * ltv / 100;
+    const dp = price - loan;
+    l.downDollar = dp; l.downPct = ltv > 0 ? 100-ltv : 0;
+    l.loan = loan;
+  }
+  paSave();
+  paRenderCalcFields();
+  paRenderPreview();
+}
+
+function paRenderCalcFields() {
+  const l = paGetActive(); if (!l) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  set('pa_price', l.price ? Math.round(l.price).toLocaleString() : '');
+  const downVal = l.downMode === 'percent' ? (l.downPct||0).toFixed(2) : Math.round(l.downDollar||0).toLocaleString();
+  set('pa_down', downVal);
+  const hint = document.getElementById('pa_down_hint');
+  if (hint) {
+    hint.textContent = l.downMode === 'percent'
+      ? (l.downDollar ? '= ' + paFmtMoney(l.downDollar) : '')
+      : (l.downPct ? '= ' + (l.downPct).toFixed(1) + '%' : '');
+  }
+  set('pa_loan', Math.round(l.loan||0).toLocaleString());
+  set('pa_ltv', (l.ltv||0).toFixed(2));
+  const dpPct = document.getElementById('pa_dp_pct');
+  const dpDol = document.getElementById('pa_dp_dol');
+  const pfx = document.getElementById('pa_down_pfx');
+  if (dpPct) dpPct.classList.toggle('on', l.downMode === 'percent');
+  if (dpDol) dpDol.classList.toggle('on', l.downMode !== 'percent');
+  if (pfx) pfx.textContent = l.downMode === 'percent' ? '%' : '$';
+}
+
+function paSetDownMode(mode) {
+  const l = paGetActive(); if (!l) return;
+  l.downMode = mode; paSave(); paRenderCalcFields(); paRenderPreview();
+}
+
+function paInit() {
+  const letters = paGetLetters();
+  if (paActiveId === null || !letters.find(l => l.id === paActiveId)) {
+    paActiveId = letters.length ? letters[0].id : null;
+  }
+  paRenderSidebar();
+  paRenderEditor();
+  paRenderPreview();
+}
+
+function paRenderSidebar() {
+  const letters = paGetLetters();
+  const list = document.getElementById('paLetterList');
+  if (!list) return;
+  list.innerHTML = letters.map(l => {
+    const isActive = l.id === paActiveId;
+    const price = l.price ? paFmtMoney(l.price) : 'No price set';
+    const dp = l.downMode === 'percent'
+      ? (l.downPct||0).toFixed(0) + '% down'
+      : paFmtMoney(l.downDollar||0) + ' down';
+    return `<div class="pa-letter-item${isActive?' active':''}" onclick="paSelectLetter('${l.id}')">
+      <div class="li-name">${esc(l.label||'Untitled')}</div>
+      <div class="li-meta">${esc(l.occupancy||'')}${l.propType?' · '+esc(l.propType):''}</div>
+      <div class="li-price">${price}${l.price?' @ '+dp:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function paRenderEditor() {
+  const editor = document.getElementById('paEditor');
+  const empty = document.getElementById('paEmpty');
+  const l = paGetActive();
+  if (!l) {
+    if (editor) { editor.innerHTML = '<div class="pa-empty"><div style="font-size:32px;opacity:.2">📄</div><div style="font-size:14px;font-weight:500">No letters yet</div><div style="font-size:12.5px">Click &ldquo;+ New Letter&rdquo; to create a pre-approval.</div></div>'; }
+    return;
+  }
+  const f = paGetFile();
+  const prefilled = l._prefilled;
+  editor.innerHTML = `
+    ${prefilled ? `<div style="margin-bottom:6px"><span class="pa-prefill-badge">⚡ Pre-filled from file — edit anything below</span></div>` : ''}
+    <div class="pa-section">
+      <div class="pa-section-hdr">Borrower</div>
+      <div class="pa-section-body" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group"><label class="form-label">Borrower Name</label><input class="form-input" id="pa_b1" value="${esc(l.b1||'')}" oninput="paField('b1',this.value)" placeholder="Full name"></div>
+          <div class="form-group"><label class="form-label">Co-Borrower Name</label><input class="form-input" id="pa_b2" value="${esc(l.b2||'')}" oninput="paField('b2',this.value)" placeholder="Optional"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Mailing Address</label><textarea class="form-input" id="pa_addr" rows="2" oninput="paField('clientAddr',this.value)" style="resize:vertical;line-height:1.5;padding-top:6px">${esc(l.clientAddr||'')}</textarea></div>
+      </div>
+    </div>
+    <div class="pa-section">
+      <div class="pa-section-hdr">Letter Details</div>
+      <div class="pa-section-body" style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+          <div class="form-group"><label class="form-label">Letter Date</label><input class="form-input" type="date" id="pa_date" value="${esc(l.date||'')}" onchange="paField('date',this.value)"></div>
+          <div class="form-group"><label class="form-label">Transaction</label><select class="form-input" id="pa_tx" onchange="paField('transaction',this.value)"><option${l.transaction==='Purchase'?' selected':''}>Purchase</option><option${l.transaction==='Refinance'?' selected':''}>Refinance</option><option${l.transaction==='Cash-Out Refinance'?' selected':''}>Cash-Out Refinance</option></select></div>
+          <div class="form-group"><label class="form-label">Occupancy</label><select class="form-input" id="pa_occ" onchange="paField('occupancy',this.value)"><option${l.occupancy==='Primary Residence'?' selected':''}>Primary Residence</option><option${l.occupancy==='Second Home'?' selected':''}>Second Home</option><option${l.occupancy==='Investment'?' selected':''}>Investment</option></select></div>
+          <div class="form-group"><label class="form-label">Property Type</label><select class="form-input" id="pa_pt" onchange="paField('propType',this.value)"><option${l.propType==='Single Family Residence'?' selected':''}>Single Family Residence</option><option${l.propType==='Condominium'?' selected':''}>Condominium</option><option${l.propType==='2-4 Unit'?' selected':''}>2-4 Unit</option><option${l.propType==='Townhouse'?' selected':''}>Townhouse</option><option${l.propType==='Manufactured'?' selected':''}>Manufactured</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Property Address <span style="font-size:9.5px;color:var(--slate-light);font-weight:400;text-transform:none">(leave blank for TBD)</span></label><input class="form-input" id="pa_prop" value="${esc(l.propAddr||'')}" oninput="paField('propAddr',this.value)" placeholder="Leave blank for TBD"></div>
+      </div>
+    </div>
+    <div class="pa-section">
+      <div class="pa-section-hdr">Loan Figures</div>
+      <div class="pa-section-body">
+        <div class="pa-loan-grid">
+          <div class="form-group"><label class="form-label">Purchase Price</label><div class="pa-loan-wrap"><span class="pa-loan-pfx">$</span><input class="pa-loan-input" id="pa_price" inputmode="numeric" oninput="paCalc('price',this.value)" placeholder="0"></div></div>
+          <div class="form-group"><label class="form-label">Down Payment</label>
+            <div style="display:flex;gap:5px">
+              <div class="pa-dp-toggle"><button id="pa_dp_pct" class="on" onclick="paSetDownMode('percent')">%</button><button id="pa_dp_dol" onclick="paSetDownMode('dollar')">$</button></div>
+              <div class="pa-loan-wrap" style="flex:1"><span class="pa-loan-pfx" id="pa_down_pfx">%</span><input class="pa-loan-input" id="pa_down" inputmode="numeric" oninput="paCalc('down',this.value)" placeholder="0"></div>
+            </div>
+            <div style="font-size:10px;color:var(--slate-light);margin-top:2px" id="pa_down_hint"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Loan Amount</label><div class="pa-loan-wrap"><span class="pa-loan-pfx">$</span><input class="pa-loan-input derived" id="pa_loan" inputmode="numeric" oninput="paCalc('loan',this.value)" placeholder="0"></div></div>
+          <div class="form-group"><label class="form-label">LTV</label><div class="pa-loan-wrap"><input class="pa-loan-input derived" id="pa_ltv" inputmode="numeric" oninput="paCalc('ltv',this.value)" placeholder="0" style="padding-left:10px;padding-right:22px"><span class="pa-loan-sfx">%</span></div></div>
+        </div>
+        <div class="form-group" style="margin-top:10px;max-width:260px"><label class="form-label">Loan-type tag <span style="font-size:9.5px;color:var(--slate-light);font-weight:400;text-transform:none">e.g. "VA Loan", "FHA" — shown after down payment</span></label><input class="form-input" id="pa_tag" value="${esc(l.loanTag||'')}" oninput="paField('loanTag',this.value)" placeholder="Conventional"></div>
+      </div>
+    </div>
+    <div class="pa-section">
+      <div class="pa-section-hdr">Conditions</div>
+      <div class="pa-section-body">
+        <div class="pa-cond-list" id="paCondList"></div>
+        <button class="pa-cond-add" onclick="paAddCond()">+ Add condition</button>
+      </div>
+    </div>
+    <div class="pa-section">
+      <div class="pa-section-hdr">Letter Wording <button class="btn btn-ghost btn-sm" onclick="paResetBody()">↺ Reset</button></div>
+      <div class="pa-section-body" style="display:flex;flex-direction:column;gap:10px">
+        <div class="form-group"><label class="form-label">Opening paragraph</label><textarea class="form-input" rows="3" oninput="paBodyField('intro',this.value)" style="resize:vertical;line-height:1.5;padding-top:6px">${esc(l.body?.intro||PA_DEFAULT_BODY.intro)}</textarea></div>
+        <div class="form-group"><label class="form-label">Conditions lead-in</label><textarea class="form-input" rows="2" oninput="paBodyField('condLead',this.value)" style="resize:vertical;line-height:1.5;padding-top:6px">${esc(l.body?.condLead||PA_DEFAULT_BODY.condLead)}</textarea></div>
+        <div class="form-group"><label class="form-label">After conditions</label><textarea class="form-input" rows="2" oninput="paBodyField('afterCond',this.value)" style="resize:vertical;line-height:1.5;padding-top:6px">${esc(l.body?.afterCond||PA_DEFAULT_BODY.afterCond)}</textarea></div>
+        <div class="form-group"><label class="form-label">Closing paragraph</label><textarea class="form-input" rows="2" oninput="paBodyField('closing',this.value)" style="resize:vertical;line-height:1.5;padding-top:6px">${esc(l.body?.closing||PA_DEFAULT_BODY.closing)}</textarea></div>
+      </div>
+    </div>
+    <div class="pa-actions">
+      <button class="btn" style="background:var(--navy);color:var(--gold);border-color:var(--navy)" onclick="paPrint()">🖨 Print PDF</button>
+      <button class="btn" onclick="paDuplicate()">⧉ Duplicate</button>
+      <button class="btn" onclick="paRename()">✎ Rename</button>
+      <button class="btn" style="color:#a32d2d;border-color:#e9c9c9" onclick="paDelete()">🗑 Delete</button>
+    </div>`;
+  paRenderCalcFields();
+  paRenderCondList();
+}
+
+function paRenderCondList() {
+  const l = paGetActive(); if (!l) return;
+  const el = document.getElementById('paCondList'); if (!el) return;
+  el.innerHTML = (l.conditions||[]).map((c,i) =>
+    `<div class="pa-cond-item"><input value="${esc(c)}" oninput="paEditCond(${i},this.value)"><button class="pa-cond-remove" onclick="paRemoveCond(${i})">×</button></div>`
+  ).join('');
+}
+
+function paField(key, val) {
+  const l = paGetActive(); if (!l) return;
+  l[key] = val; paSave(); paRenderPreview();
+}
+function paBodyField(key, val) {
+  const l = paGetActive(); if (!l) return;
+  if (!l.body) l.body = {...PA_DEFAULT_BODY};
+  l.body[key] = val; paSave(); paRenderPreview();
+}
+function paEditCond(i, val) {
+  const l = paGetActive(); if (!l) return;
+  if (!l.conditions) l.conditions = [];
+  l.conditions[i] = val; paSave(); paRenderPreview();
+}
+function paRemoveCond(i) {
+  const l = paGetActive(); if (!l) return;
+  l.conditions.splice(i,1); paSave(); paRenderCondList(); paRenderPreview();
+}
+function paAddCond() {
+  const l = paGetActive(); if (!l) return;
+  if (!l.conditions) l.conditions = [];
+  l.conditions.push(''); paSave(); paRenderCondList(); paRenderPreview();
+  // Focus the new input
+  setTimeout(() => { const items = document.querySelectorAll('.pa-cond-item input'); if(items.length) items[items.length-1].focus(); }, 50);
+}
+function paResetBody() {
+  const l = paGetActive(); if (!l) return;
+  if (!confirm('Reset letter wording to the standard text?')) return;
+  l.body = {...PA_DEFAULT_BODY}; paSave(); paRenderEditor(); paRenderPreview();
+}
+
+function paRenderPreview() {
+  const el = document.getElementById('paLetterHtml'); if (!el) return;
+  const l = paGetActive();
+  if (!l) { el.innerHTML = ''; return; }
+  const lo = cache.settings?.loanOfficer || {};
+  const oName = lo.name || 'Deric Zaphire';
+  const oTitle = lo.title || 'Loan Officer';
+  const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
+  const logo = cache.logo || '';
+  const co = cache.settings || {};
+  const nmls = co.nmls || '2511614';
+  const logoHtml = logo
+    ? `<img src="${logo}" class="pa-logo-img">`
+    : `<div class="pa-logo-txt">ZAPHIRE<span class="pa-logo-sub">CAPITAL</span></div>`;
+  const addr = ['73 Weed Hill Avenue','Stamford, CT 06907','www.zaphirecapital.com','Phone: 914-509-8066','NMLS# '+nmls];
+  const names = [l.b1, l.b2].filter(Boolean).map(esc).join('<br>');
+  const clientAddr = (l.clientAddr||'').split('\n').map(x=>esc(x.trim())).filter(Boolean).join('<br>');
+  const toBlock = [names, clientAddr].filter(Boolean).join('<br>');
+  const dp = l.downMode==='percent'
+    ? paFmtPct(l.downPct||0) + (l.downDollar?' ('+paFmtMoney(l.downDollar)+')':'') + (l.loanTag?' ('+esc(l.loanTag)+')':'')
+    : paFmtMoney(l.downDollar||0) + (l.loanTag?' ('+esc(l.loanTag)+')':'');
+  const conds = (l.conditions||[]).filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join('');
+  const b = l.body || PA_DEFAULT_BODY;
+  el.innerHTML = `<div class="pa-letter" id="paLetterContent">
+    <div class="pa-lh">
+      <div>${logoHtml}</div>
+      <div class="pa-addr">${addr.map(esc).join('<br>')}</div>
+    </div>
+    <hr>
+    <div style="margin-bottom:8px;font-size:9.5px">${paFmtDate(l.date)}</div>
+    <div style="margin-bottom:10px;font-size:9.5px;line-height:1.5">${toBlock||'&nbsp;'}</div>
+    <p>${esc(b.intro||PA_DEFAULT_BODY.intro)}</p>
+    <div class="pa-tgrid">
+      <div>
+        <div class="pa-grp-h">Property</div>
+        <div class="pa-trow"><span class="pa-tk">Transaction</span><span class="pa-tv">${esc(l.transaction||'Purchase')}</span></div>
+        <div class="pa-trow"><span class="pa-tk">Address</span><span class="pa-tv">${l.propAddr?esc(l.propAddr):'TBD'}</span></div>
+        <div class="pa-trow"><span class="pa-tk">Property type</span><span class="pa-tv">${esc(l.propType||'')}</span></div>
+        <div class="pa-trow"><span class="pa-tk">Occupancy</span><span class="pa-tv">${esc(l.occupancy||'')}</span></div>
+      </div>
+      <div>
+        <div class="pa-grp-h">Financing</div>
+        <div class="pa-trow"><span class="pa-tk">Purchase price</span><span class="pa-tv">${paFmtMoney(l.price||0)}</span></div>
+        <div class="pa-trow"><span class="pa-tk">Loan amount</span><span class="pa-tv">${paFmtMoney(l.loan||0)}</span></div>
+        <div class="pa-trow"><span class="pa-tk">Down payment</span><span class="pa-tv">${dp}</span></div>
+        <div class="pa-trow"><span class="pa-tk">Loan to value</span><span class="pa-tv">${paFmtPct(l.ltv||0)}</span></div>
+      </div>
+    </div>
+    <p>${esc(b.condLead||PA_DEFAULT_BODY.condLead)}</p>
+    <ul>${conds||'<li>&nbsp;</li>'}</ul>
+    <p>${esc(b.afterCond||PA_DEFAULT_BODY.afterCond)}</p>
+    <p>${esc(b.closing||PA_DEFAULT_BODY.closing)}</p>
+    <div class="pa-sig"><p style="margin-bottom:20px">Sincerely,</p><div>${esc(oName)}<br>${esc(oTitle)}<br>NMLS # ${esc(oNmls)}</div></div>
+    <div class="pa-foot">Registered Mortgage Broker &ndash; NYS Department of Financial Services<br>Licensed by the Connecticut Department of Banking</div>
+  </div>`;
+}
+
+function paAddLetter() {
+  const f = paGetFile(); if (!f) return;
+  if (!f.preapprovals) f.preapprovals = [];
+  const num = f.preapprovals.length + 1;
+  const letter = {
+    id: uid(),
+    label: 'Letter ' + num,
+    date: new Date().toISOString().slice(0,10),
+    transaction: 'Purchase',
+    occupancy: 'Primary Residence',
+    propType: 'Single Family Residence',
+    propAddr: f.prop || '',
+    b1: f.b1 || '',
+    b2: f.b2 || '',
+    clientAddr: '',
+    price: 0, loan: 0, ltv: 0,
+    downMode: 'percent', downPct: 20, downDollar: 0,
+    loanTag: f.loanType || '',
+    conditions: [...PA_DEFAULT_CONDITIONS],
+    body: {...PA_DEFAULT_BODY},
+    _prefilled: !!(f.b1 || f.prop),
+  };
+  // Auto-calc if price was in file
+  if (f.pp) { letter.price = parseFloat(f.pp)||0; }
+  if (f.la) { letter.loan = parseFloat(f.la)||0; if(letter.price>0) letter.ltv = letter.loan/letter.price*100; }
+  f.preapprovals.push(letter);
+  paActiveId = letter.id;
+  paSave();
+  paRenderSidebar();
+  paRenderEditor();
+  paRenderPreview();
+}
+
+function paSelectLetter(id) {
+  paActiveId = id;
+  paRenderSidebar();
+  paRenderEditor();
+  paRenderPreview();
+}
+
+function paDuplicate() {
+  const l = paGetActive(); if (!l) return;
+  const f = paGetFile(); if (!f) return;
+  const copy = JSON.parse(JSON.stringify(l));
+  copy.id = uid();
+  copy.label = (l.label||'Letter') + ' (Copy)';
+  f.preapprovals.push(copy);
+  paActiveId = copy.id;
+  paSave();
+  paRenderSidebar();
+  paRenderEditor();
+  paRenderPreview();
+  toast('Letter duplicated');
+}
+
+function paRename() {
+  const l = paGetActive(); if (!l) return;
+  const name = prompt('Rename letter:', l.label||'');
+  if (name === null) return;
+  l.label = name.trim() || l.label;
+  paSave();
+  paRenderSidebar();
+}
+
+function paDelete() {
+  const l = paGetActive(); if (!l) return;
+  if (!confirm('Delete this pre-approval letter?')) return;
+  const f = paGetFile(); if (!f) return;
+  f.preapprovals = f.preapprovals.filter(x => x.id !== paActiveId);
+  paActiveId = f.preapprovals.length ? f.preapprovals[f.preapprovals.length-1].id : null;
+  paSave();
+  paRenderSidebar();
+  paRenderEditor();
+  paRenderPreview();
+  toast('Letter deleted');
+}
+
+function paPrint() {
+  const letterEl = document.getElementById('paLetterContent');
+  if (!letterEl) { toast('No letter to print'); return; }
+  const logo = cache.logo || '';
+  const printHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><\style>
+    @page{size:letter portrait;margin:.6in .65in}
+    @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Times New Roman',Georgia,serif;font-size:11px;line-height:1.5;color:#000;background:#fff}
+    .pa-lh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+    .pa-logo-txt{font-weight:800;font-size:20px;letter-spacing:2px;color:#1c2b4a;font-family:Arial,sans-serif;line-height:1}
+    .pa-logo-sub{font-size:8px;letter-spacing:4px;color:#6b6b66;display:block;margin-top:1px}
+    .pa-logo-img{max-height:56px;max-width:200px;object-fit:contain}
+    .pa-addr{text-align:right;font-size:9px;line-height:1.5;color:#333}
+    hr{border:none;border-top:1px solid #000;margin:6px 0 18px}
+    p{margin:0 0 12px;font-size:11px}
+    .pa-tgrid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:14px 0}
+    .pa-grp-h{font-family:Arial,sans-serif;font-size:8.5px;letter-spacing:.6px;text-transform:uppercase;color:#444;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:4px}
+    .pa-trow{display:flex;justify-content:space-between;gap:8px;padding:4px 1px;border-bottom:.5px solid #d8d5cc}
+    .pa-trow:last-child{border-bottom:none}
+    .pa-tk{color:#555;white-space:nowrap;font-size:10px}
+    .pa-tv{font-weight:700;text-align:right;font-size:10px}
+    ul{margin:6px 0 14px;padding-left:20px}
+    li{margin-bottom:3px;font-size:11px}
+    .pa-sig{margin-top:36px;font-size:11px}
+    .pa-foot{margin-top:44px;font-size:8.5px;border-top:1px solid #ccc;padding-top:6px;line-height:1.5;color:#555}
+  <\/style></head><body>
+  ${letterEl.outerHTML.replace(/class="pa-letter"/,'style="width:100%"')}
+  </body></html>`;
+  const pw = window.open('','_blank','width=900,height:1100');
+  if (!pw) { alert('Allow popups to print.'); return; }
+  pw.document.write(printHTML); pw.document.close();
+  pw.onload = () => { pw.focus(); pw.print(); };
+}
 const CD_ROLES = [
   {key:'closingAgent', label:'Closing Agent / Escrow Officer'},
   {key:'titleCompany', label:'Title Company'},
@@ -4043,52 +4533,26 @@ function cdDelete(id) {
 
 function cdOpenModal(id) {
   const existing = id ? (cache.contactDir||[]).find(c=>c.id===id) : null;
-  const v = f => esc(existing?.[f]||'');
-  const roleChecks = CD_ROLES.map(r=>`
-    <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;padding:3px 0">
+  document.getElementById('cdModalTitle').textContent = id ? 'Edit Contact' : 'Add Contact';
+  // Store editing id
+  document.getElementById('cdModal').dataset.editId = id || '';
+  // Populate fields
+  ['contactName','companyName','phone','email','address','city','state','zip','compLicense','contactLicense'].forEach(f => {
+    const el = document.getElementById('cd_'+f);
+    if (el) el.value = existing?.[f] || '';
+  });
+  // Render role checkboxes
+  document.getElementById('cdRoleChecks').innerHTML = CD_ROLES.map(r =>
+    `<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;padding:3px 0">
       <input type="checkbox" id="cdRole_${r.key}" ${(existing?.roles||[]).includes(r.key)?'checked':''} style="width:14px;height:14px;accent-color:var(--gold)">
       ${esc(r.label)}
-    </label>`).join('');
-  const html = `<div class="modal-overlay" id="cdModal" onclick="if(event.target.id==='cdModal')closeCdModal()">
-    <div class="modal-box" style="max-width:580px;width:95%">
-      <div class="modal-header">
-        <div class="modal-title">${id?'Edit Contact':'Add Contact'}</div>
-        <button class="modal-close" onclick="closeCdModal()">✕</button>
-      </div>
-      <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="form-group"><label class="form-label">Contact Name</label><input class="form-input" id="cd_contactName" value="${v('contactName')}" placeholder="Maria Gonzalez"></div>
-          <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="cd_companyName" value="${v('companyName')}" placeholder="Riverside Title Co."></div>
-          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="cd_phone" value="${v('phone')}" placeholder="(203) 555-0000"></div>
-          <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cd_email" value="${v('email')}" placeholder="name@company.com"></div>
-          <div class="form-group" style="grid-column:1/-1"><label class="form-label">Address</label><input class="form-input" id="cd_address" value="${v('address')}" placeholder="221 Harbor Blvd"></div>
-          <div class="form-group"><label class="form-label">City</label><input class="form-input" id="cd_city" value="${v('city')}" placeholder="Stamford"></div>
-          <div class="form-group" style="grid-template-columns:.4fr 1fr;display:grid;gap:8px">
-            <div class="form-group"><label class="form-label">State</label><input class="form-input" id="cd_state" value="${v('state')}" placeholder="CT" maxlength="2"></div>
-            <div class="form-group"><label class="form-label">Zip</label><input class="form-input" id="cd_zip" value="${v('zip')}" placeholder="06901"></div>
-          </div>
-          <div class="form-group"><label class="form-label">Company License #</label><input class="form-input" id="cd_compLicense" value="${v('compLicense')}" placeholder="TCL-00482"></div>
-          <div class="form-group"><label class="form-label">Contact License #</label><input class="form-input" id="cd_contactLicense" value="${v('contactLicense')}" placeholder="Optional"></div>
-        </div>
-        <div>
-          <div class="form-label" style="margin-bottom:8px">Roles (select all that apply)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">${roleChecks}</div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeCdModal()">Cancel</button>
-        <button class="btn btn-gold" onclick="cdSaveModal('${id||''}')">Save Contact</button>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', html);
+    </label>`
+  ).join('');
+  openModal('cdModal');
 }
 
-function closeCdModal() {
-  document.getElementById('cdModal')?.remove();
-}
-
-function cdSaveModal(id) {
+function cdSaveModal() {
+  const id = document.getElementById('cdModal').dataset.editId || '';
   const g = i => document.getElementById(i)?.value.trim()||'';
   const roles = CD_ROLES.map(r=>r.key).filter(k=>document.getElementById('cdRole_'+k)?.checked);
   const contact = {
@@ -4114,9 +4578,9 @@ function cdSaveModal(id) {
     cache.contactDir.push(contact);
   }
   cdSave();
-  closeCdModal();
+  closeModal('cdModal');
   cdRender();
-  toast(id?'Contact updated':'Contact added');
+  toast(id ? 'Contact updated' : 'Contact added');
 }
 const TPC_SECTIONS = [
   {key:'closingAgent',title:'Closing Agent / Escrow Officer',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Contact's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
@@ -6809,6 +7273,33 @@ function printDocChecklist() {
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-gold" onclick="saveLenderQueues()">Done</button></div>
+  </div>
+</div>
+<!-- CONTACT DIRECTORY MODAL -->
+<div class="modal-overlay" id="cdModal">
+  <div class="modal" style="max-width:580px;width:95%">
+    <div class="modal-header"><div class="modal-title" id="cdModalTitle">Add Contact</div><button class="btn btn-ghost" onclick="closeModal('cdModal')" style="padding:6px 8px;font-size:18px">✕</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group"><label class="form-label">Contact Name</label><input class="form-input" id="cd_contactName" placeholder="Maria Gonzalez"></div>
+        <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="cd_companyName" placeholder="Riverside Title Co."></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="cd_phone" placeholder="(203) 555-0000"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cd_email" placeholder="name@company.com"></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Address</label><input class="form-input" id="cd_address" placeholder="221 Harbor Blvd"></div>
+        <div class="form-group"><label class="form-label">City</label><input class="form-input" id="cd_city" placeholder="Stamford"></div>
+        <div style="display:grid;grid-template-columns:.5fr 1fr;gap:8px">
+          <div class="form-group"><label class="form-label">State</label><input class="form-input" id="cd_state" placeholder="CT" maxlength="2"></div>
+          <div class="form-group"><label class="form-label">Zip</label><input class="form-input" id="cd_zip" placeholder="06901"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Company License #</label><input class="form-input" id="cd_compLicense" placeholder="Optional"></div>
+        <div class="form-group"><label class="form-label">Contact License #</label><input class="form-input" id="cd_contactLicense" placeholder="Optional"></div>
+      </div>
+      <div>
+        <div class="form-label" style="margin-bottom:8px">Roles (select all that apply)</div>
+        <div id="cdRoleChecks" style="display:grid;grid-template-columns:1fr 1fr;gap:4px"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('cdModal')">Cancel</button><button class="btn btn-gold" onclick="cdSaveModal()">Save Contact</button></div>
   </div>
 </div>
 <!-- RATE LOCK MODAL -->
