@@ -584,7 +584,45 @@ input[type=file]{display:none}
   .qual-program-name{font-size:13px;font-weight:600;color:var(--navy);flex:1}
   .qual-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
   .wb{font-weight:700}
-  /* ── 3rd Party Contacts Tab ── */
+  /* ── Contact Directory Page ── */
+  .cd-body{display:flex;flex-direction:column;height:100%;overflow:hidden}
+  .cd-filter-bar{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--cream);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+  .cd-search-wrap{position:relative;flex:1;min-width:180px}
+  .cd-search-wrap input{width:100%;padding:6px 10px 6px 32px;border:1.5px solid var(--border-strong);border-radius:8px;font-family:var(--font-body);font-size:13px;background:var(--white);color:var(--navy);outline:none}
+  .cd-search-wrap input:focus{border-color:var(--gold)}
+  .cd-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--slate-light);pointer-events:none}
+  .cd-grid{flex:1;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;align-content:start}
+  .cd-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+  .cd-card-hdr{padding:10px 13px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+  .cd-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gold);flex-shrink:0}
+  .cd-name{font-size:13px;font-weight:600;color:var(--navy);line-height:1.2}
+  .cd-company{font-size:11.5px;color:var(--slate-light);margin-top:1px}
+  .cd-body-rows{padding:9px 13px;display:flex;flex-direction:column;gap:5px}
+  .cd-det{font-size:11.5px;color:var(--slate);display:flex;align-items:flex-start;gap:5px;line-height:1.4}
+  .cd-det-icon{font-size:11px;width:15px;text-align:center;flex-shrink:0;margin-top:1px}
+  .cd-roles{display:flex;flex-wrap:wrap;gap:4px;padding:7px 13px;border-top:1px solid var(--border)}
+  .cd-role-tag{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;background:var(--gold-pale);color:#7b5c12;cursor:default}
+  .cd-actions{display:flex;gap:6px;padding:7px 13px;border-top:1px solid var(--border);background:#faf9f7}
+  .cd-add-card{background:var(--white);border:2px dashed var(--border-strong);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:28px 20px;cursor:pointer;color:var(--slate-light);transition:border-color .15s,background .15s;min-height:180px}
+  .cd-add-card:hover{border-color:var(--gold);background:#fffdf7;color:var(--navy)}
+
+  /* ── Contact Picker inside TPC cards ── */
+  .tpc-picker-row{padding:7px 12px;background:#f8f6f2;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+  .tpc-picker-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
+  .tpc-picker-input-row{display:flex;gap:6px;align-items:center;position:relative}
+  .tpc-picker-wrap{position:relative;flex:1}
+  .tpc-picker-wrap input{width:100%;padding:5px 8px 5px 27px;border:1.5px solid var(--border-strong);border-radius:6px;font-family:var(--font-body);font-size:12px;background:var(--white);color:var(--navy);outline:none}
+  .tpc-picker-wrap input:focus{border-color:var(--gold)}
+  .tpc-picker-icon{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--slate-light);pointer-events:none}
+  .tpc-picker-dd{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--white);border:1.5px solid var(--gold);border-radius:8px;box-shadow:0 4px 18px rgba(10,22,40,.15);z-index:200;max-height:200px;overflow-y:auto}
+  .tpc-dd-item{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid var(--border)}
+  .tpc-dd-item:last-child{border-bottom:none}
+  .tpc-dd-item:hover{background:#fffdf7}
+  .tpc-dd-avatar{width:26px;height:26px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0}
+  .tpc-dd-name{font-size:12px;font-weight:600;color:var(--navy);line-height:1.2}
+  .tpc-dd-sub{font-size:10.5px;color:var(--slate-light)}
+  .tpc-dd-role{margin-left:auto;padding:1px 7px;border-radius:10px;font-size:9.5px;font-weight:600;background:var(--gold-pale);color:#7b5c12;flex-shrink:0}
+  .tpc-dd-empty{padding:10px;text-align:center;font-size:12px;color:var(--slate-light)}
   .tpc-body{padding:20px}
   .tpc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .tpc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(10,22,40,.06)}
@@ -772,6 +810,7 @@ input[type=file]{display:none}
       <div class="nav-section-label" style="margin-top:12px">Admin</div>
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"></span>Settings</button>
       <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
+      <button class="nav-item" onclick="showPage('contacts')"><span class="nav-icon"></span>Contacts</button>
       <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon"></span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon"></span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
@@ -1287,6 +1326,26 @@ input[type=file]{display:none}
         </div>
       </div>
     </div>
+    <!-- CONTACTS DIRECTORY -->
+    <div class="page" id="page-contacts">
+      <div class="cd-body">
+        <div class="cd-filter-bar">
+          <div class="cd-search-wrap">
+            <span class="cd-search-icon">🔍</span>
+            <input type="text" id="cdSearch" placeholder="Search contacts by name, company, or phone…" oninput="cdRender()">
+          </div>
+          <button class="filter-btn active" id="cdChipAll" onclick="cdSetFilter('',this)">All</button>
+          <button class="filter-btn" onclick="cdSetFilter('closingAgent',this)">Closing Agent</button>
+          <button class="filter-btn" onclick="cdSetFilter('titleCompany',this)">Title</button>
+          <button class="filter-btn" onclick="cdSetFilter('insurance',this)">Insurance</button>
+          <button class="filter-btn" onclick="cdSetFilter('sellingAgent',this)">Selling Agent</button>
+          <button class="filter-btn" onclick="cdSetFilter('listingAgent',this)">Listing Agent</button>
+          <button class="filter-btn" onclick="cdSetFilter('appraiser',this)">Appraiser</button>
+          <button class="filter-btn" onclick="cdSetFilter('hoa',this)">HOA</button>
+        </div>
+        <div class="cd-grid" id="cdGrid"></div>
+      </div>
+    </div>
     <!-- IMPORTANT DATES -->
     <div class="page" id="page-dates">
       <div id="nextUpBanner"></div>
@@ -1663,6 +1722,8 @@ async function syncFromCloud() {
     if (dates) cache.dates = dates;
     const lenders = await sbGet('lenders');
     if (lenders) cache.lenders = lenders;
+    const contactDir = await sbGet('contactDir');
+    if (contactDir) cache.contactDir = contactDir;
     const docs = await sbGet('docs');
     if (docs) cache.docs = docs;
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
@@ -1698,6 +1759,7 @@ async function syncToCloud() {
       sbSet('trash', cache.trash),
       sbSet('dates', cache.dates || []),
       sbSet('lenders', cache.lenders || []),
+      sbSet('contactDir', cache.contactDir || []),
       sbSet('docs', cache.docs || {})
     ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
@@ -1894,7 +1956,7 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory'};
+  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory',contacts:'Contact Directory'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
   const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:4,lenders:5,dates:6,trash:7};
@@ -1928,6 +1990,11 @@ function showPage(page, fid) {
   if (page === 'trash') renderTrash();
   if (page === 'dates') renderDates();
   if (page === 'lenders') renderLenderList();
+  if (page === 'contacts') cdRender();
+  // Topbar action button
+  const actions = document.getElementById('topbarActions');
+  if (page === 'contacts') actions.innerHTML = '<button class="btn btn-gold" onclick="cdOpenModal()">+ Add Contact</button>';
+  else if (page !== 'filedetail') actions.innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
 }
 
 function switchTab(tab, btn) {
@@ -3887,8 +3954,170 @@ async function permanentDelete(fid) {
 }
 
 // ═══════════════════════════════════════════════
-//  3RD PARTY CONTACTS
+//  CONTACT DIRECTORY
 // ═══════════════════════════════════════════════
+const CD_ROLES = [
+  {key:'closingAgent', label:'Closing Agent / Escrow Officer'},
+  {key:'titleCompany', label:'Title Company'},
+  {key:'insurance',    label:'Insurance'},
+  {key:'sellingAgent', label:'Selling Agent'},
+  {key:'listingAgent', label:'Listing Agent'},
+  {key:'appraiser',   label:'Appraiser'},
+  {key:'hoa',         label:'HOA'},
+];
+let cdFilterRole = '';
+
+function cdGetAll() { return cache.contactDir || []; }
+
+function cdSave() { debouncedSave(); }
+
+function cdSetFilter(role, btn) {
+  cdFilterRole = role;
+  document.querySelectorAll('.cd-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  cdRender();
+}
+
+function cdInitials(name) {
+  return (name||'').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase() || '?';
+}
+
+function cdAvatarColor(name) {
+  const colors = ['#0a1628','#1e3a6b','#2d6a4f','#4a5568','#7b3f00','#1e5fa8','#2d3748'];
+  let h = 0; for (const c of name||'') h = (h*31 + c.charCodeAt(0)) % colors.length;
+  return colors[h];
+}
+
+function cdRender() {
+  const grid = document.getElementById('cdGrid');
+  if (!grid) return;
+  const q = (document.getElementById('cdSearch')?.value||'').toLowerCase();
+  let contacts = cdGetAll();
+  if (cdFilterRole) contacts = contacts.filter(c => (c.roles||[]).includes(cdFilterRole));
+  if (q) contacts = contacts.filter(c =>
+    (c.contactName||'').toLowerCase().includes(q) ||
+    (c.companyName||'').toLowerCase().includes(q) ||
+    (c.phone||'').toLowerCase().includes(q) ||
+    (c.email||'').toLowerCase().includes(q)
+  );
+  const roleLabels = Object.fromEntries(CD_ROLES.map(r=>[r.key,r.label]));
+  grid.innerHTML = contacts.map(c => {
+    const initials = cdInitials(c.contactName||c.companyName);
+    const bg = cdAvatarColor(c.contactName||c.companyName);
+    const roles = (c.roles||[]).map(r=>`<span class="cd-role-tag">${esc(roleLabels[r]||r)}</span>`).join('');
+    return `<div class="cd-card">
+      <div class="cd-card-hdr">
+        <div class="cd-avatar" style="background:${bg}">${initials}</div>
+        <div>
+          <div class="cd-name">${esc(c.contactName||'—')}</div>
+          <div class="cd-company">${esc(c.companyName||'')}</div>
+        </div>
+      </div>
+      <div class="cd-body-rows">
+        ${c.phone?`<div class="cd-det"><span class="cd-det-icon">📞</span>${esc(c.phone)}</div>`:''}
+        ${c.email?`<div class="cd-det"><span class="cd-det-icon">✉️</span>${esc(c.email)}</div>`:''}
+        ${c.address?`<div class="cd-det"><span class="cd-det-icon">📍</span>${esc(c.address)}${c.city?', '+esc(c.city):''}${c.state?' '+esc(c.state):''}${c.zip?' '+esc(c.zip):''}</div>`:''}
+        ${c.compLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span>${esc(c.compLicense)}</div>`:''}
+        ${c.contactLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span>${esc(c.contactLicense)}</div>`:''}
+      </div>
+      ${roles?`<div class="cd-roles">${roles}</div>`:''}
+      <div class="cd-actions">
+        <button class="btn btn-outline btn-sm" onclick="cdOpenModal('${c.id}')">Edit</button>
+        <button class="btn btn-sm" style="color:var(--slate-light);background:none;border:none;cursor:pointer;font-size:11px" onclick="cdDelete('${c.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join('') + `<div class="cd-add-card" onclick="cdOpenModal()">
+    <div style="font-size:24px;opacity:.35">＋</div>
+    <div style="font-size:13px;font-weight:500">Add Contact</div>
+    <div style="font-size:11.5px;color:var(--slate-light);text-align:center;margin-top:3px;line-height:1.5">Save a regular contact<br>to use across all files</div>
+  </div>`;
+}
+
+function cdDelete(id) {
+  if (!confirm('Delete this contact from the directory?')) return;
+  cache.contactDir = (cache.contactDir||[]).filter(c=>c.id!==id);
+  cdSave();
+  cdRender();
+  toast('Contact deleted');
+}
+
+function cdOpenModal(id) {
+  const existing = id ? (cache.contactDir||[]).find(c=>c.id===id) : null;
+  const v = f => esc(existing?.[f]||'');
+  const roleChecks = CD_ROLES.map(r=>`
+    <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;padding:3px 0">
+      <input type="checkbox" id="cdRole_${r.key}" ${(existing?.roles||[]).includes(r.key)?'checked':''} style="width:14px;height:14px;accent-color:var(--gold)">
+      ${esc(r.label)}
+    </label>`).join('');
+  const html = `<div class="modal-overlay" id="cdModal" onclick="if(event.target.id==='cdModal')closeCdModal()">
+    <div class="modal-box" style="max-width:580px;width:95%">
+      <div class="modal-header">
+        <div class="modal-title">${id?'Edit Contact':'Add Contact'}</div>
+        <button class="modal-close" onclick="closeCdModal()">✕</button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group"><label class="form-label">Contact Name</label><input class="form-input" id="cd_contactName" value="${v('contactName')}" placeholder="Maria Gonzalez"></div>
+          <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="cd_companyName" value="${v('companyName')}" placeholder="Riverside Title Co."></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="cd_phone" value="${v('phone')}" placeholder="(203) 555-0000"></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cd_email" value="${v('email')}" placeholder="name@company.com"></div>
+          <div class="form-group" style="grid-column:1/-1"><label class="form-label">Address</label><input class="form-input" id="cd_address" value="${v('address')}" placeholder="221 Harbor Blvd"></div>
+          <div class="form-group"><label class="form-label">City</label><input class="form-input" id="cd_city" value="${v('city')}" placeholder="Stamford"></div>
+          <div class="form-group" style="grid-template-columns:.4fr 1fr;display:grid;gap:8px">
+            <div class="form-group"><label class="form-label">State</label><input class="form-input" id="cd_state" value="${v('state')}" placeholder="CT" maxlength="2"></div>
+            <div class="form-group"><label class="form-label">Zip</label><input class="form-input" id="cd_zip" value="${v('zip')}" placeholder="06901"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Company License #</label><input class="form-input" id="cd_compLicense" value="${v('compLicense')}" placeholder="TCL-00482"></div>
+          <div class="form-group"><label class="form-label">Contact License #</label><input class="form-input" id="cd_contactLicense" value="${v('contactLicense')}" placeholder="Optional"></div>
+        </div>
+        <div>
+          <div class="form-label" style="margin-bottom:8px">Roles (select all that apply)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">${roleChecks}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeCdModal()">Cancel</button>
+        <button class="btn btn-gold" onclick="cdSaveModal('${id||''}')">Save Contact</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeCdModal() {
+  document.getElementById('cdModal')?.remove();
+}
+
+function cdSaveModal(id) {
+  const g = i => document.getElementById(i)?.value.trim()||'';
+  const roles = CD_ROLES.map(r=>r.key).filter(k=>document.getElementById('cdRole_'+k)?.checked);
+  const contact = {
+    id: id || uid(),
+    contactName: g('cd_contactName'),
+    companyName: g('cd_companyName'),
+    phone: g('cd_phone'),
+    email: g('cd_email'),
+    address: g('cd_address'),
+    city: g('cd_city'),
+    state: g('cd_state'),
+    zip: g('cd_zip'),
+    compLicense: g('cd_compLicense'),
+    contactLicense: g('cd_contactLicense'),
+    roles,
+  };
+  if (!contact.contactName && !contact.companyName) { toast('Please enter a name or company','error'); return; }
+  if (!cache.contactDir) cache.contactDir = [];
+  if (id) {
+    const idx = cache.contactDir.findIndex(c=>c.id===id);
+    if (idx>=0) cache.contactDir[idx] = contact; else cache.contactDir.push(contact);
+  } else {
+    cache.contactDir.push(contact);
+  }
+  cdSave();
+  closeCdModal();
+  cdRender();
+  toast(id?'Contact updated':'Contact added');
+}
 const TPC_SECTIONS = [
   {key:'closingAgent',title:'Closing Agent / Escrow Officer',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Contact's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
   {key:'titleCompany',title:'Title Company',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Title Officer Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Title Officer's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
@@ -3953,7 +4182,25 @@ function tpcInit() {
         i++;
       }
     }
-    return`<div class="tpc-card${sec.full?' tpc-card-full':''}"><div class="tpc-card-hdr"><div class="tpc-card-title">${esc(sec.title)}</div>${chip}</div><div class="tpc-card-body">${rows}</div></div>`;
+    return`<div class="tpc-card${sec.full?' tpc-card-full':''}">
+      <div class="tpc-card-hdr"><div class="tpc-card-title">${esc(sec.title)}</div>${chip}</div>
+      <div class="tpc-picker-row">
+        <div class="tpc-picker-label">Fill from directory</div>
+        <div class="tpc-picker-input-row">
+          <div class="tpc-picker-wrap">
+            <span class="tpc-picker-icon">🔍</span>
+            <input type="text" placeholder="Search contacts…" autocomplete="off"
+              oninput="cdPickerSearch(this,'${sec.key}')"
+              onfocus="cdPickerSearch(this,'${sec.key}')"
+              onblur="setTimeout(()=>cdPickerClose('${sec.key}'),180)"
+              id="tpcPicker_${sec.key}">
+          </div>
+          <button class="btn btn-outline btn-sm" style="font-size:11px;flex-shrink:0" onclick="cdPickerClear('${sec.key}')">Clear</button>
+        </div>
+        <div class="tpc-picker-dd" id="tpcDd_${sec.key}" style="display:none"></div>
+      </div>
+      <div class="tpc-card-body">${rows}</div>
+    </div>`;
   }).join('');
 }
 function tpcClear() {
@@ -3963,6 +4210,79 @@ function tpcClear() {
   f.thirdPartyContacts={};
   debouncedSave();
   tpcInit();
+}
+
+// ── Contact Directory picker for TPC cards ──
+function cdPickerSearch(input, secKey) {
+  const q = input.value.toLowerCase();
+  const dd = document.getElementById('tpcDd_' + secKey);
+  if (!dd) return;
+  const contacts = (cache.contactDir||[]).filter(c =>
+    (c.roles||[]).includes(secKey) &&
+    (!q ||
+      (c.contactName||'').toLowerCase().includes(q) ||
+      (c.companyName||'').toLowerCase().includes(q) ||
+      (c.phone||'').toLowerCase().includes(q))
+  );
+  if (!contacts.length) {
+    dd.innerHTML = `<div class="tpc-dd-empty">No matching contacts${q?'':' for this category'} — <span style="color:var(--gold);cursor:pointer" onclick="cdOpenModal()">Add one</span></div>`;
+  } else {
+    dd.innerHTML = contacts.map(c => {
+      const initials = (c.contactName||c.companyName||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+      return `<div class="tpc-dd-item" onmousedown="cdPickerFill('${secKey}','${c.id}')">
+        <div class="tpc-dd-avatar">${initials}</div>
+        <div>
+          <div class="tpc-dd-name">${esc(c.contactName||c.companyName)}</div>
+          <div class="tpc-dd-sub">${esc(c.companyName||'')}${c.phone?' · '+esc(c.phone):''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  dd.style.display = '';
+}
+
+function cdPickerFill(secKey, contactId) {
+  const c = (cache.contactDir||[]).find(x=>x.id===contactId);
+  if (!c) return;
+  // Set the picker input label
+  const input = document.getElementById('tpcPicker_' + secKey);
+  if (input) input.value = [c.contactName, c.companyName].filter(Boolean).join(' — ');
+  cdPickerClose(secKey);
+  // Fill all matching TPC fields
+  const fieldMap = {
+    companyName: c.companyName, contactName: c.contactName,
+    address: c.address, city: c.city, state: c.state, zip: c.zip,
+    compLicense: c.compLicense, contactLicense: c.contactLicense,
+    email: c.email, phone: c.phone,
+  };
+  Object.entries(fieldMap).forEach(([k, val]) => {
+    const el = document.getElementById(`tpc_${secKey}_${k}`);
+    if (el && val !== undefined) el.value = val || '';
+  });
+  tpcSave();
+  // Refresh chip status
+  const chip = document.querySelector(`#tpcDd_${secKey}`)?.closest('.tpc-card')?.querySelector('.tpc-chip,.tpc-chip-done,.tpc-chip-part,.tpc-chip-empty');
+  tpcInit(); // full re-render to update chips
+}
+
+function cdPickerClear(secKey) {
+  const input = document.getElementById('tpcPicker_' + secKey);
+  if (input) input.value = '';
+  cdPickerClose(secKey);
+  // Clear all fields in this card
+  const sec = TPC_SECTIONS.find(s=>s.key===secKey);
+  if (!sec) return;
+  sec.fields.forEach(f => {
+    const el = document.getElementById(`tpc_${secKey}_${f.key}`);
+    if (el) el.value = '';
+  });
+  tpcSave();
+  tpcInit();
+}
+
+function cdPickerClose(secKey) {
+  const dd = document.getElementById('tpcDd_' + secKey);
+  if (dd) dd.style.display = 'none';
 }
 function tpcPrint() {
   const data=tpcGetData();
