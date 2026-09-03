@@ -4229,6 +4229,23 @@ function paRenderEditor() {
         <div class="form-group"><label class="form-label">Closing paragraph</label><textarea class="form-input" rows="2" oninput="paBodyField('closing',this.value)" style="resize:vertical;line-height:1.5;padding-top:6px">${esc(l.body?.closing||PA_DEFAULT_BODY.closing)}</textarea></div>
       </div>
     </div>
+    <div class="pa-section">
+      <div class="pa-section-hdr">Print Options</div>
+      <div class="pa-section-body">
+        <div class="form-group">
+          <label class="form-label">Logo size on printout</label>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+            <input type="range" id="pa_logoSize" min="40" max="160" step="5"
+              value="${l.logoSize||80}"
+              oninput="paField('logoSize',+this.value);document.getElementById('pa_logoSizeVal').textContent=this.value+'px'"
+              style="flex:1;accent-color:var(--gold)">
+            <span id="pa_logoSizeVal" style="font-size:12px;font-weight:600;color:var(--navy);min-width:38px">${l.logoSize||80}px</span>
+            <button class="btn btn-ghost btn-sm" onclick="paField('logoSize',80);document.getElementById('pa_logoSize').value=80;document.getElementById('pa_logoSizeVal').textContent='80px';paRenderPreview()">Reset</button>
+          </div>
+          <div style="font-size:11px;color:var(--slate-light);margin-top:4px">Drag to resize — preview updates live</div>
+        </div>
+      </div>
+    </div>
     <div class="pa-actions">
       <button class="btn" style="background:var(--navy);color:var(--gold);border-color:var(--navy)" onclick="paPrint()">🖨 Print PDF</button>
       <button class="btn" onclick="paDuplicate()">⧉ Duplicate</button>
@@ -4289,9 +4306,10 @@ function paRenderPreview() {
   const logo = cache.logo || '';
   const co = cache.settings || {};
   const nmls = co.nmls || '2511614';
+  const logoSize = l.logoSize || 80;
   const logoHtml = logo
-    ? `<img src="${logo}" class="pa-logo-img">`
-    : `<div class="pa-logo-txt">ZAPHIRE<span class="pa-logo-sub">CAPITAL</span></div>`;
+    ? `<img src="${logo}" style="max-height:${logoSize}px;max-width:${logoSize*3}px;object-fit:contain;display:block">`
+    : `<div style="font-weight:800;font-size:${Math.round(logoSize*0.35)}px;letter-spacing:2px;color:#1c2b4a;font-family:Arial,sans-serif;line-height:1">ZAPHIRE<span style="font-size:${Math.round(logoSize*0.18)}px;letter-spacing:4px;color:#6b6b66;display:block;margin-top:2px">CAPITAL</span></div>`;
   const addr = ['73 Weed Hill Avenue','Stamford, CT 06907','www.zaphirecapital.com','Phone: 914-509-8066','NMLS# '+nmls];
   const names = [l.b1, l.b2].filter(Boolean).map(esc).join('<br>');
   const clientAddr = (l.clientAddr||'').split('\n').map(x=>esc(x.trim())).filter(Boolean).join('<br>');
@@ -4302,7 +4320,7 @@ function paRenderPreview() {
   const conds = (l.conditions||[]).filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join('');
   const b = l.body || PA_DEFAULT_BODY;
   el.innerHTML = `<div class="pa-letter" id="paLetterContent">
-    <div class="pa-lh">
+    <div class="pa-lh" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div>${logoHtml}</div>
       <div class="pa-addr">${addr.map(esc).join('<br>')}</div>
     </div>
@@ -4415,16 +4433,14 @@ function paDelete() {
 function paPrint() {
   const letterEl = document.getElementById('paLetterContent');
   if (!letterEl) { toast('No letter to print'); return; }
-  const logo = cache.logo || '';
+  const l = paGetActive();
+  const logoSize = l?.logoSize || 80;
   const printHTML = `<!DOCTYPE html><html><head><meta charset="UTF-8"><\style>
     @page{size:letter portrait;margin:.6in .65in}
     @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Times New Roman',Georgia,serif;font-size:11px;line-height:1.5;color:#000;background:#fff}
-    .pa-lh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
-    .pa-logo-txt{font-weight:800;font-size:20px;letter-spacing:2px;color:#1c2b4a;font-family:Arial,sans-serif;line-height:1}
-    .pa-logo-sub{font-size:8px;letter-spacing:4px;color:#6b6b66;display:block;margin-top:1px}
-    .pa-logo-img{max-height:90px;max-width:280px;object-fit:contain}
+    .pa-lh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
     .pa-addr{text-align:right;font-size:9px;line-height:1.5;color:#333}
     hr{border:none;border-top:1px solid #000;margin:6px 0 18px}
     p{margin:0 0 12px;font-size:11px}
@@ -4438,10 +4454,11 @@ function paPrint() {
     li{margin-bottom:3px;font-size:11px}
     .pa-sig{margin-top:36px;font-size:11px}
     .pa-foot{margin-top:44px;font-size:8.5px;border-top:1px solid #ccc;padding-top:6px;line-height:1.5;color:#555}
+    img{max-height:${logoSize}pt;max-width:${logoSize*3}pt;object-fit:contain;display:block}
   <\/style></head><body>
   ${letterEl.outerHTML.replace(/class="pa-letter"/,'style="width:100%"')}
   </body></html>`;
-  const pw = window.open('','_blank','width=900,height:1100');
+  const pw = window.open('','_blank','width=900,height=1100');
   if (!pw) { alert('Allow popups to print.'); return; }
   pw.document.write(printHTML); pw.document.close();
   pw.onload = () => { pw.focus(); pw.print(); };
