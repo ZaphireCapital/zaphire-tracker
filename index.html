@@ -1315,6 +1315,17 @@ input[type=file]{display:none}
         </div>
       </div>
       <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Contact Directory Roles</div></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Define the roles available when adding contacts to the directory. The 7 default roles (Closing Agent, Title, etc.) are always included — add any others you need.</p>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:var(--shadow);max-width:680px">
+        <div id="cdRolesList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <input class="form-input" type="text" id="cdRoleNewInput" placeholder="e.g. Inspector, Attorney, Surveyor…" style="flex:1" onkeydown="if(event.key==='Enter')cdAddCustomRole()">
+          <button class="btn btn-gold" onclick="cdAddCustomRole()">Add Role</button>
+        </div>
+        <p style="font-size:11.5px;color:var(--slate-light);margin-top:8px;line-height:1.5">Default roles (Closing Agent, Title, Insurance, Selling Agent, Listing Agent, Appraiser, HOA) are always available and cannot be removed.</p>
+      </div>
+      <div class="divider"></div>
       <div class="section-header"><div class="section-title">Document Checklist Print Settings</div></div>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
         <p style="font-size:13px;color:var(--slate-light);margin-bottom:18px;line-height:1.6">Customize the header and footer that appear on every printed Client Document Checklist. Changes sync to all team members.</p>
@@ -1929,7 +1940,8 @@ const DEFAULTS = {
     phone: '',
     email: '',
     title: ''
-  }
+  },
+  contactRoles: []   // custom roles beyond the 7 defaults
 };
 
 let cache = {
@@ -2904,7 +2916,73 @@ function renderSettings() {
   renderLenderTracks();
   loadPrintSettingsToForm();
   loadLoanOfficerToForm();
+  renderCdRolesList();
   renderCFList();
+}
+
+// ── Contact Directory Role Management ──
+const CD_ROLES_DEFAULT = [
+  {key:'closingAgent', label:'Closing Agent / Escrow Officer'},
+  {key:'titleCompany', label:'Title Company'},
+  {key:'insurance',    label:'Insurance'},
+  {key:'sellingAgent', label:'Selling Agent'},
+  {key:'listingAgent', label:'Listing Agent'},
+  {key:'appraiser',   label:'Appraiser'},
+  {key:'hoa',         label:'HOA'},
+];
+
+function cdGetRoles() {
+  const custom = (cache.settings.contactRoles||[]).map(r => ({
+    key: 'custom_' + r.replace(/\s+/g,'_').toLowerCase(),
+    label: r,
+    custom: true
+  }));
+  return [...CD_ROLES_DEFAULT, ...custom];
+}
+
+function renderCdRolesList() {
+  const el = document.getElementById('cdRolesList');
+  if (!el) return;
+  const custom = cache.settings.contactRoles || [];
+  el.innerHTML = [
+    ...CD_ROLES_DEFAULT.map(r =>
+      `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--cream);border:1px solid var(--border);border-radius:7px">
+        <span style="flex:1;font-size:13px;color:var(--slate)">${esc(r.label)}</span>
+        <span style="font-size:10px;color:var(--slate-light);padding:1px 7px;border-radius:10px;background:var(--border)">Default</span>
+      </div>`
+    ),
+    ...custom.map((r,i) =>
+      `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--white);border:1px solid var(--border);border-radius:7px">
+        <span style="flex:1;font-size:13px;font-weight:500;color:var(--navy)">${esc(r)}</span>
+        <button onclick="cdRemoveCustomRole(${i})" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:16px;padding:0 3px;line-height:1" title="Remove">&times;</button>
+      </div>`
+    )
+  ].join('');
+}
+
+async function cdAddCustomRole() {
+  const input = document.getElementById('cdRoleNewInput');
+  const val = input?.value.trim();
+  if (!val) return;
+  if (!cache.settings.contactRoles) cache.settings.contactRoles = [];
+  // Prevent duplicates
+  const existing = cdGetRoles().map(r => r.label.toLowerCase());
+  if (existing.includes(val.toLowerCase())) { toast('Role already exists', 'error'); return; }
+  cache.settings.contactRoles.push(val);
+  await saveSettings();
+  if (input) input.value = '';
+  renderCdRolesList();
+  cdRender();
+  toast('Role added');
+}
+
+async function cdRemoveCustomRole(idx) {
+  if (!confirm('Remove this role? Contacts that have it assigned will keep the tag but it will no longer appear in the role list.')) return;
+  cache.settings.contactRoles.splice(idx, 1);
+  await saveSettings();
+  renderCdRolesList();
+  cdRender();
+  toast('Role removed');
 }
 
 function loadLoanOfficerToForm() {
@@ -4463,15 +4541,7 @@ function paPrint() {
   pw.document.write(printHTML); pw.document.close();
   pw.onload = () => { pw.focus(); pw.print(); };
 }
-const CD_ROLES = [
-  {key:'closingAgent', label:'Closing Agent / Escrow Officer'},
-  {key:'titleCompany', label:'Title Company'},
-  {key:'insurance',    label:'Insurance'},
-  {key:'sellingAgent', label:'Selling Agent'},
-  {key:'listingAgent', label:'Listing Agent'},
-  {key:'appraiser',   label:'Appraiser'},
-  {key:'hoa',         label:'HOA'},
-];
+// CD_ROLES replaced by cdGetRoles() — see renderSettings section above
 let cdFilterRole = '';
 
 function cdGetAll() { return cache.contactDir || []; }
@@ -4499,6 +4569,7 @@ function cdRender() {
   const grid = document.getElementById('cdGrid');
   if (!grid) return;
   const q = (document.getElementById('cdSearch')?.value||'').toLowerCase();
+  const roles = cdGetRoles();
   let contacts = cdGetAll();
   if (cdFilterRole) contacts = contacts.filter(c => (c.roles||[]).includes(cdFilterRole));
   if (q) contacts = contacts.filter(c =>
@@ -4507,11 +4578,31 @@ function cdRender() {
     (c.phone||'').toLowerCase().includes(q) ||
     (c.email||'').toLowerCase().includes(q)
   );
-  const roleLabels = Object.fromEntries(CD_ROLES.map(r=>[r.key,r.label]));
+  // Update filter chip bar dynamically
+  const filterBar = document.querySelector('.cd-filter-bar');
+  if (filterBar) {
+    const existing = filterBar.querySelector('.cd-search-wrap');
+    // Remove old chips (everything except search wrap)
+    [...filterBar.children].forEach(ch => { if (!ch.classList.contains('cd-search-wrap')) ch.remove(); });
+    // Re-add chips
+    const allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn' + (!cdFilterRole ? ' active' : '');
+    allBtn.textContent = 'All';
+    allBtn.onclick = () => cdSetFilter('', allBtn);
+    filterBar.appendChild(allBtn);
+    roles.forEach(r => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn' + (cdFilterRole === r.key ? ' active' : '');
+      btn.textContent = r.label;
+      btn.onclick = () => cdSetFilter(r.key, btn);
+      filterBar.appendChild(btn);
+    });
+  }
+  const roleLabels = Object.fromEntries(roles.map(r=>[r.key, r.label]));
   grid.innerHTML = contacts.map(c => {
     const initials = cdInitials(c.contactName||c.companyName);
     const bg = cdAvatarColor(c.contactName||c.companyName);
-    const roles = (c.roles||[]).map(r=>`<span class="cd-role-tag">${esc(roleLabels[r]||r)}</span>`).join('');
+    const roleTags = (c.roles||[]).map(r=>`<span class="cd-role-tag">${esc(roleLabels[r]||r)}</span>`).join('');
     return `<div class="cd-card">
       <div class="cd-card-hdr">
         <div class="cd-avatar" style="background:${bg}">${initials}</div>
@@ -4527,7 +4618,7 @@ function cdRender() {
         ${c.compLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span>${esc(c.compLicense)}</div>`:''}
         ${c.contactLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span>${esc(c.contactLicense)}</div>`:''}
       </div>
-      ${roles?`<div class="cd-roles">${roles}</div>`:''}
+      ${roleTags?`<div class="cd-roles">${roleTags}</div>`:''}
       <div class="cd-actions">
         <button class="btn btn-outline btn-sm" onclick="cdOpenModal('${c.id}')">Edit</button>
         <button class="btn btn-sm" style="color:var(--slate-light);background:none;border:none;cursor:pointer;font-size:11px" onclick="cdDelete('${c.id}')">Delete</button>
@@ -4558,8 +4649,8 @@ function cdOpenModal(id) {
     const el = document.getElementById('cd_'+f);
     if (el) el.value = existing?.[f] || '';
   });
-  // Render role checkboxes
-  document.getElementById('cdRoleChecks').innerHTML = CD_ROLES.map(r =>
+  // Render role checkboxes dynamically
+  document.getElementById('cdRoleChecks').innerHTML = cdGetRoles().map(r =>
     `<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;padding:3px 0">
       <input type="checkbox" id="cdRole_${r.key}" ${(existing?.roles||[]).includes(r.key)?'checked':''} style="width:14px;height:14px;accent-color:var(--gold)">
       ${esc(r.label)}
@@ -4571,7 +4662,7 @@ function cdOpenModal(id) {
 function cdSaveModal() {
   const id = document.getElementById('cdModal').dataset.editId || '';
   const g = i => document.getElementById(i)?.value.trim()||'';
-  const roles = CD_ROLES.map(r=>r.key).filter(k=>document.getElementById('cdRole_'+k)?.checked);
+  const roles = cdGetRoles().map(r=>r.key).filter(k=>document.getElementById('cdRole_'+k)?.checked);
   const contact = {
     id: id || uid(),
     contactName: g('cd_contactName'),
