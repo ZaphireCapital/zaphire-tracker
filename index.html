@@ -1315,6 +1315,16 @@ input[type=file]{display:none}
         </div>
       </div>
       <div class="divider"></div>
+      <div class="section-header"><div class="section-title">File Stages</div></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Define the stages a file can be in. The first two (Pre-Submission and In-Process) are built-in and map to the pipeline pages. Stages you add appear in the File Stage dropdown when creating or editing a file.</p>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:var(--shadow);max-width:680px">
+        <div id="fileStagesList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <input class="form-input" type="text" id="fileStageNewInput" placeholder="e.g. Closed (Moved to Another Lender)…" style="flex:1" onkeydown="if(event.key==='Enter')addFileStage()">
+          <button class="btn btn-gold" onclick="addFileStage()">Add Stage</button>
+        </div>
+      </div>
+      <div class="divider"></div>
       <div class="section-header"><div class="section-title">Contact Directory Roles</div></div>
       <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Define the roles available when adding contacts to the directory. The 7 default roles (Closing Agent, Title, etc.) are always included — add any others you need.</p>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;box-shadow:var(--shadow);max-width:680px">
@@ -1486,6 +1496,19 @@ input[type=file]{display:none}
         <div class="form-group form-full" style="margin-bottom:14px"><label class="form-label">Subject Property Address *</label><input class="form-input" type="text" id="f_prop" placeholder="Full property address"></div>
         <div class="form-grid">
           <div class="form-group"><label class="form-label">Number of Units</label><select class="form-select" id="f_units"><option value="1">1 Unit</option><option value="2">2 Units</option><option value="3">3 Units</option><option value="4">4 Units</option></select></div>
+          <div class="form-group"><label class="form-label">Property Type</label>
+            <select class="form-select" id="f_propType">
+              <option value="">Select type…</option>
+              <option value="Single Family Residence">Single Family Residence</option>
+              <option value="Condominium">Condominium</option>
+              <option value="Co-op">Co-op</option>
+              <option value="Mixed Use">Mixed Use</option>
+              <option value="Commercial">Commercial</option>
+              <option value="2-4 Unit">2-4 Unit</option>
+              <option value="Townhouse">Townhouse</option>
+              <option value="Manufactured">Manufactured</option>
+            </select>
+          </div>
           <div class="form-group"><label class="form-label">Loan Type</label><select class="form-select" id="f_loanType"></select></div>
           <div class="form-group"><label class="form-label">Occupancy</label><select class="form-select" id="f_occupancy"></select></div>
           <div class="form-group"><label class="form-label">Bank / Lender</label>
@@ -1493,11 +1516,8 @@ input[type=file]{display:none}
             <datalist id="f_bank_list"></datalist>
             <div id="f_bank_tracks" style="display:none;margin-top:6px;font-size:12px;color:var(--success);font-weight:500"></div>
           </div>
-          <div class="form-group"><label class="form-label">File Stage</label>
-            <select class="form-select" id="f_stage">
-              <option value="presubmission">🔍 Pre-Submission (prospect)</option>
-              <option value="active">📋 Files in Process (submitted)</option>
-            </select>
+          <div class="form-group" id="f_stageGroup"><label class="form-label">File Stage</label>
+            <select class="form-select" id="f_stage"></select>
           </div>
           <div class="form-group"><label class="form-label">Purchase Price</label><input class="form-input" type="text" id="f_pp" placeholder="$0.00"></div>
           <div class="form-group"><label class="form-label">Loan Amount</label><input class="form-input" type="text" id="f_la" placeholder="$0.00"></div>
@@ -1941,7 +1961,9 @@ const DEFAULTS = {
     email: '',
     title: ''
   },
-  contactRoles: []   // custom roles beyond the 7 defaults
+  contactRoles: [],   // custom roles beyond the 7 defaults
+  contactRoleLabels: {}, // editable labels for the 7 default roles
+  fileStages: []      // custom stages beyond the 4 built-in ones
 };
 
 let cache = {
@@ -2531,14 +2553,13 @@ function openNewFileModal() {
   document.getElementById('fileModalTitle').textContent = 'New File';
   ['f_b1','f_b2','f_prop','f_bank','f_pp','f_la','f_rate'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('f_units').value = '1';
+  document.getElementById('f_propType').value = '';
   pop('f_loanType', cache.settings.loanTypes);
   pop('f_occupancy', cache.settings.occupancyTypes);
+  fsPopulateSelect('f_stage', 'presubmission');
   populateLenderDatalist();
   document.getElementById('f_bank_tracks').style.display = 'none';
-  // Show stage selector for new files
-  const stageGroup = document.getElementById('f_stage')?.closest('.form-group');
-  if (stageGroup) stageGroup.style.display = '';
-  document.getElementById('f_stage').value = 'presubmission';
+  document.getElementById('f_stageGroup').style.display = '';
   openModal('fileModal');
 }
 
@@ -2555,13 +2576,13 @@ function openEditFileModal(fid) {
   document.getElementById('f_la').value = f.la||'';
   document.getElementById('f_rate').value = f.rate||'';
   document.getElementById('f_units').value = f.units||'1';
+  document.getElementById('f_propType').value = f.propType||'';
   pop('f_loanType', cache.settings.loanTypes, f.loanType);
   pop('f_occupancy', cache.settings.occupancyTypes, f.occupancy);
+  fsPopulateSelect('f_stage', f.fileStatus||'presubmission');
+  document.getElementById('f_stageGroup').style.display = '';
   populateLenderDatalist();
   showBankTracks(f.bank||'');
-  // Hide stage field when editing — stage is changed via Move to Process
-  const stageGroup = document.getElementById('f_stage')?.closest('.form-group');
-  if (stageGroup) stageGroup.style.display = 'none';
   openModal('fileModal');
 }
 
@@ -2569,8 +2590,10 @@ async function saveFile() {
   const b1 = document.getElementById('f_b1').value.trim();
   const prop = document.getElementById('f_prop').value.trim();
   if (!b1) { toast('Borrower 1 name is required','error'); return; }
-  const data = { b1, b2:document.getElementById('f_b2').value.trim(), prop, units:document.getElementById('f_units').value, loanType:document.getElementById('f_loanType').value, occupancy:document.getElementById('f_occupancy').value, bank:document.getElementById('f_bank').value.trim(), pp:document.getElementById('f_pp').value.trim(), la:document.getElementById('f_la').value.trim(), rate:document.getElementById('f_rate').value.trim() };
+  const data = { b1, b2:document.getElementById('f_b2').value.trim(), prop, units:document.getElementById('f_units').value, propType:document.getElementById('f_propType').value, loanType:document.getElementById('f_loanType').value, occupancy:document.getElementById('f_occupancy').value, bank:document.getElementById('f_bank').value.trim(), pp:document.getElementById('f_pp').value.trim(), la:document.getElementById('f_la').value.trim(), rate:document.getElementById('f_rate').value.trim() };
   if (editingFileId) {
+    const stageVal = document.getElementById('f_stage')?.value;
+    if (stageVal) data.fileStatus = stageVal;
     const i = cache.files.findIndex(x=>x.id===editingFileId);
     if (i>-1) { Object.assign(cache.files[i], data); await saveFile_kv(cache.files[i]); }
     toast('File updated');
@@ -2916,11 +2939,66 @@ function renderSettings() {
   renderLenderTracks();
   loadPrintSettingsToForm();
   loadLoanOfficerToForm();
+  renderFileStagesList();
   renderCdRolesList();
   renderCFList();
 }
 
-// ── Contact Directory Role Management ──
+// ── File Stages ──
+const FILE_STAGES_BUILTIN = [
+  {key:'presubmission', label:'Pre-Submission', icon:'🔍', builtin:true},
+  {key:'active',        label:'In-Process',     icon:'📋', builtin:true},
+  {key:'closed',        label:'Closed / Withdrawn', icon:'✅', builtin:true},
+  {key:'moved',         label:'Closed (Moved to Another Lender)', icon:'↗️', builtin:true},
+];
+
+function fsGetAll() {
+  const custom = (cache.settings.fileStages||[]).map(s=>({key:'custom_'+s.replace(/\s+/g,'_').toLowerCase().replace(/[^a-z0-9_]/g,''), label:s, custom:true}));
+  return [...FILE_STAGES_BUILTIN, ...custom];
+}
+
+function fsPopulateSelect(selId, currentVal) {
+  const sel = document.getElementById(selId); if (!sel) return;
+  sel.innerHTML = fsGetAll().map(s=>`<option value="${s.key}"${s.key===currentVal?' selected':''}>${s.icon||''} ${s.label}</option>`).join('');
+}
+
+function renderFileStagesList() {
+  const el = document.getElementById('fileStagesList'); if(!el) return;
+  const custom = cache.settings.fileStages||[];
+  el.innerHTML = [
+    ...FILE_STAGES_BUILTIN.map(s=>
+      `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--cream);border:1px solid var(--border);border-radius:7px">
+        <span style="font-size:14px">${s.icon}</span>
+        <span style="flex:1;font-size:13px;color:var(--slate)">${esc(s.label)}</span>
+        <span style="font-size:10px;color:var(--slate-light);padding:1px 7px;border-radius:10px;background:var(--border)">Built-in</span>
+      </div>`
+    ),
+    ...custom.map((s,i)=>
+      `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--white);border:1px solid var(--border);border-radius:7px">
+        <span style="font-size:14px">📁</span>
+        <span style="flex:1;font-size:13px;font-weight:500;color:var(--navy)">${esc(s)}</span>
+        <button onclick="removeFileStage(${i})" style="background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:16px;padding:0 3px;line-height:1" title="Remove">&times;</button>
+      </div>`
+    )
+  ].join('');
+}
+
+async function addFileStage() {
+  const input = document.getElementById('fileStageNewInput');
+  const val = input?.value.trim(); if(!val) return;
+  if(!cache.settings.fileStages) cache.settings.fileStages=[];
+  const existing = fsGetAll().map(s=>s.label.toLowerCase());
+  if(existing.includes(val.toLowerCase())){toast('Stage already exists','error');return;}
+  cache.settings.fileStages.push(val);
+  await saveSettings(); if(input) input.value='';
+  renderFileStagesList(); toast('Stage added');
+}
+
+async function removeFileStage(idx) {
+  if(!confirm('Remove this stage?')) return;
+  cache.settings.fileStages.splice(idx,1);
+  await saveSettings(); renderFileStagesList(); toast('Stage removed');
+}
 const CD_ROLES_DEFAULT = [
   {key:'closingAgent', label:'Closing Agent / Escrow Officer'},
   {key:'titleCompany', label:'Title Company'},
@@ -2932,23 +3010,32 @@ const CD_ROLES_DEFAULT = [
 ];
 
 function cdGetRoles() {
+  const customLabels = cache.settings.contactRoleLabels || {};
+  const defaults = CD_ROLES_DEFAULT.map(r => ({
+    ...r,
+    label: customLabels[r.key] || r.label  // use saved custom label if set
+  }));
   const custom = (cache.settings.contactRoles||[]).map(r => ({
     key: 'custom_' + r.replace(/\s+/g,'_').toLowerCase(),
     label: r,
     custom: true
   }));
-  return [...CD_ROLES_DEFAULT, ...custom];
+  return [...defaults, ...custom];
 }
 
 function renderCdRolesList() {
-  const el = document.getElementById('cdRolesList');
-  if (!el) return;
+  const el = document.getElementById('cdRolesList'); if (!el) return;
   const custom = cache.settings.contactRoles || [];
+  const customLabels = cache.settings.contactRoleLabels || {};
   el.innerHTML = [
     ...CD_ROLES_DEFAULT.map(r =>
       `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--cream);border:1px solid var(--border);border-radius:7px">
-        <span style="flex:1;font-size:13px;color:var(--slate)">${esc(r.label)}</span>
-        <span style="font-size:10px;color:var(--slate-light);padding:1px 7px;border-radius:10px;background:var(--border)">Default</span>
+        <input class="form-input" value="${esc(customLabels[r.key]||r.label)}"
+          placeholder="${esc(r.label)}"
+          onblur="cdSaveRoleLabel('${r.key}',this.value)"
+          style="flex:1;padding:4px 8px;font-size:12.5px;background:var(--white)"
+          title="Click to rename">
+        <span style="font-size:10px;color:var(--slate-light);padding:1px 7px;border-radius:10px;background:var(--border);flex-shrink:0">Default</span>
       </div>`
     ),
     ...custom.map((r,i) =>
@@ -2958,6 +3045,20 @@ function renderCdRolesList() {
       </div>`
     )
   ].join('');
+}
+
+async function cdSaveRoleLabel(key, val) {
+  if (!cache.settings.contactRoleLabels) cache.settings.contactRoleLabels = {};
+  const def = CD_ROLES_DEFAULT.find(r=>r.key===key);
+  if (!val.trim() || val.trim() === def?.label) {
+    // Reset to default
+    delete cache.settings.contactRoleLabels[key];
+  } else {
+    cache.settings.contactRoleLabels[key] = val.trim();
+  }
+  await saveSettings();
+  cdRender();
+  toast('Role name updated');
 }
 
 async function cdAddCustomRole() {
