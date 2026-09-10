@@ -584,6 +584,49 @@ input[type=file]{display:none}
   .qual-program-name{font-size:13px;font-weight:600;color:var(--navy);flex:1}
   .qual-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
   .wb{font-weight:700}
+  /* ── Income Worksheet Tab ── */
+  .inc-body{padding:18px 22px;display:flex;flex-direction:column;gap:0;overflow-y:auto;min-height:500px}
+  .inc-grand-bar{display:flex;justify-content:space-between;align-items:center;background:#fff8df;border:1px solid #e3cf7a;border-radius:9px;padding:10px 16px;margin-bottom:16px;flex-shrink:0}
+  .inc-grand-bar .igl{font-size:12.5px;color:var(--slate)}
+  .inc-grand-bar .igv{font-size:20px;font-weight:700;color:#7b5c12;font-variant-numeric:tabular-nums}
+  .inc-person{margin-bottom:20px;padding-top:14px;border-top:2px solid var(--border-strong)}
+  .inc-person:first-of-type{border-top:none;padding-top:0}
+  .inc-person-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .inc-person-name{font-family:var(--font-display);font-size:15px;font-weight:500;color:var(--navy);flex:1;min-width:120px}
+  .inc-person-total{font-size:12.5px;font-weight:700;color:#1c5fa8}
+  .inc-emp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;margin-bottom:9px}
+  .inc-emp-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .inc-emp-name-inp{font-size:13px;font-weight:600;color:var(--navy);flex:1;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-family:var(--font-body);background:var(--white);outline:none}
+  .inc-emp-name-inp:focus{border-color:var(--gold)}
+  .inc-chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+  .inc-chip{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--border-strong);background:var(--white);color:var(--slate);cursor:pointer;user-select:none}
+  .inc-chip.on{background:#e8f1fb;color:#1c5fa8;border-color:#b6d3ee}
+  .inc-chip.dash{border-style:dashed;color:var(--slate-light)}
+  .inc-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
+  .inc-table th{text-align:right;font-weight:600;color:var(--slate);padding:3px 5px;border-bottom:1px solid var(--border);font-size:11px}
+  .inc-table th:first-child{text-align:left}
+  .inc-table td{padding:2px 5px;border-bottom:1px solid #f0ece4;vertical-align:middle}
+  .inc-table td:first-child{color:var(--slate);font-size:11.5px}
+  .inc-table td:not(:first-child){text-align:right}
+  .inc-num{width:100%;border:1px solid var(--border-strong);border-radius:5px;padding:2px 6px;font-size:12px;color:var(--navy);text-align:right;background:var(--white);height:25px;font-family:var(--font-body)}
+  .inc-num:focus{outline:none;border-color:var(--gold)}
+  .inc-year-th{border:1px solid var(--border);border-radius:4px;padding:2px 3px;font-size:11px;text-align:center;width:72px;font-weight:600;color:var(--slate);background:var(--cream);font-family:var(--font-body)}
+  .inc-monthly{font-weight:600;color:#1c5fa8;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
+  .inc-emp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap;gap:6px}
+  .inc-date-wrap{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--slate-light)}
+  .inc-date-inp{border:1px solid var(--border-strong);border-radius:5px;padding:2px 7px;font-size:11px;height:25px;font-family:var(--font-body);color:var(--navy)}
+  .inc-year-btns{display:flex;gap:4px}
+  .inc-divisor{font-size:10px;color:var(--slate-light);margin-top:3px;min-height:13px}
+  .inc-emp-subtotal{display:flex;justify-content:flex-end;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border-strong);font-size:12.5px;font-weight:600;color:var(--navy)}
+  .inc-other-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 13px;margin-bottom:9px}
+  .inc-other-title{font-size:12px;font-weight:600;color:var(--slate);margin-bottom:8px}
+  .inc-other-row{display:flex;gap:7px;margin-bottom:5px;align-items:center}
+  .inc-other-src{flex:1;border:1px solid var(--border-strong);border-radius:5px;padding:3px 8px;font-size:12px;height:27px;font-family:var(--font-body);color:var(--navy)}
+  .inc-other-src:focus,.inc-other-amt:focus{outline:none;border-color:var(--gold)}
+  .inc-other-amt{width:130px;border:1px solid var(--border-strong);border-radius:5px;padding:3px 8px;font-size:12px;text-align:right;height:27px;font-family:var(--font-body);color:var(--navy)}
+  .inc-section-total{display:flex;justify-content:flex-end;gap:5px;margin-top:7px;padding-top:7px;border-top:2px solid var(--border-strong);font-size:13px;font-weight:700;color:var(--navy)}
+  .inc-toolbar{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+
   /* ── Pre-Approval Tab ── */
   .pa-body{display:grid;grid-template-columns:210px 1fr 340px;height:100%;overflow:hidden;min-height:600px}
   .pa-sidebar{border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
@@ -1165,6 +1208,21 @@ input[type=file]{display:none}
                   <div style="font-size:14px;font-weight:500;margin-bottom:6px">No option selected</div>
                   <div style="font-size:12.5px">Add a comparison option to get started.</div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <!-- INCOME WORKSHEET TAB -->
+          <div class="tab-content" id="tab-income">
+            <div class="inc-body">
+              <div class="inc-grand-bar">
+                <span class="igl">Combined qualifying monthly income</span>
+                <span class="igv" id="incGrandTotal">$0.00</span>
+              </div>
+              <div id="incPeople"></div>
+              <div class="inc-toolbar">
+                <button class="btn btn-sm" style="background:var(--navy);color:var(--gold);border-color:var(--navy)" onclick="incPrint()">🖨 Print PDF</button>
+                <button class="btn btn-sm" onclick="incAddPerson()">+ Add co-borrower</button>
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto;color:#a32d2d" onclick="incClearAll()">Clear all data</button>
               </div>
             </div>
           </div>
@@ -2122,6 +2180,7 @@ function switchTab(tab, btn) {
   if (tab === 'docs') renderDocTab();
   if (tab === 'worksheet') wsInit();
   if (tab === 'ratesheet') rsInit();
+  if (tab === 'income') incInit();
   if (tab === 'contacts') tpcInit();
   if (tab === 'preapproval') paInit();
 }
@@ -2290,6 +2349,7 @@ function renderFileDetail() {
       ? `<button class="tab-btn active" onclick="switchTab('docs',this)">Client Documents</button>
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
          <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
+         <button class="tab-btn" onclick="switchTab('income',this)">Income</button>
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`
@@ -2297,6 +2357,7 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
          <button class="tab-btn" onclick="switchTab('ratesheet',this)">Rate Sheet</button>
+         <button class="tab-btn" onclick="switchTab('income',this)">Income</button>
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`;
@@ -2942,6 +3003,318 @@ function renderSettings() {
   renderFileStagesList();
   renderCdRolesList();
   renderCFList();
+}
+
+// ═══════════════════════════════════════════════
+//  INCOME WORKSHEET
+// ═══════════════════════════════════════════════
+const INC_DEFAULT_TAGS = ['Base/salary','Overtime','Bonus','Commission','Vacation','Other'];
+const INC_DEFAULT_YEARS = ['2026','2025','2024'];
+
+function incGetFile() { return cache.files.find(x=>x.id===currentFileId); }
+function incGetData() {
+  const f = incGetFile(); if (!f) return {people:[]};
+  if (!f.incomeWorksheet) f.incomeWorksheet = {people:[]};
+  return f.incomeWorksheet;
+}
+function incSave() { debouncedSave(); }
+function incFmt(n) { if(!isFinite(n))n=0; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function incNum(v) { const n=parseFloat(String(v||'').replace(/,/g,'')); return isNaN(n)?0:n; }
+
+function incInit() {
+  const f = incGetFile(); if (!f) return;
+  const data = incGetData();
+  if (!data.people || !data.people.length) {
+    data.people = [];
+    if (f.b1) data.people.push(incDefaultPerson(f.b1, false));
+    if (f.b2) data.people.push(incDefaultPerson(f.b2, true));
+    if (!data.people.length) data.people.push(incDefaultPerson('Borrower', false));
+  }
+  incRender();
+}
+
+function incDefaultPerson(name, removable) {
+  return { name, removable:!!removable, employers:[incDefaultEmployer()], otherIncome:[{src:'',amt:''}] };
+}
+function incDefaultEmployer() {
+  return { name:'', years:[...INC_DEFAULT_YEARS], activeTags:{'Base/salary':true}, rows:{'Base/salary':{}}, paystubDate:'' };
+}
+
+function incRender() {
+  const container = document.getElementById('incPeople'); if (!container) return;
+  const data = incGetData();
+  container.innerHTML = '';
+  data.people.forEach((person, pi) => container.appendChild(incBuildPerson(person, pi)));
+  incRecalcAll();
+}
+
+function incBuildPerson(person, pi) {
+  const sec = document.createElement('div'); sec.className = 'inc-person'; sec.dataset.pi = pi;
+  const head = document.createElement('div'); head.className = 'inc-person-head';
+  const nameEl = document.createElement('div');
+  nameEl.className = 'inc-person-name'; nameEl.contentEditable = true;
+  nameEl.textContent = person.name||'Borrower';
+  nameEl.style.cssText='outline:none;border-bottom:1px dashed var(--border-strong);padding-bottom:2px;min-width:80px';
+  nameEl.oninput = () => { person.name = nameEl.textContent.trim(); incSave(); };
+  head.appendChild(nameEl);
+  const totalSpan = document.createElement('span');
+  totalSpan.className = 'inc-person-total'; totalSpan.dataset.personTotal = pi;
+  head.appendChild(totalSpan);
+  if (person.removable) {
+    const rm = document.createElement('button'); rm.className = 'btn btn-sm';
+    rm.style.cssText='color:#a32d2d;border-color:#e9c9c9;font-size:11px'; rm.textContent='Remove co-borrower';
+    rm.onclick = () => { const d=incGetData(); d.people.splice(pi,1); incSave(); incRender(); };
+    head.appendChild(rm);
+  }
+  const addEmpBtn = document.createElement('button'); addEmpBtn.className='btn btn-sm'; addEmpBtn.textContent='+ Add employer';
+  addEmpBtn.onclick = () => { person.employers=person.employers||[]; person.employers.push(incDefaultEmployer()); incSave(); incRender(); };
+  head.appendChild(addEmpBtn); sec.appendChild(head);
+  const empsWrap = document.createElement('div');
+  (person.employers||[]).forEach((emp,ei) => empsWrap.appendChild(incBuildEmployer(emp,person,pi,ei)));
+  sec.appendChild(empsWrap);
+  sec.appendChild(incBuildOtherCard(person,pi));
+  const st = document.createElement('div'); st.className='inc-section-total';
+  st.innerHTML=`Borrower total / mo: <span data-person-section-total="${pi}">$0.00</span>`;
+  sec.appendChild(st); return sec;
+}
+
+function incBuildEmployer(emp, person, pi, ei) {
+  const card = document.createElement('div'); card.className='inc-emp-card';
+  const head = document.createElement('div'); head.className='inc-emp-head';
+  const nameInp = document.createElement('input'); nameInp.type='text'; nameInp.className='inc-emp-name-inp';
+  nameInp.value=emp.name||''; nameInp.placeholder='Employer name';
+  nameInp.oninput = () => { emp.name=nameInp.value; incSave(); };
+  head.appendChild(nameInp);
+  if ((person.employers||[]).length > 1) {
+    const rm = document.createElement('button'); rm.className='btn btn-ghost btn-sm'; rm.textContent='Remove';
+    rm.onclick = () => { person.employers.splice(ei,1); incSave(); incRender(); };
+    head.appendChild(rm);
+  }
+  card.appendChild(head);
+  // Chips
+  const chipRow = document.createElement('div'); chipRow.className='inc-chip-row';
+  const allDefinedTags=[...INC_DEFAULT_TAGS,...Object.keys(emp.activeTags||{}).filter(t=>!INC_DEFAULT_TAGS.includes(t))];
+  allDefinedTags.forEach(tag=>{
+    const chip=document.createElement('div');
+    chip.className='inc-chip'+((emp.activeTags||{})[tag]?' on':''); chip.textContent=tag;
+    chip.onclick=()=>{
+      if(!emp.activeTags)emp.activeTags={};
+      if(!emp.rows)emp.rows={};
+      if(emp.activeTags[tag]){delete emp.activeTags[tag];delete emp.rows[tag];}
+      else{emp.activeTags[tag]=true;if(!emp.rows[tag])emp.rows[tag]={};}
+      incSave();incRender();
+    };
+    chipRow.appendChild(chip);
+  });
+  const customChip=document.createElement('div'); customChip.className='inc-chip dash'; customChip.textContent='+ Custom tag';
+  customChip.onclick=()=>{
+    const name=prompt('Custom income type (e.g. Housing allowance, RSU, Per diem):');
+    if(!name||!name.trim())return;
+    const tag=name.trim();
+    if(!emp.activeTags)emp.activeTags={};if(!emp.rows)emp.rows={};
+    emp.activeTags[tag]=true;emp.rows[tag]={};incSave();incRender();
+  };
+  chipRow.appendChild(customChip); card.appendChild(chipRow);
+  // Table
+  const years=emp.years||[...INC_DEFAULT_YEARS];
+  const table=document.createElement('table'); table.className='inc-table';
+  const thead=document.createElement('thead'); const headRow=document.createElement('tr');
+  headRow.innerHTML='<th style="text-align:left">Income type</th>';
+  years.forEach((yr,yi)=>{
+    const th=document.createElement('th');
+    const inp=document.createElement('input'); inp.className='inc-year-th'; inp.type='text'; inp.value=yr;
+    inp.oninput=()=>{emp.years[yi]=inp.value;incSave();incRecalcAll();};
+    th.appendChild(inp); headRow.appendChild(th);
+  });
+  const mth=document.createElement('th'); mth.textContent='Monthly'; headRow.appendChild(mth);
+  thead.appendChild(headRow); table.appendChild(thead);
+  const tbody=document.createElement('tbody');
+  const activeTags=[...INC_DEFAULT_TAGS,...Object.keys(emp.activeTags||{}).filter(t=>!INC_DEFAULT_TAGS.includes(t))].filter(t=>(emp.activeTags||{})[t]);
+  activeTags.forEach(tag=>{
+    const tr=document.createElement('tr'); tr.dataset.tag=tag;
+    const nameTd=document.createElement('td'); nameTd.textContent=tag; tr.appendChild(nameTd);
+    years.forEach((_,yi)=>{
+      const td=document.createElement('td');
+      const inp=document.createElement('input'); inp.type='number'; inp.className='inc-num'; inp.placeholder='0.00'; inp.step='0.01';
+      const saved=((emp.rows||{})[tag]||{})[yi];
+      inp.value=saved!=null?saved:'';
+      inp.oninput=()=>{if(!emp.rows)emp.rows={};if(!emp.rows[tag])emp.rows[tag]={};emp.rows[tag][yi]=inp.value;incSave();incRecalcAll();};
+      td.appendChild(inp); tr.appendChild(td);
+    });
+    const mc=document.createElement('td'); mc.className='inc-monthly'; mc.dataset.monthlyCell=`${pi}-${ei}-${tag}`; mc.textContent='$0.00';
+    tr.appendChild(mc); tbody.appendChild(tr);
+  });
+  table.appendChild(tbody); card.appendChild(table);
+  // Footer
+  const foot=document.createElement('div'); foot.className='inc-emp-foot';
+  const dw=document.createElement('div'); dw.className='inc-date-wrap'; dw.appendChild(document.createTextNode('Paystub / as-of date '));
+  const dateInp=document.createElement('input'); dateInp.type='date'; dateInp.className='inc-date-inp'; dateInp.value=emp.paystubDate||'';
+  dateInp.oninput=()=>{emp.paystubDate=dateInp.value;incSave();incRecalcAll();};
+  dw.appendChild(dateInp); foot.appendChild(dw);
+  const yb=document.createElement('div'); yb.className='inc-year-btns';
+  const addYr=document.createElement('button'); addYr.className='btn btn-sm'; addYr.textContent='+ Year';
+  addYr.onclick=()=>{emp.years=emp.years||[...INC_DEFAULT_YEARS];emp.years.push('');incSave();incRender();};
+  const rmYr=document.createElement('button'); rmYr.className='btn btn-sm'; rmYr.textContent='- Year';
+  rmYr.onclick=()=>{if((emp.years||[]).length<=1)return;emp.years.pop();incSave();incRender();};
+  yb.appendChild(addYr); yb.appendChild(rmYr); foot.appendChild(yb); card.appendChild(foot);
+  const dn=document.createElement('div'); dn.className='inc-divisor'; dn.dataset.divisorNote=`${pi}-${ei}`; card.appendChild(dn);
+  const sub=document.createElement('div'); sub.className='inc-emp-subtotal';
+  sub.innerHTML=`Employer subtotal / mo: <span data-emp-subtotal="${pi}-${ei}">$0.00</span>`;
+  card.appendChild(sub); return card;
+}
+
+function incBuildOtherCard(person,pi){
+  const card=document.createElement('div'); card.className='inc-other-card';
+  const title=document.createElement('div'); title.className='inc-other-title';
+  title.textContent='Other income (rental, Social Security, pension, disability, alimony, etc.)';
+  card.appendChild(title);
+  const list=document.createElement('div');
+  function renderRows(){
+    list.innerHTML='';
+    (person.otherIncome||[]).forEach((row,ri)=>{
+      const rowEl=document.createElement('div'); rowEl.className='inc-other-row';
+      const srcInp=document.createElement('input'); srcInp.className='inc-other-src'; srcInp.type='text';
+      srcInp.placeholder='Source name'; srcInp.value=row.src||'';
+      srcInp.oninput=()=>{row.src=srcInp.value;incSave();};
+      const amtInp=document.createElement('input'); amtInp.className='inc-other-amt'; amtInp.type='number';
+      amtInp.placeholder='Monthly amount'; amtInp.step='0.01'; amtInp.value=row.amt!=null?row.amt:'';
+      amtInp.oninput=()=>{row.amt=amtInp.value;incSave();incRecalcAll();};
+      const xBtn=document.createElement('button'); xBtn.textContent='×';
+      xBtn.style.cssText='background:none;border:none;color:var(--slate-light);cursor:pointer;font-size:16px;line-height:1;padding:0 3px';
+      xBtn.onclick=()=>{person.otherIncome.splice(ri,1);incSave();renderRows();incRecalcAll();};
+      rowEl.appendChild(srcInp);rowEl.appendChild(amtInp);rowEl.appendChild(xBtn);list.appendChild(rowEl);
+    });
+  }
+  renderRows(); card.appendChild(list);
+  const addBtn=document.createElement('button'); addBtn.className='btn btn-sm'; addBtn.textContent='+ Add source';
+  addBtn.onclick=()=>{if(!person.otherIncome)person.otherIncome=[];person.otherIncome.push({src:'',amt:''});incSave();renderRows();incRecalcAll();};
+  card.appendChild(addBtn); return card;
+}
+
+function incComputeMonths(emp){
+  const dateVal=emp.paystubDate, years=emp.years||[];
+  if(!dateVal)return{currentYearMonths:0,totalMonths:0,currentColIndex:-1};
+  const d=new Date(dateVal+'T00:00:00');
+  const yStr=String(d.getFullYear()),m=d.getMonth()+1,day=d.getDate();
+  const currentYearMonths=(m-1)+(day<15?0.5:1.0);
+  let currentColIndex=years.findIndex(yr=>yr.trim()===yStr);
+  if(currentColIndex===-1&&years.length>0)currentColIndex=0;
+  let totalMonths=currentYearMonths;
+  years.forEach((_,idx)=>{
+    if(idx===currentColIndex)return;
+    const hasData=Object.keys(emp.rows||{}).some(tag=>{const v=((emp.rows||{})[tag]||{})[idx];return v!==undefined&&v!==''&&v!==null;});
+    if(hasData)totalMonths+=12;
+  });
+  return{currentYearMonths,totalMonths,currentColIndex};
+}
+
+function incRecalcAll(){
+  const data=incGetData(); let grand=0;
+  data.people.forEach((person,pi)=>{
+    let personTotal=0;
+    (person.employers||[]).forEach((emp,ei)=>{
+      const{currentYearMonths,totalMonths,currentColIndex}=incComputeMonths(emp);
+      const years=emp.years||[]; let empTotal=0;
+      const activeTags=[...INC_DEFAULT_TAGS,...Object.keys(emp.activeTags||{}).filter(t=>!INC_DEFAULT_TAGS.includes(t))].filter(t=>(emp.activeTags||{})[t]);
+      activeTags.forEach(tag=>{
+        const rowData=(emp.rows||{})[tag]||{};
+        const isBase=tag==='Base/salary';
+        let monthly=0;
+        if(isBase){const val=currentColIndex>=0&&rowData[currentColIndex]!=null?incNum(rowData[currentColIndex]):0;monthly=currentYearMonths>0?val/currentYearMonths:0;}
+        else{let total=0;years.forEach((_,yi)=>{total+=incNum(rowData[yi]||0);});monthly=totalMonths>0?total/totalMonths:0;}
+        const mc=document.querySelector(`[data-monthly-cell="${pi}-${ei}-${tag}"]`);
+        if(mc)mc.textContent=incFmt(monthly);
+        empTotal+=monthly;
+      });
+      const es=document.querySelector(`[data-emp-subtotal="${pi}-${ei}"]`); if(es)es.textContent=incFmt(empTotal);
+      const dn=document.querySelector(`[data-divisor-note="${pi}-${ei}"]`);
+      if(dn)dn.textContent=emp.paystubDate?`Variable income divisor: ${totalMonths} mo  ·  Base salary divisor: ${currentYearMonths} mo (current year only)`:'Enter a paystub / as-of date to calculate monthly divisors.';
+      personTotal+=empTotal;
+    });
+    (person.otherIncome||[]).forEach(row=>{personTotal+=incNum(row.amt||0);});
+    const pt=document.querySelector(`[data-person-total="${pi}"]`); if(pt)pt.textContent=incFmt(personTotal)+' / mo';
+    const st=document.querySelector(`[data-person-section-total="${pi}"]`); if(st)st.textContent=incFmt(personTotal);
+    grand+=personTotal;
+  });
+  const gt=document.getElementById('incGrandTotal'); if(gt)gt.textContent=incFmt(grand);
+}
+
+function incAddPerson(){
+  const data=incGetData(),f=incGetFile();
+  const name=data.people.length===0?(f?.b1||'Borrower'):(f?.b2||'Co-Borrower '+(data.people.length+1));
+  data.people.push(incDefaultPerson(name,true)); incSave(); incRender();
+}
+
+function incClearAll(){
+  if(!confirm('Clear all income data for this file?'))return;
+  const f=incGetFile(); if(!f)return;
+  f.incomeWorksheet={people:[]}; incSave(); incInit();
+}
+
+function incPrint(){
+  const data=incGetData(),f=incGetFile();
+  const logo=cache.logo||'';
+  const logoHtml=logo?`<img src="${logo}" style="max-height:52px;object-fit:contain">`:'<strong style="font-size:18px;color:#1c2b4a">Zaphire Capital</strong>';
+  function fmtP(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function computeAll(emp){
+    const{currentYearMonths,totalMonths,currentColIndex}=incComputeMonths(emp);
+    const years=emp.years||[]; let empTotal=0;
+    const activeTags=[...INC_DEFAULT_TAGS,...Object.keys(emp.activeTags||{}).filter(t=>!INC_DEFAULT_TAGS.includes(t))].filter(t=>(emp.activeTags||{})[t]);
+    const rows=activeTags.map(tag=>{
+      const rowData=(emp.rows||{})[tag]||{},isBase=tag==='Base/salary';
+      let monthly=0;
+      if(isBase){const val=currentColIndex>=0&&rowData[currentColIndex]!=null?incNum(rowData[currentColIndex]):0;monthly=currentYearMonths>0?val/currentYearMonths:0;}
+      else{let total=0;years.forEach((_,yi)=>{total+=incNum(rowData[yi]||0);});monthly=totalMonths>0?total/totalMonths:0;}
+      empTotal+=monthly; return{tag,rowData,monthly,years};
+    });
+    return{rows,empTotal,currentYearMonths,totalMonths};
+  }
+  let grand=0,body='';
+  data.people.forEach((person,pi)=>{
+    let personTotal=0;
+    body+=`<div class="ps"><div class="pn">${esc(person.name||'Borrower')}</div>`;
+    (person.employers||[]).forEach((emp,ei)=>{
+      const{rows,empTotal,currentYearMonths,totalMonths}=computeAll(emp);
+      body+=`<div class="ec"><div class="en">${esc(emp.name||'Employer')}</div><table><thead><tr><th>Income type</th>${(emp.years||[]).map(y=>`<th>${esc(y)}</th>`).join('')}<th>Monthly</th></tr></thead><tbody>`;
+      rows.forEach(({tag,rowData,monthly,years})=>{body+=`<tr><td>${esc(tag)}</td>${years.map((_,yi)=>`<td>${rowData[yi]?fmtP(incNum(rowData[yi])):''}</td>`).join('')}<td class="mono">${fmtP(monthly)}</td></tr>`;});
+      body+=`</tbody></table>`;
+      if(emp.paystubDate)body+=`<div class="note">Paystub: ${emp.paystubDate} · Variable divisor: ${totalMonths} mo · Base divisor: ${currentYearMonths} mo</div>`;
+      body+=`<div class="esub">Employer subtotal / mo: ${fmtP(empTotal)}</div></div>`;
+      personTotal+=empTotal;
+    });
+    (person.otherIncome||[]).filter(r=>r.src||incNum(r.amt)).forEach(r=>{body+=`<div class="or"><span>${esc(r.src||'Other')}</span><span>${fmtP(incNum(r.amt||0))}/mo</span></div>`;personTotal+=incNum(r.amt||0);});
+    body+=`<div class="ptot">Borrower total / mo: ${fmtP(personTotal)}</div></div>`;
+    grand+=personTotal;
+  });
+  const printHTML=`<!DOCTYPE html><html><head><meta charset="UTF-8"><\style>
+  @page{size:letter portrait;margin:.55in .65in}
+  @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
+  *{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:10.5px;color:#1b1f27;background:#fff;line-height:1.4}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14pt;padding-bottom:8pt;border-bottom:1pt solid #000}
+  .hr{text-align:right;font-size:8.5px;color:#555;line-height:1.6}
+  .grand{display:flex;justify-content:space-between;align-items:center;background:#fff8df;border:1pt solid #e3cf7a;border-radius:5px;padding:8px 12px;margin-bottom:14pt}
+  .gl{font-size:11px;color:#5b6472}.gv{font-size:18px;font-weight:700;color:#7b5c12}
+  .ps{margin-bottom:14pt;padding-top:10pt;border-top:1pt solid #b7bec9}.ps:first-of-type{border-top:none;padding-top:0}
+  .pn{font-size:13px;font-weight:700;margin-bottom:7pt}
+  .ec{border:1pt solid #d7dbe2;border-radius:5px;padding:8px 10px;margin-bottom:7pt}
+  .en{font-size:11.5px;font-weight:700;margin-bottom:5pt}
+  table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:5pt}
+  th{text-align:right;font-weight:600;color:#5b6472;padding:3pt 4pt;border-bottom:1pt solid #d7dbe2;font-size:9.5px}th:first-child{text-align:left}
+  td{padding:2.5pt 4pt;border-bottom:.5pt solid #eef0f3;text-align:right}td:first-child{text-align:left;color:#5b6472}
+  .mono{font-weight:700}
+  .note{font-size:8.5px;color:#8891a0;margin-top:3pt}
+  .esub{display:flex;justify-content:flex-end;font-size:11px;font-weight:700;margin-top:5pt;padding-top:5pt;border-top:.5pt solid #b7bec9}
+  .or{display:flex;justify-content:space-between;font-size:10px;padding:2pt 4pt;border-bottom:.5pt solid #eef0f3;color:#5b6472}
+  .ptot{display:flex;justify-content:flex-end;font-size:12px;font-weight:700;margin-top:6pt;padding-top:6pt;border-top:1pt solid #b7bec9}
+  <\/style></head><body>
+  <div class="hdr"><div>${logoHtml}<div style="font-size:8.5px;color:#555;margin-top:4px">NMLS# ${esc(cache.settings?.nmls||'2511614')}</div></div>
+  <div class="hr"><strong>Income Calculation Worksheet</strong><br>${esc(f?.b1||'')}${f?.b2?' &amp; '+esc(f.b2):''}<br>${esc(f?.prop||'')}<br>Prepared: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div></div>
+  <div class="grand"><span class="gl">Combined qualifying monthly income</span><span class="gv">${fmtP(grand)}</span></div>
+  ${body}</body></html>`;
+  const pw=window.open('','_blank','width=900,height=1100');
+  if(!pw){alert('Allow popups to print.');return;}
+  pw.document.write(printHTML);pw.document.close();
+  pw.onload=()=>{pw.focus();pw.print();};
 }
 
 // ── File Stages ──
