@@ -3123,7 +3123,7 @@ function incBuildEmployer(emp, person, pi, ei) {
   years.forEach((yr,yi)=>{
     const th=document.createElement('th');
     const inp=document.createElement('input'); inp.className='inc-year-th'; inp.type='text'; inp.value=yr;
-    inp.oninput=()=>{emp.years[yi]=inp.value;incSave();incRecalcAll();};
+    inp.oninput=inp.onchange=()=>{emp.years[yi]=inp.value;incSave();incRecalcAll();};
     th.appendChild(inp); headRow.appendChild(th);
   });
   const mth=document.createElement('th'); mth.textContent='Monthly'; headRow.appendChild(mth);
@@ -3151,7 +3151,7 @@ function incBuildEmployer(emp, person, pi, ei) {
   const foot=document.createElement('div'); foot.className='inc-emp-foot';
   const dw=document.createElement('div'); dw.className='inc-date-wrap'; dw.appendChild(document.createTextNode('Paystub / as-of date '));
   const dateInp=document.createElement('input'); dateInp.type='date'; dateInp.className='inc-date-inp'; dateInp.value=emp.paystubDate||'';
-  dateInp.oninput=()=>{emp.paystubDate=dateInp.value;incSave();incRecalcAll();};
+  dateInp.oninput = dateInp.onchange = ()=>{emp.paystubDate=dateInp.value;incSave();incRecalcAll();};
   dw.appendChild(dateInp); foot.appendChild(dw);
   const yb=document.createElement('div'); yb.className='inc-year-btns';
   const addYr=document.createElement('button'); addYr.className='btn btn-sm'; addYr.textContent='+ Year';
