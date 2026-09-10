@@ -3141,7 +3141,9 @@ function incBuildEmployer(emp, person, pi, ei) {
       inp.oninput=()=>{if(!emp.rows)emp.rows={};if(!emp.rows[tag])emp.rows[tag]={};emp.rows[tag][yi]=inp.value;incSave();incRecalcAll();};
       td.appendChild(inp); tr.appendChild(td);
     });
-    const mc=document.createElement('td'); mc.className='inc-monthly'; mc.dataset.monthlyCell=`${pi}-${ei}-${tag}`; mc.textContent='$0.00';
+    const mc=document.createElement('td'); mc.className='inc-monthly';
+    mc.dataset.monthlyCell=`${pi}-${ei}-${tag.replace(/\//g,'__')}`;
+    mc.textContent='$0.00';
     tr.appendChild(mc); tbody.appendChild(tr);
   });
   table.appendChild(tbody); card.appendChild(table);
@@ -3222,7 +3224,7 @@ function incRecalcAll(){
         let monthly=0;
         if(isBase){const val=currentColIndex>=0&&rowData[currentColIndex]!=null?incNum(rowData[currentColIndex]):0;monthly=currentYearMonths>0?val/currentYearMonths:0;}
         else{let total=0;years.forEach((_,yi)=>{total+=incNum(rowData[yi]||0);});monthly=totalMonths>0?total/totalMonths:0;}
-        const mc=document.querySelector(`[data-monthly-cell="${pi}-${ei}-${tag}"]`);
+        const mc=document.querySelector(`[data-monthly-cell="${pi}-${ei}-${tag.replace(/\//g,'__')}"]`);
         if(mc)mc.textContent=incFmt(monthly);
         empTotal+=monthly;
       });
