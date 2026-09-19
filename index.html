@@ -129,6 +129,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 .tab-content{display:none}
 .tab-content.active{display:block}
+#tab-docs.active{display:flex;flex-direction:column;max-height:calc(100vh - 260px);overflow-y:auto}
 .bucket{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
 .bucket-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
 .bucket-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -992,8 +993,18 @@ input[type=file]{display:none}
           <div class="tab-content" id="tab-docs">
             <div class="section-header">
               <div class="section-title">Client Document Checklist</div>
-              <div style="display:flex;gap:8px">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                 <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
+                <div style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:4px 10px">
+                  <span style="font-size:11px;color:var(--slate-light);white-space:nowrap">🖼 Logo</span>
+                  <input type="range" id="docLogoSizeSlider" min="40" max="160" step="5" value="60"
+                    style="width:72px;accent-color:var(--gold)"
+                    oninput="document.getElementById('docLogoSizeVal').textContent=this.value+'px';saveDocLogoSize(+this.value)">
+                  <span id="docLogoSizeVal" style="font-size:11px;color:var(--slate);width:34px">60px</span>
+                </div>
+                <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--slate);cursor:pointer;white-space:nowrap">
+                  <input type="checkbox" id="docPrintShowCompleted" checked style="accent-color:var(--gold)"> Show completed
+                </label>
                 <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print List</button>
                 <button class="btn btn-gold btn-sm" onclick="openDocItemModal()">+ Add Document</button>
               </div>
@@ -5978,8 +5989,19 @@ function getFileDocs(fid) {
   return cache.docs[fid];
 }
 
+function saveDocLogoSize(val) {
+  if (!cache.settings) cache.settings = {};
+  cache.settings.docLogoSize = val;
+  saveSettings();
+}
+
 function renderDocTab() {
   if (!currentFileId) return;
+  // sync logo size slider
+  const savedLogoSize = cache.settings?.docLogoSize || 60;
+  const slider = document.getElementById('docLogoSizeSlider');
+  const sliderVal = document.getElementById('docLogoSizeVal');
+  if (slider) { slider.value = savedLogoSize; sliderVal.textContent = savedLogoSize+'px'; }
   const docs = getFileDocs(currentFileId);
   const total = docs.length, accepted = docs.filter(d=>d.status==='accepted').length;
   const needed = docs.filter(d=>d.status==='needed').length;
@@ -7613,27 +7635,36 @@ function printDocChecklist() {
   const f = cache.files.find(x=>x.id===currentFileId);
   if (!f) return;
   const ps = getPrintSettings();
-  const docs = getFileDocs(currentFileId);
+  const allDocs = getFileDocs(currentFileId);
+  const showCompleted = document.getElementById('docPrintShowCompleted')?.checked !== false;
+  const logoSize = cache.settings?.docLogoSize || 60;
   const names = [f.b1,f.b2].filter(Boolean).join(' & ');
   const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  const logo = cache.logo
-    ? `<img src="${cache.logo}" style="width:50px;height:50px;border-radius:9px;object-fit:cover">`
-    : `<div style="width:50px;height:50px;border-radius:9px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-size:20px;color:#c9a84c;font-family:Georgia,serif;font-weight:600">Z</div>`;
+
+  // Sort: non-accepted first, accepted (completed) at bottom
+  const pending = allDocs.filter(d=>d.status!=='accepted');
+  const accepted = allDocs.filter(d=>d.status==='accepted');
+  const docs = showCompleted ? [...pending, ...accepted] : pending;
+
+  const logoHtml = cache.logo
+    ? `<img src="${cache.logo}" style="max-height:${logoSize}px;max-width:${logoSize*3}px;object-fit:contain;display:block">`
+    : `<div style="width:${logoSize}px;height:${logoSize}px;border-radius:9px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);display:flex;align-items:center;justify-content:center;font-size:${Math.round(logoSize*0.4)}px;color:#c9a84c;font-family:Georgia,serif;font-weight:600">Z</div>`;
   const companyName = ps.companyName || 'Zaphire Capital';
   const nmlsLine = ps.nmls ? `<div style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:.06em">${esc(ps.nmls)}</div>` : '';
   const phoneLine = ps.phone ? ` · ${esc(ps.phone)}` : '';
   const footerText = ps.footer || `${companyName}${ps.nmls?' · '+ps.nmls:''}${ps.address?' · '+ps.address:''}`;
-  const introText = ps.intro || 'Please provide the following documents at your earliest convenience. Items marked ✓ have been received and accepted.';
+  const completedNote = !showCompleted && accepted.length ? `<div style="font-size:11.5px;color:#718096;margin-top:14px;padding:7px 12px;background:#f8f6f1;border-radius:5px;border:1px solid #e2ddd4">✓ ${accepted.length} completed item${accepted.length!==1?'s':''} not shown.</div>` : '';
+
   const items = docs.map(d => {
     const checked = d.status==='accepted';
     const box = checked
       ? `<div style="width:17px;height:17px;border-radius:4px;background:#2d6a4f;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:11px;color:#fff">✓</div>`
       : `<div style="width:17px;height:17px;border-radius:4px;border:1.5px solid #c9c0b0;flex-shrink:0;margin-top:2px"></div>`;
-    const strike = checked ? 'text-decoration:line-through;opacity:.5;' : '';
-    return `<div style="display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece4">
+    const itemStyle = checked ? 'opacity:.45;' : '';
+    return `<div style="display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid #f0ece4;${itemStyle}">
       ${box}
-      <div style="${strike}flex:1">
-        <div style="font-size:13.5px;font-weight:600;color:#0a1628;margin-bottom:2px">${esc(d.name)}</div>
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:600;color:#0a1628;margin-bottom:2px${checked?';text-decoration:line-through':''}">${esc(d.name)}</div>
         ${d.spec?`<div style="font-size:12.5px;color:#4a5568;line-height:1.5">${esc(d.spec)}</div>`:''}
         <div style="font-size:11.5px;color:#718096;margin-top:2px">For: ${esc(d.for||'')}</div>
       </div>
@@ -7641,10 +7672,10 @@ function printDocChecklist() {
   }).join('');
   const win = window.open('','_blank');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Document Checklist — ${esc(names)}</title>
-  <\style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@media print{body{margin:0}}<\/style></head><body>
+  <\style>body{font-family:'DM Sans',sans-serif;max-width:660px;margin:40px auto;padding:0 20px;color:#0a1628}@page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}@media print{body{margin:0}}<\/style></head><body>
   <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:2px solid #0a1628">
     <div style="display:flex;align-items:center;gap:12px">
-      ${logo}
+      ${logoHtml}
       <div>
         <div style="font-family:Georgia,serif;font-size:16px;color:#0a1628;font-weight:500">${esc(companyName)}</div>
         ${nmlsLine}
@@ -7660,8 +7691,9 @@ function printDocChecklist() {
     <div style="font-size:15px;font-weight:600;color:#0a1628">${esc(names)}</div>
     <div style="font-size:12.5px;color:#718096;margin-top:2px">${esc(f.prop||'')}${f.loanType?' · '+esc(f.loanType):''}${f.bank?' · '+esc(f.bank):''}</div>
   </div>
-  <p style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:18px">${esc(introText)}</p>
+  <p style="font-size:13px;color:#4a5568;line-height:1.7;margin-bottom:18px">Please provide the following documents at your earliest convenience.${showCompleted?' Items marked ✓ have been received and accepted.':''}</p>
   ${items}
+  ${completedNote}
   <div style="margin-top:22px;padding-top:12px;border-top:1px solid #e2ddd4;display:flex;justify-content:space-between;font-size:11.5px;color:#718096">
     <div>${esc(footerText)}</div><div>Printed ${today}</div>
   </div>
