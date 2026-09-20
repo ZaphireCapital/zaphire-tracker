@@ -41,7 +41,7 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .sync-dot.syncing{background:var(--gold);animation:pulse 1s infinite}
 .sync-dot.error{background:#ef4444}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-#main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+#main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;max-width:calc(100vw - 260px)}
 .topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .topbar-title{font-size:17px;font-weight:500;color:var(--navy)}
 .topbar-actions{display:flex;gap:10px;align-items:center}
@@ -129,7 +129,10 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
 .tab-content{display:none}
 .tab-content.active{display:block}
-#tab-docs.active{display:flex;flex-direction:column;max-height:calc(100vh - 260px);overflow-y:auto}
+#tab-docs.active{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;max-width:100%}
+#tab-docs .section-header{flex-wrap:wrap;gap:8px;row-gap:8px}
+#tab-docs .section-header .section-title{flex-shrink:0}
+#tab-docs .doc-controls-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .bucket{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
 .bucket-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
 .bucket-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -993,20 +996,20 @@ input[type=file]{display:none}
           <div class="tab-content" id="tab-docs">
             <div class="section-header">
               <div class="section-title">Client Document Checklist</div>
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <div class="doc-controls-row">
                 <button class="btn btn-outline btn-sm" onclick="openManageDocTemplatesModal()">⚙ Templates</button>
-                <div style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:4px 10px">
+                <div style="display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:4px 10px;flex-shrink:0">
                   <span style="font-size:11px;color:var(--slate-light);white-space:nowrap">🖼 Logo</span>
                   <input type="range" id="docLogoSizeSlider" min="40" max="160" step="5" value="60"
                     style="width:72px;accent-color:var(--gold)"
                     oninput="document.getElementById('docLogoSizeVal').textContent=this.value+'px';saveDocLogoSize(+this.value)">
                   <span id="docLogoSizeVal" style="font-size:11px;color:var(--slate);width:34px">60px</span>
                 </div>
-                <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--slate);cursor:pointer;white-space:nowrap">
+                <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--slate);cursor:pointer;white-space:nowrap;flex-shrink:0">
                   <input type="checkbox" id="docPrintShowCompleted" checked style="accent-color:var(--gold)"> Show completed
                 </label>
-                <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155" onclick="printDocChecklist()">🖨 Print List</button>
-                <button class="btn btn-gold btn-sm" onclick="openDocItemModal()">+ Add Document</button>
+                <button class="btn btn-outline btn-sm" style="background:#1a3155;color:#fff;border-color:#1a3155;flex-shrink:0" onclick="printDocChecklist()">🖨 Print List</button>
+                <button class="btn btn-gold btn-sm" style="flex-shrink:0" onclick="openDocItemModal()">+ Add Document</button>
               </div>
             </div>
             <div id="docProgressBar"></div>
