@@ -1300,14 +1300,6 @@ input[type=file]{display:none}
                   <button class="btn btn-sm" style="background:var(--navy);color:var(--gold);border:none" onclick="tpcPrint()">🖨 Print Form</button>
                 </div>
               </div>
-              <!-- Section order/visibility manager -->
-              <div class="tpc-mgr">
-                <div class="tpc-mgr-hdr">
-                  <div class="tpc-mgr-title">⚙️ Customize Sections</div>
-                  <div class="tpc-mgr-hint">Drag ⠿ or use ▲▼ to reorder · toggle to show/hide</div>
-                </div>
-                <div class="tpc-mgr-body" id="tpcMgrList"></div>
-              </div>
               <div class="tpc-grid" id="tpcGrid"></div>
             </div>
           </div>
@@ -1458,6 +1450,17 @@ input[type=file]{display:none}
           <button class="btn btn-gold" onclick="cdAddCustomRole()">Add Role</button>
         </div>
         <p style="font-size:11.5px;color:var(--slate-light);margin-top:8px;line-height:1.5">Default roles (Closing Agent, Title, Insurance, Selling Agent, Listing Agent, Appraiser, HOA) are always available and cannot be removed.</p>
+      </div>
+      <div style="margin-top:20px;max-width:680px">
+        <div class="section-header" style="margin-bottom:10px"><div class="section-title" style="font-size:14px">Contact Sheet Section Order &amp; Visibility</div></div>
+        <p style="color:var(--slate-light);font-size:13px;margin-bottom:12px;line-height:1.6">Choose which sections appear on the 3rd Party Contact List and in what order. Drag ⠿ or use ▲▼ to reorder. Toggle to show or hide a section.</p>
+        <div class="tpc-mgr">
+          <div class="tpc-mgr-hdr">
+            <div class="tpc-mgr-title">Sections</div>
+            <div class="tpc-mgr-hint">Changes save automatically</div>
+          </div>
+          <div class="tpc-mgr-body" id="tpcMgrList"></div>
+        </div>
       </div>
       <div class="divider"></div>
       <div class="section-header"><div class="section-title">Document Checklist Print Settings</div></div>
@@ -3089,6 +3092,7 @@ function renderSettings() {
   loadLoanOfficerToForm();
   renderFileStagesList();
   renderCdRolesList();
+  tpcMgrRender();
   renderCFList();
 }
 
@@ -5415,7 +5419,6 @@ function tpcInit() {
   const data=tpcGetData();
   const grid=document.getElementById('tpcGrid');
   if(!grid)return;
-  tpcMgrRender();
   const sections=getTpcSections().filter(s=>s.visible);
   grid.innerHTML=sections.map(sec=>{
     const sd=data[sec.key]||{};
