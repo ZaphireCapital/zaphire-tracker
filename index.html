@@ -151,15 +151,39 @@ body{font-family:var(--font-body);background:var(--cream);color:var(--navy);min-
 .bucket-chevron.open{transform:rotate(180deg)}
 .bucket-body{display:none}
 .bucket-body.open{display:block}
-.condition-card{border-bottom:1px solid #f0ece4;padding:16px 20px}
-.condition-card:last-child{border-bottom:none}
-.condition-card:hover{background:#fdf9f2}
-.condition-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
-.condition-num{width:28px;height:28px;border-radius:6px;background:#f0ece4;color:var(--slate);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:1px}
-.condition-main{flex:1}
-.condition-desc{font-size:14px;font-weight:500;line-height:1.4}
-.condition-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.condition-actions{display:flex;gap:6px;flex-shrink:0}
+/* ── Compact condition row (collapsed) ── */
+.condition-card{position:relative}
+.cond-row-collapsed{display:flex;align-items:flex-start;gap:9px;padding:9px 14px;border-bottom:1px solid #f0ece4;cursor:pointer;transition:background .12s;user-select:none}
+.cond-row-collapsed:last-of-type{border-bottom:none}
+.cond-row-collapsed:hover{background:#fdf9f4}
+.cond-row-collapsed.cond-open{background:#f5efe6}
+.condition-num{background:var(--navy);color:#fff;font-size:10.5px;font-weight:700;border-radius:3px;padding:2px 6px;flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums}
+.condition-desc-short{flex:1;font-size:12.5px;color:var(--navy);line-height:1.45;min-width:0}
+.cond-row-right{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-top:2px}
+.cond-uw-call-chip{font-size:10px;font-weight:700;letter-spacing:.03em;background:#c0392b;color:#fff;border-radius:3px;padding:2px 6px;white-space:nowrap}
+.cond-status-chip{font-size:10.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.cond-status-chip.cs-open{background:#dbeafe;color:#1d4ed8}
+.cond-status-chip.cs-ready{background:#fff3e0;color:#bf6000}
+.cond-status-chip.cs-submitted{background:#e0e7ff;color:#4338ca}
+.cond-status-chip.cs-cleared{background:#dcfce7;color:#15803d}
+.cond-row-arrow{color:var(--slate-light);font-size:11px;transition:transform .2s;line-height:1;flex-shrink:0}
+.cond-row-collapsed.cond-open .cond-row-arrow{transform:rotate(180deg)}
+/* ── Expanded detail panel ── */
+.cond-detail-panel{display:none;padding:12px 16px 14px 16px;background:var(--cream);border-bottom:1px solid #e8e0d4}
+.cond-detail-panel.open{display:block}
+.cond-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px 12px;margin-bottom:11px}
+.cond-detail-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-light);margin-bottom:1px}
+.cond-detail-value{font-size:12px;color:var(--navy)}
+.cond-detail-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:11px}
+.cond-det-btn{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:5px;border:1px solid var(--border-strong);background:var(--white);color:var(--navy);cursor:pointer;white-space:nowrap;font-family:var(--font-body)}
+.cond-det-btn:hover{border-color:var(--navy)}
+.cond-det-btn.danger{color:var(--danger)}
+.cond-det-btn.danger:hover{border-color:var(--danger);background:var(--danger-bg)}
+.cond-det-btn.uw-active{background:#c0392b;border-color:#c0392b;color:#fff}
+.cond-det-btn.uw-active:hover{background:#a93226;border-color:#a93226}
+/* keep existing note styles, just adjust indent */
+.cond-detail-notes{margin-top:2px}
+.cond-detail-notes .notes-list{margin-top:0;padding-left:0}
 .notes-list{margin-top:10px;padding-left:40px}
 .note-item{background:#f8f6f1;border-left:2px solid var(--gold);border-radius:0 6px 6px 0;padding:9px 12px;margin-bottom:6px}
 .note-stamp{font-size:11px;color:var(--slate-light);margin-bottom:4px;display:flex;gap:8px;align-items:center}
@@ -500,13 +524,10 @@ input[type=file]{display:none}
   .cond-req-doc-row{padding:8px 20px 10px;border-top:1px dashed #ede9e1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .cond-req-doc-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(201,168,76,.1);color:#7b5c12;border:1px solid rgba(201,168,76,.35);border-radius:6px;padding:4px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-body)}
   .cond-req-doc-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
-  /* UW flag — Option 3 Corner Ribbon */
-  .uw-ribbon{display:none;position:absolute;top:-1px;right:-1px;background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:4px 12px 4px 10px;border-radius:0 var(--radius) 0 8px;letter-spacing:.04em;pointer-events:none;z-index:2}
-  .condition-card{position:relative}
-  .condition-card.uw-flagged .uw-ribbon{display:block}
+  /* UW toggle button in expanded panel — active state handled by .cond-det-btn.uw-active */
   .uw-toggle-btn{display:inline-flex;align-items:center;gap:4px;cursor:pointer;padding:3px 9px;border-radius:6px;border:1.5px dashed var(--border-strong);background:transparent;font-size:11.5px;font-family:var(--font-body);color:var(--slate-light);transition:all .15s}
-  .uw-toggle-btn:hover{border-color:#dc2626;color:#dc2626;background:#fff1f1}
-  .uw-toggle-btn.active{border-style:solid;border-color:#dc2626;background:#fff1f1;color:#dc2626;font-weight:600}
+  .uw-toggle-btn:hover{border-color:#c0392b;color:#c0392b;background:#fff1f1}
+  .uw-toggle-btn.active{border-style:solid;border-color:#c0392b;background:#fff1f1;color:#c0392b;font-weight:600}
   /* person badge on card */
   .cond-person-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;cursor:default;flex-shrink:0}
   /* sub-category section inside bucket */
@@ -2503,6 +2524,30 @@ function renderConditions(f) {
 }
 
 function condCard(c) {
+  // Status chip class
+  const chipCls = c.status==='Open'?'cs-open':c.status==='Open (Ready to Submit)'?'cs-ready':c.status==='Submitted to Lender'?'cs-submitted':'cs-cleared';
+  const chipLabel = c.status==='Open'?'Open':c.status==='Open (Ready to Submit)'?'Ready':c.status==='Submitted to Lender'?'Submitted':'Cleared ✓';
+  // Status select class (for color coding)
+  const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
+  // UW call chip on collapsed row
+  const uwChip = c.uwFlag ? `<span class="cond-uw-call-chip">UW Call</span>` : '';
+  // UW active class on expanded button
+  const uwBtnCls = c.uwFlag ? 'cond-det-btn uw-active' : 'cond-det-btn';
+  const uwBtnLabel = c.uwFlag ? '📞 UW Flagged' : '📞 UW Call';
+  // Person initials badge
+  const personInitials = c.resp ? c.resp.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '';
+  const personBadge = personInitials ? `<span class="cond-person-badge" title="${esc(c.resp)}">${personInitials}</span>` : '';
+  // Queue badge (for no-queue view)
+  const queueBadge = c.queue ? `<span class="badge badge-gray" style="font-size:11px">📂 ${esc(c.queue)}</span>` : '';
+  // Linked docs
+  const condRef = '#'+(c.num||'?');
+  const linkedDocs = (getFileDocs(currentFileId)||[]).filter(d=>d.condLink&&d.condLink.startsWith(condRef));
+  const linkedBadges = linkedDocs.length ? `<div class="cond-linked-docs" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px">${linkedDocs.map(d=>{
+    const stIcon = d.status==='accepted'?'🟢':d.status==='review'?'🟡':d.status==='resubmit'?'🟣':'🔴';
+    return `<span class="cond-linked-doc-badge" onclick="openDocItemModal('${d.id}')" title="Edit this document request">${stIcon} ${esc(d.name)}</span>`;
+  }).join('')}</div>` : '';
+  const condLabel = JSON.stringify('#'+(c.num||'?')+' — '+c.desc).replace(/'/g,"&#39;");
+  // Notes
   const notes = (c.notes||[]).map((n,ni)=>`
     <div class="note-item" id="note-item-${c.id}-${ni}">
       <div class="note-stamp">
@@ -2522,63 +2567,59 @@ function condCard(c) {
         </div>
       </div>
     </div>`).join('');
-  const sc = c.status==='Open'?'status-open':c.status==='Open (Ready to Submit)'?'status-ready':c.status==='Submitted to Lender'?'status-submitted':'status-cleared';
-  // UW flag — corner ribbon (always in DOM, shown via CSS class on card)
-  const uwCardClass = c.uwFlag ? ' uw-flagged' : '';
-  // Person initials badge
-  const personInitials = c.resp ? c.resp.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '';
-  const personBadge = personInitials ? `<span class="cond-person-badge" title="${esc(c.resp)}">${personInitials}</span>` : '';
-  // Queue badge (shown outside sub-category sections i.e. non-Open buckets)
-  const queueBadge = c.queue ? `<span class="badge badge-gray" style="font-size:11px">📂 ${esc(c.queue)}</span>` : '';
-  // Find docs linked to this condition
-  const condRef = '#'+(c.num||'?');
-  const linkedDocs = (getFileDocs(currentFileId)||[]).filter(d=>d.condLink&&d.condLink.startsWith(condRef));
-  const linkedBadges = linkedDocs.map(d=>{
-    const stIcon = d.status==='accepted'?'🟢':d.status==='review'?'🟡':d.status==='resubmit'?'🟣':'🔴';
-    return `<span class="cond-linked-doc-badge" onclick="openDocItemModal('${d.id}')" title="Edit this document request">${stIcon} ${esc(d.name)}</span>`;
-  }).join('');
-  const condLabel = JSON.stringify('#'+(c.num||'?')+' — '+c.desc).replace(/'/g,"&#39;");
-  const reqDocRow = `<div class="cond-req-doc-row">
-    <button class="cond-req-doc-btn" onclick='openDocItemModalForCond(${condLabel})'>📋 Request Doc from Client</button>
-    ${linkedDocs.length ? `<div class="cond-linked-docs">${linkedBadges}</div>` : ''}
-  </div>`;
-  return `<div class="condition-card${uwCardClass}">
-    <div class="uw-ribbon">📞 UW CALL</div>
-    <div class="condition-top">
+  const noteCount = (c.notes||[]).length;
+  return `<div class="condition-card">
+    <div class="cond-row-collapsed" onclick="toggleCondRow('${c.id}',this)" title="Click to expand">
       <div class="condition-num">${esc(c.num||'?')}</div>
-      <div class="condition-main">
-        <div class="condition-desc">${esc(c.desc)}</div>
-        <div class="condition-meta">
-          <span class="badge badge-navy" style="font-size:11px">${esc(c.cat||' ')}</span>
-          <span class="badge badge-gray" style="font-size:11px">${esc(c.type||' ')}</span>
-          ${c.resp?`<span class="badge badge-gold" style="font-size:11px">  ${esc(c.resp)}</span>`:''}
-          ${queueBadge}
-          ${personBadge}
-          <select class="${sc} status-select" onchange="updateCondStatus('${c.id}',this.value)">
-            <option value="Open" ${c.status==='Open'?'selected':''}>Open</option>
-            <option value="Open (Ready to Submit)" ${c.status==='Open (Ready to Submit)'?'selected':''}>Open (Ready to Submit)</option>
-            <option value="Submitted to Lender" ${c.status==='Submitted to Lender'?'selected':''}>Submitted to Lender</option>
-            <option value="Cleared" ${c.status==='Cleared'?'selected':''}>Cleared</option>
-          </select>
-          <button class="uw-toggle-btn ${c.uwFlag?'active':''}" onclick="toggleUWFlag('${c.id}')">${c.uwFlag?'📞 UW Flagged':'📞 UW Call'}</button>
+      <div class="condition-desc-short">${esc(c.desc)}</div>
+      <div class="cond-row-right">
+        ${uwChip}
+        <span class="cond-status-chip ${chipCls}">${chipLabel}</span>
+        <span class="cond-row-arrow">▾</span>
+      </div>
+    </div>
+    <div class="cond-detail-panel" id="cdp-${c.id}">
+      <div class="cond-detail-grid">
+        ${c.cat?`<div><div class="cond-detail-label">Category</div><div class="cond-detail-value">${esc(c.cat)}</div></div>`:''}
+        ${c.type?`<div><div class="cond-detail-label">Type</div><div class="cond-detail-value">${esc(c.type)}</div></div>`:''}
+        ${c.resp?`<div><div class="cond-detail-label">Responsible</div><div class="cond-detail-value">${esc(c.resp)}</div></div>`:''}
+        ${c.queue?`<div><div class="cond-detail-label">Queue</div><div class="cond-detail-value">${esc(c.queue)}</div></div>`:''}
+      </div>
+      ${linkedBadges}
+      <div class="cond-detail-actions">
+        <select class="${sc} status-select" onchange="updateCondStatus('${c.id}',this.value)">
+          <option value="Open" ${c.status==='Open'?'selected':''}>Open</option>
+          <option value="Open (Ready to Submit)" ${c.status==='Open (Ready to Submit)'?'selected':''}>Open (Ready to Submit)</option>
+          <option value="Submitted to Lender" ${c.status==='Submitted to Lender'?'selected':''}>Submitted to Lender</option>
+          <option value="Cleared" ${c.status==='Cleared'?'selected':''}>Cleared</option>
+        </select>
+        <button class="cond-det-btn" onclick="openEditCondModal('${c.id}')">✏️ Edit</button>
+        <button class="cond-det-btn" onclick='openDocItemModalForCond(${condLabel})'>📎 Request Doc</button>
+        <button class="${uwBtnCls}" onclick="toggleUWFlag('${c.id}')">${uwBtnLabel}</button>
+        <button class="cond-det-btn danger" onclick="deleteCond('${c.id}')">🗑 Delete</button>
+      </div>
+      <div class="cond-detail-notes">
+        ${noteCount?`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-light);margin-bottom:6px">Notes (${noteCount})</div>`:'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-light);margin-bottom:6px">Notes</div>'}
+        <div class="notes-list">${notes}</div>
+        <div class="note-add-inline" id="ni-${c.id}">
+          <textarea id="nt-${c.id}" placeholder="Type your note..."></textarea>
+          <div class="note-add-actions">
+            <button class="btn btn-ghost btn-sm" onclick="closeNote('${c.id}')">Cancel</button>
+            <button class="btn btn-gold btn-sm" onclick="saveNote('${c.id}')">Save Note</button>
+          </div>
         </div>
-      </div>
-      <div class="condition-actions">
-        <button class="btn btn-outline btn-sm" onclick="openEditCondModal('${c.id}')" title="Edit condition">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCond('${c.id}')" title="Delete">Delete</button>
+        <button class="add-note-btn" onclick="openNote('${c.id}')">+ Add Note</button>
       </div>
     </div>
-    ${reqDocRow}
-    <div class="notes-list">${notes}</div>
-    <div class="note-add-inline" id="ni-${c.id}">
-      <textarea id="nt-${c.id}" placeholder="Type your note..."></textarea>
-      <div class="note-add-actions">
-        <button class="btn btn-ghost btn-sm" onclick="closeNote('${c.id}')">Cancel</button>
-        <button class="btn btn-gold btn-sm" onclick="saveNote('${c.id}')">Save Note</button>
-      </div>
-    </div>
-    <button class="add-note-btn" onclick="openNote('${c.id}')">+ Add Note</button>
   </div>`;
+}
+
+function toggleCondRow(id, rowEl) {
+  const panel = document.getElementById('cdp-'+id);
+  if (!panel) return;
+  const isOpen = rowEl.classList.contains('cond-open');
+  rowEl.classList.toggle('cond-open', !isOpen);
+  panel.classList.toggle('open', !isOpen);
 }
 
 function toggleBucket(h) {
