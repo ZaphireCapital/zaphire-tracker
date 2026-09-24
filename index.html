@@ -769,6 +769,28 @@ input[type=file]{display:none}
   .tpc-chip-done{background:var(--success-bg);color:var(--success)}
   .tpc-chip-part{background:#fef3c7;color:#7b5c12}
   .tpc-chip-empty{background:#f0ece4;color:var(--slate-light)}
+  /* TPC section manager */
+  .tpc-mgr{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(10,22,40,.06);margin-bottom:16px}
+  .tpc-mgr-hdr{padding:9px 14px;background:#f8f6f1;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .tpc-mgr-title{font-size:12px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:6px}
+  .tpc-mgr-hint{font-size:11px;color:var(--slate-light)}
+  .tpc-mgr-body{padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+  .tpc-mgr-row{display:flex;align-items:center;gap:7px;padding:6px 8px;background:var(--cream);border:1px solid var(--border);border-radius:7px;cursor:default}
+  .tpc-mgr-row.tpc-mgr-hidden{opacity:.5}
+  .tpc-mgr-row.tpc-drag-over{border-color:var(--gold);background:#fdf6e3}
+  .tpc-drag-handle{cursor:grab;color:var(--slate-light);font-size:13px;padding:0 2px;flex-shrink:0;line-height:1;touch-action:none}
+  .tpc-drag-handle:active{cursor:grabbing}
+  .tpc-mgr-label{flex:1;font-size:12.5px;font-weight:500;color:var(--navy)}
+  .tpc-move-btns{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+  .tpc-move-btn{background:none;border:1px solid var(--border);border-radius:4px;width:20px;height:16px;cursor:pointer;color:var(--slate-light);font-size:9px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0}
+  .tpc-move-btn:hover:not(:disabled){background:var(--border);color:var(--navy)}
+  .tpc-move-btn:disabled{opacity:.3;cursor:default}
+  .tpc-vis-toggle{position:relative;flex-shrink:0}
+  .tpc-vis-toggle input{position:absolute;opacity:0;width:0;height:0}
+  .tpc-toggle-track{display:block;width:32px;height:18px;background:#d1d5db;border-radius:18px;cursor:pointer;transition:background .2s;position:relative}
+  .tpc-vis-toggle input:checked + .tpc-toggle-track{background:var(--navy)}
+  .tpc-toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .18s}
+  .tpc-vis-toggle input:checked + .tpc-toggle-track::after{transform:translateX(14px)}
   .rs-body{display:flex;min-height:520px}
   .rs-sidebar{width:210px;min-width:210px;border-right:1px solid var(--border);background:#f8f6f1;display:flex;flex-direction:column;padding:12px 10px;gap:5px;overflow-y:auto}
   .rs-sidebar-hdr{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--slate-light);padding:4px 2px 6px;border-bottom:1px solid var(--border);margin-bottom:2px}
@@ -1277,6 +1299,14 @@ input[type=file]{display:none}
                   <button class="btn btn-outline btn-sm" onclick="tpcClear()">Clear All</button>
                   <button class="btn btn-sm" style="background:var(--navy);color:var(--gold);border:none" onclick="tpcPrint()">🖨 Print Form</button>
                 </div>
+              </div>
+              <!-- Section order/visibility manager -->
+              <div class="tpc-mgr">
+                <div class="tpc-mgr-hdr">
+                  <div class="tpc-mgr-title">⚙️ Customize Sections</div>
+                  <div class="tpc-mgr-hint">Drag ⠿ or use ▲▼ to reorder · toggle to show/hide</div>
+                </div>
+                <div class="tpc-mgr-body" id="tpcMgrList"></div>
               </div>
               <div class="tpc-grid" id="tpcGrid"></div>
             </div>
@@ -2057,6 +2087,7 @@ const DEFAULTS = {
   },
   contactRoles: [],   // custom roles beyond the 7 defaults
   contactRoleLabels: {}, // editable labels for the 7 default roles
+  tpcSectionConfig: [], // [{key,visible}] — order + visibility for contact sheet sections
   fileStages: []      // custom stages beyond the 4 built-in ones
 };
 
@@ -5222,15 +5253,113 @@ function cdSaveModal() {
   cdRender();
   toast(id ? 'Contact updated' : 'Contact added');
 }
-const TPC_SECTIONS = [
-  {key:'closingAgent',title:'Closing Agent / Escrow Officer',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Contact's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
-  {key:'titleCompany',title:'Title Company',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Title Officer Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Title Officer's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
-  {key:'insurance',title:'Insurance Company',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Agent's Name",span:1},{key:'policyNum',label:'Policy #',span:'full'},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
-  {key:'sellingAgent',title:'Selling Agent',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Real Estate Agent's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
-  {key:'listingAgent',title:'Listing Agent',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Real Estate Agent's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
-  {key:'appraiser',title:'Appraiser',fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Appraiser's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License # (if applicable)',span:1},{key:'contactLicense',label:"Appraiser's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
-  {key:'hoa',title:'Homeowners Association (If Applicable)',full:true,fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Contact's Name",span:1},{key:'phone',label:"Contact's Phone",span:1},{key:'email',label:'Email',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'}]},
+// ── TPC section base definitions (fields only; title comes from cdGetRoles at runtime) ──
+const TPC_SECTION_DEFS = {
+  closingAgent:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Contact's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  titleCompany:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Title Officer Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Title Officer's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  insurance:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Agent's Name",span:1},{key:'policyNum',label:'Policy #',span:'full'},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  sellingAgent:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Agent's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  listingAgent:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Agent's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Agent's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  appraiser:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Appraiser's Name",span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License # (if applicable)',span:1},{key:'contactLicense',label:"Appraiser's License #",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
+  hoa:{full:true,fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:"Contact's Name",span:1},{key:'phone',label:"Contact's Phone",span:1},{key:'email',label:'Email',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'}]},
+};
+// Generic fields for custom roles (no predefined fields)
+const TPC_CUSTOM_FIELDS = [
+  {key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},
+  {key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},
+  {key:'email',label:'Email',span:1},{key:'phone',label:'Phone',span:1},
+  {key:'compLicense',label:'License # (if applicable)',span:1},{key:'notes',label:'Notes',span:'full'},
 ];
+
+// Build live section list from all roles (defaults + custom) + saved order/visibility config
+function getTpcSections() {
+  const roles = cdGetRoles(); // [{key, label, custom?}]
+  const cfg = cache.settings.tpcSectionConfig || [];
+  // Build map of known config entries
+  const cfgMap = {};
+  cfg.forEach(c => { cfgMap[c.key] = c; });
+  // Ensure every role has a config entry (new roles start visible)
+  roles.forEach(r => { if (!cfgMap[r.key]) cfgMap[r.key] = {key:r.key, visible:true}; });
+  // Build ordered list: saved order first, then any new roles at end
+  const orderedKeys = cfg.map(c=>c.key).filter(k=>roles.find(r=>r.key===k));
+  roles.forEach(r => { if (!orderedKeys.includes(r.key)) orderedKeys.push(r.key); });
+  return orderedKeys.map(k => {
+    const role = roles.find(r=>r.key===k);
+    const def = TPC_SECTION_DEFS[k] || {};
+    return {
+      key: k,
+      title: role.label,
+      full: def.full || false,
+      fields: def.fields || TPC_CUSTOM_FIELDS,
+      visible: cfgMap[k] ? cfgMap[k].visible !== false : true,
+      custom: role.custom || false,
+    };
+  });
+}
+
+async function tpcSaveSectionConfig(sections) {
+  if (!cache.settings) cache.settings = {};
+  cache.settings.tpcSectionConfig = sections.map(s=>({key:s.key, visible:s.visible}));
+  await saveSettings();
+}
+
+let _tpcDragFrom = null;
+function tpcMgrRender() {
+  const list = document.getElementById('tpcMgrList');
+  if (!list) return;
+  const sections = getTpcSections();
+  list.innerHTML = sections.map((s,i) => {
+    const isFirst = i===0, isLast = i===sections.length-1;
+    return `<div class="tpc-mgr-row${s.visible?'':' tpc-mgr-hidden'}" data-key="${s.key}" draggable="true"
+      ondragstart="tpcDragStart(event,${i})" ondragover="tpcDragOver(event,${i})" ondrop="tpcDrop(event,${i})" ondragleave="tpcDragLeave(event)">
+      <span class="tpc-drag-handle" title="Drag to reorder">⠿</span>
+      <span class="tpc-mgr-label">${esc(s.title)}</span>
+      <div class="tpc-move-btns">
+        <button class="tpc-move-btn" onclick="tpcMoveSection(${i},-1)" ${isFirst?'disabled':''} title="Move up">▲</button>
+        <button class="tpc-move-btn" onclick="tpcMoveSection(${i},1)" ${isLast?'disabled':''} title="Move down">▼</button>
+      </div>
+      <label class="tpc-vis-toggle" title="${s.visible?'Visible':'Hidden'}">
+        <input type="checkbox" ${s.visible?'checked':''} onchange="tpcToggleVis('${s.key}',this.checked)">
+        <span class="tpc-toggle-track"></span>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+async function tpcToggleVis(key, visible) {
+  const sections = getTpcSections();
+  const s = sections.find(x=>x.key===key);
+  if (s) s.visible = visible;
+  await tpcSaveSectionConfig(sections);
+  tpcMgrRender();
+  tpcInit();
+}
+
+async function tpcMoveSection(i, dir) {
+  const sections = getTpcSections();
+  const j = i + dir;
+  if (j<0||j>=sections.length) return;
+  [sections[i], sections[j]] = [sections[j], sections[i]];
+  await tpcSaveSectionConfig(sections);
+  tpcMgrRender();
+  tpcInit();
+}
+
+function tpcDragStart(e,i) { _tpcDragFrom=i; }
+function tpcDragOver(e,i) { e.preventDefault(); document.querySelectorAll('.tpc-mgr-row').forEach(r=>r.classList.remove('tpc-drag-over')); e.currentTarget.classList.add('tpc-drag-over'); }
+function tpcDragLeave(e) { e.currentTarget.classList.remove('tpc-drag-over'); }
+async function tpcDrop(e,i) {
+  e.preventDefault();
+  document.querySelectorAll('.tpc-mgr-row').forEach(r=>r.classList.remove('tpc-drag-over'));
+  if (_tpcDragFrom===null||_tpcDragFrom===i){_tpcDragFrom=null;return;}
+  const sections = getTpcSections();
+  const moved = sections.splice(_tpcDragFrom,1)[0];
+  sections.splice(i,0,moved);
+  _tpcDragFrom=null;
+  await tpcSaveSectionConfig(sections);
+  tpcMgrRender();
+  tpcInit();
+}
 
 function tpcGetData() {
   const f=cache.files.find(x=>x.id===currentFileId);
@@ -5241,9 +5370,9 @@ function tpcGetData() {
 function tpcSave() {
   const f=cache.files.find(x=>x.id===currentFileId);
   if(!f)return;
-  const data={};
-  TPC_SECTIONS.forEach(sec=>{
-    data[sec.key]={};
+  const data=f.thirdPartyContacts||{};
+  getTpcSections().forEach(sec=>{
+    if(!data[sec.key])data[sec.key]={};
     sec.fields.forEach(field=>{
       const el=document.getElementById('tpc_'+sec.key+'_'+field.key);
       if(el)data[sec.key][field.key]=el.value;
@@ -5259,33 +5388,39 @@ function tpcChip(secData,fields) {
   if(filled>=keys.length-1)return'<span class="tpc-chip tpc-chip-done">✓ Complete</span>';
   return'<span class="tpc-chip tpc-chip-part">◑ Partial</span>';
 }
+function tpcBuildRows(sec, sd) {
+  let rows='', i=0;
+  const ff=sec.fields;
+  while(i<ff.length){
+    const f=ff[i];
+    if(f.span==='full'){
+      rows+=`<div class="tpc-row tpc-r1"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+      i++;
+    } else if(f.span==='addr'){
+      const c=ff[i+1],s=ff[i+2],z=ff[i+3];
+      rows+=`<div class="tpc-row tpc-r4"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(c.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${c.key}" value="${esc(sd[c.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(s.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${s.key}" value="${esc(sd[s.key]||'')}" placeholder="—" maxlength="2" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(z.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${z.key}" value="${esc(sd[z.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+      i+=4;
+    } else if(f.span===1&&ff[i+1]?.span===1){
+      const f2=ff[i+1];
+      rows+=`<div class="tpc-row tpc-r2"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(f2.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f2.key}" value="${esc(sd[f2.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+      i+=2;
+    } else {
+      rows+=`<div class="tpc-row tpc-r1"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
+      i++;
+    }
+  }
+  return rows;
+}
 function tpcInit() {
   const data=tpcGetData();
   const grid=document.getElementById('tpcGrid');
   if(!grid)return;
-  grid.innerHTML=TPC_SECTIONS.map(sec=>{
+  tpcMgrRender();
+  const sections=getTpcSections().filter(s=>s.visible);
+  grid.innerHTML=sections.map(sec=>{
     const sd=data[sec.key]||{};
     const chip=tpcChip(sd,sec.fields);
-    let rows='',i=0;
-    const ff=sec.fields;
-    while(i<ff.length){
-      const f=ff[i];
-      if(f.span==='full'){
-        rows+=`<div class="tpc-row tpc-r1"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
-        i++;
-      } else if(f.span==='addr'){
-        const c=ff[i+1],s=ff[i+2],z=ff[i+3];
-        rows+=`<div class="tpc-row tpc-r4"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(c.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${c.key}" value="${esc(sd[c.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(s.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${s.key}" value="${esc(sd[s.key]||'')}" placeholder="—" maxlength="2" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(z.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${z.key}" value="${esc(sd[z.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
-        i+=4;
-      } else if(f.span===1&&ff[i+1]?.span===1){
-        const f2=ff[i+1];
-        rows+=`<div class="tpc-row tpc-r2"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div><div class="tpc-fg"><div class="tpc-label">${esc(f2.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f2.key}" value="${esc(sd[f2.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
-        i+=2;
-      } else {
-        rows+=`<div class="tpc-row tpc-r1"><div class="tpc-fg"><div class="tpc-label">${esc(f.label)}</div><input class="tpc-input" id="tpc_${sec.key}_${f.key}" value="${esc(sd[f.key]||'')}" placeholder="—" oninput="tpcSave()"></div></div>`;
-        i++;
-      }
-    }
+    const rows=tpcBuildRows(sec,sd);
     return`<div class="tpc-card${sec.full?' tpc-card-full':''}">
       <div class="tpc-card-hdr"><div class="tpc-card-title">${esc(sec.title)}</div>${chip}</div>
       <div class="tpc-picker-row">
@@ -5305,7 +5440,7 @@ function tpcInit() {
       </div>
       <div class="tpc-card-body">${rows}</div>
     </div>`;
-  }).join('');
+  }).join('')||'<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--slate-light);font-size:13px">All sections are hidden — toggle some on in Customize Sections above.</div>';
 }
 function tpcClear() {
   if(!confirm('Clear all 3rd party contact info for this file?'))return;
@@ -5318,27 +5453,41 @@ function tpcClear() {
 
 // ── Contact Directory picker for TPC cards ──
 function cdPickerSearch(input, secKey) {
-  const q = input.value.toLowerCase();
+  const q = input.value.toLowerCase().trim();
   const dd = document.getElementById('tpcDd_' + secKey);
   if (!dd) return;
-  const contacts = (cache.contactDir||[]).filter(c =>
-    (c.roles||[]).includes(secKey) &&
-    (!q ||
+  const allContacts = cache.contactDir || [];
+  // When typing a query: search all contacts by name/company/phone regardless of role
+  // When focused with empty input: show contacts that have this role assigned (or all if none tagged)
+  let contacts;
+  if (q) {
+    contacts = allContacts.filter(c =>
       (c.contactName||'').toLowerCase().includes(q) ||
       (c.companyName||'').toLowerCase().includes(q) ||
-      (c.phone||'').toLowerCase().includes(q))
-  );
+      (c.phone||'').toLowerCase().includes(q) ||
+      (c.email||'').toLowerCase().includes(q)
+    );
+  } else {
+    // Show contacts tagged for this role; fall back to all if none are tagged
+    const roleMatched = allContacts.filter(c => (c.roles||[]).includes(secKey));
+    contacts = roleMatched.length ? roleMatched : allContacts;
+  }
   if (!contacts.length) {
-    dd.innerHTML = `<div class="tpc-dd-empty">No matching contacts${q?'':' for this category'} — <span style="color:var(--gold);cursor:pointer" onclick="cdOpenModal()">Add one</span></div>`;
+    dd.innerHTML = `<div class="tpc-dd-empty">No contacts in directory — <span style="color:var(--gold);cursor:pointer" onclick="cdOpenModal()">Add one</span></div>`;
   } else {
     dd.innerHTML = contacts.map(c => {
       const initials = (c.contactName||c.companyName||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+      const roleLabels = (c.roles||[]).map(rk => {
+        const found = cdGetRoles().find(r=>r.key===rk);
+        return found ? esc(found.label) : '';
+      }).filter(Boolean).join(', ');
       return `<div class="tpc-dd-item" onmousedown="cdPickerFill('${secKey}','${c.id}')">
         <div class="tpc-dd-avatar">${initials}</div>
-        <div>
+        <div style="flex:1;min-width:0">
           <div class="tpc-dd-name">${esc(c.contactName||c.companyName)}</div>
-          <div class="tpc-dd-sub">${esc(c.companyName||'')}${c.phone?' · '+esc(c.phone):''}</div>
+          <div class="tpc-dd-sub">${esc(c.companyName&&c.contactName?c.companyName:'')}${c.phone?' · '+esc(c.phone):''}</div>
         </div>
+        ${roleLabels?`<div class="tpc-dd-role">${roleLabels}</div>`:''}
       </div>`;
     }).join('');
   }
@@ -5374,7 +5523,7 @@ function cdPickerClear(secKey) {
   if (input) input.value = '';
   cdPickerClose(secKey);
   // Clear all fields in this card
-  const sec = TPC_SECTIONS.find(s=>s.key===secKey);
+  const sec = getTpcSections().find(s=>s.key===secKey);
   if (!sec) return;
   sec.fields.forEach(f => {
     const el = document.getElementById(`tpc_${secKey}_${f.key}`);
@@ -5395,11 +5544,26 @@ function tpcPrint() {
   const prop=f?.prop||'';
   const logo=cache.logo||'';
   const logoTag=logo?`<img src="${logo}" style="max-height:60px;object-fit:contain">`:`<div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#c9a84c">Zaphire Capital</div>`;
-  function v(sec,key){return((data[sec]||{})[key]||'').trim();}
+  function v(sk,key){return((data[sk]||{})[key]||'').trim();}
   function r2(l1,v1,l2,v2){return`<div class="r2"><div class="cl"><span class="lb">${l1}</span><span class="ul">${v1}</span></div><div class="cl"><span class="lb">${l2}</span><span class="ul">${v2}</span></div></div>`;}
   function r3(l1,v1,l2,v2,l3,v3){return`<div class="r3"><div class="cl"><span class="lb">${l1}</span><span class="ul">${v1}</span></div><div class="cl"><span class="lb">${l2}</span><span class="ul">${v2}</span></div><div class="cl sm"><span class="lb">${l3}</span><span class="ul">${v3}</span></div></div>`;}
-  function sec(title,body){return`<div class="sc"><div class="st">${title}</div>${body}</div>`;}
+  function secHtml(title,body){return`<div class="sc"><div class="st">${title}</div>${body}</div>`;}
   function addrRows(k){return r3('Address:',v(k,'address'),'City:',v(k,'city'),'State:',v(k,'state'))+r2('Zip Code:',v(k,'zip'),'','');}
+  // Build sections dynamically — only visible, in user-defined order, with renamed labels
+  const visibleSections = getTpcSections().filter(s=>s.visible);
+  const sectionsHtml = visibleSections.map(s => {
+    const k = s.key;
+    const title = s.title; // already uses renamed label
+    // Generic print layout: company/contact name, address, license, email, phone
+    // Special handling for sections with extra known fields
+    let body = r2('Company Name:',v(k,'companyName'),'Contact Name:',v(k,'contactName'));
+    if (v(k,'policyNum')) body += r2('Policy #:',v(k,'policyNum'),'','');
+    body += addrRows(k);
+    body += r2("Company's License #:",v(k,'compLicense'),"Contact's License # (If Applicable):",v(k,'contactLicense'));
+    body += r2('Email:',v(k,'email'),"Contact's Phone:",v(k,'phone'));
+    if (v(k,'notes')) body += r2('Notes:',v(k,'notes'),'','');
+    return secHtml(title, body);
+  }).join('\n  ');
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><\style>
   @page{size:letter portrait;margin:.5in .6in}
   @page{@bottom-left{content:none}@bottom-center{content:none}@bottom-right{content:none}@top-left{content:none}@top-center{content:none}@top-right{content:none}}
@@ -5417,13 +5581,7 @@ function tpcPrint() {
   <div class="hdr">${logoTag}</div>
   <div class="dtitle">3rd Party Contact List</div>
   ${borrower||prop?`<div class="bline">${borrower?'Borrower: <strong>'+borrower+'</strong>':''}${borrower&&prop?' &nbsp;·&nbsp; ':''}${prop?'Property: <strong>'+prop+'</strong>':''}</div>`:''}
-  ${sec('Closing Agent / Escrow Officer',r2('Company Name:',v('closingAgent','companyName'),'Contact Name:',v('closingAgent','contactName'))+addrRows('closingAgent')+r2("Company's License #:",v('closingAgent','compLicense'),"Contact's License # (If Applicable):",v('closingAgent','contactLicense'))+r2('Email:',v('closingAgent','email'),"Contact's Phone:",v('closingAgent','phone')))}
-  ${sec('Title Company',r2('Company Name:',v('titleCompany','companyName'),'Title Officer Name:',v('titleCompany','contactName'))+addrRows('titleCompany')+r2("Company's License #:",v('titleCompany','compLicense'),"Title Officer's License # (If Applicable):",v('titleCompany','contactLicense'))+r2('Email:',v('titleCompany','email'),"Contact's Phone:",v('titleCompany','phone')))}
-  ${sec('Insurance Company',r2('Company Name:',v('insurance','companyName'),"Agent's Name:",v('insurance','contactName'))+r2('Policy #:',v('insurance','policyNum'),'','')+addrRows('insurance')+r2("Company's License #:",v('insurance','compLicense'),"Insurance Agent's License # (If Applicable):",v('insurance','contactLicense'))+r2('Email:',v('insurance','email'),"Contact's Phone:",v('insurance','phone')))}
-  ${sec('Selling Agent',r2('Company Name:',v('sellingAgent','companyName'),"Real Estate Agent's Name:",v('sellingAgent','contactName'))+addrRows('sellingAgent')+r2("Company's License #:",v('sellingAgent','compLicense'),"Real Estate Agent's License #:",v('sellingAgent','contactLicense'))+r2('Email:',v('sellingAgent','email'),"Contact's Phone:",v('sellingAgent','phone')))}
-  ${sec('Listing Agent',r2('Company Name:',v('listingAgent','companyName'),"Real Estate Agent's Name:",v('listingAgent','contactName'))+addrRows('listingAgent')+r2("Company's License #:",v('listingAgent','compLicense'),"Real Estate Agent's License #:",v('listingAgent','contactLicense'))+r2('Email:',v('listingAgent','email'),"Contact's Phone:",v('listingAgent','phone')))}
-  ${sec('Appraiser',r2('Company Name:',v('appraiser','companyName'),"Appraiser's Name:",v('appraiser','contactName'))+addrRows('appraiser')+r2('Company License (If Applicable) #:',v('appraiser','compLicense'),"Appraiser's License #:",v('appraiser','contactLicense'))+r2('Email:',v('appraiser','email'),"Contact's Phone:",v('appraiser','phone')))}
-  ${sec('Homeowners Association (If Applicable)',r2('Company Name:',v('hoa','companyName'),"Contact's Name:",v('hoa','contactName'))+addrRows('hoa')+r2('Email:',v('hoa','email'),"Contact's Phone:",v('hoa','phone')))}
+  ${sectionsHtml}
   </body></html>`;
   const pw=window.open('','_blank','width=900,height=1100');
   if(!pw){alert('Allow popups to print.');return;}
