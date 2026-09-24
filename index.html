@@ -734,7 +734,7 @@ input[type=file]{display:none}
   .cd-add-card:hover{border-color:var(--gold);background:#fffdf7;color:var(--navy)}
 
   /* ── Contact Picker inside TPC cards ── */
-  .tpc-picker-row{padding:7px 12px;background:#f8f6f2;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+  .tpc-picker-row{padding:7px 12px;background:#f8f6f2;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px;position:relative}
   .tpc-picker-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
   .tpc-picker-input-row{display:flex;gap:6px;align-items:center;position:relative}
   .tpc-picker-wrap{position:relative;flex:1}
@@ -752,9 +752,9 @@ input[type=file]{display:none}
   .tpc-dd-empty{padding:10px;text-align:center;font-size:12px;color:var(--slate-light)}
   .tpc-body{padding:20px}
   .tpc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .tpc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 4px rgba(10,22,40,.06)}
+  .tpc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:visible;box-shadow:0 1px 4px rgba(10,22,40,.06)}
   .tpc-card-full{grid-column:1/-1}
-  .tpc-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--navy)}
+  .tpc-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--navy);border-radius:var(--radius) var(--radius) 0 0}
   .tpc-card-title{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gold)}
   .tpc-card-body{padding:12px 14px;display:flex;flex-direction:column;gap:9px}
   .tpc-row{display:grid;gap:8px}
