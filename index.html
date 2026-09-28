@@ -301,6 +301,39 @@ input[type=file]{display:none}
   .next-up-detail{font-size:13px;color:rgba(255,255,255,.6);margin-top:2px}
   .dates-filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 
+  /* ── Dates two-column layout ── */
+  .dates-layout{display:grid;grid-template-columns:1fr 272px;gap:20px;align-items:start}
+  @media(max-width:820px){.dates-layout{grid-template-columns:1fr}}
+  .dates-cal-stack{display:flex;flex-direction:column;gap:12px;position:sticky;top:16px}
+  /* Mini calendar */
+  .mini-cal{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 1px 4px rgba(10,22,40,.07);overflow:hidden}
+  .mini-cal-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--navy);border-radius:var(--radius) var(--radius) 0 0}
+  .mini-cal-hdr-title{font-size:12.5px;font-weight:600;color:#fff}
+  .mini-cal-hdr-count{font-size:11px;color:rgba(201,168,76,.9);font-weight:500}
+  .mini-cal-body{padding:8px 10px 10px}
+  .mini-cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:3px}
+  .mini-cal-dow span{text-align:center;font-size:9px;font-weight:600;color:var(--slate-light);text-transform:uppercase;letter-spacing:.04em}
+  .mini-cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+  .mini-cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:4px;cursor:default;position:relative}
+  .mini-cal-day-num{font-size:10.5px;font-weight:400;color:var(--navy);line-height:1;font-variant-numeric:tabular-nums}
+  .mini-cal-day.empty .mini-cal-day-num{color:var(--border-strong)}
+  .mini-cal-day.is-today{background:rgba(201,168,76,.18)}
+  .mini-cal-day.is-today .mini-cal-day-num{font-weight:700;color:#7b5c12}
+  .mini-cal-day.has-event{background:var(--navy)}
+  .mini-cal-day.has-event .mini-cal-day-num{color:var(--gold);font-weight:700}
+  .mini-cal-day.has-event.is-today{background:var(--navy)}
+  .mini-cal-event-dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%}
+  /* Upcoming quick list */
+  .dates-upcoming-list{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 1px 4px rgba(10,22,40,.07);overflow:hidden}
+  .dates-upcoming-hdr{padding:9px 12px;background:var(--navy);display:flex;align-items:center;justify-content:space-between}
+  .dates-upcoming-hdr-title{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+  .dates-upcoming-row{display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid var(--border)}
+  .dates-upcoming-row:last-child{border-bottom:none}
+  .dates-upcoming-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .dates-upcoming-name{font-size:11.5px;font-weight:500;color:var(--navy);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dates-upcoming-date{font-size:11px;color:var(--slate-light);white-space:nowrap;font-variant-numeric:tabular-nums;margin-left:4px}
+  .dates-upcoming-agency{font-size:10px;padding:1px 6px;border-radius:8px;background:#e8edf5;color:var(--navy);font-weight:600;white-space:nowrap;flex-shrink:0}
+
   /* ── LENDER DIRECTORY ── */
   .lender-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - 60px)}
   .lender-left{width:220px;min-width:220px;border-right:1px solid var(--border);background:var(--white);display:flex;flex-direction:column;overflow:hidden}
@@ -1588,7 +1621,10 @@ input[type=file]{display:none}
         </div>
         <button class="btn btn-gold" onclick="openNewDateModal()">+ Add Date</button>
       </div>
-      <div id="datesContent"></div>
+      <div class="dates-layout">
+        <div id="datesContent"></div>
+        <div class="dates-cal-stack" id="datesMiniCals"></div>
+      </div>
     </div>
     <!-- CUSTOM FIELDS -->
     <div class="page" id="page-customfields"></div>
@@ -3851,6 +3887,109 @@ function renderDates() {
   }).join('');
 
   document.getElementById('datesContent').innerHTML = html;
+  renderDatesMiniCals();
+}
+
+function renderDatesMiniCals() {
+  const container = document.getElementById('datesMiniCals');
+  if (!container) return;
+  const all = cache.dates || [];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  // Collect all incomplete upcoming/overdue/soon items with a due date
+  const pending = all.filter(d => !d.completed && d.due);
+
+  // Group events by YYYY-MM
+  const byMonth = {};
+  pending.forEach(d => {
+    const dt = new Date(d.due + 'T00:00:00');
+    const key = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0');
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(d);
+  });
+
+  // Sort month keys chronologically; include current month even if no events
+  const curKey = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0');
+  const allKeys = Object.keys(byMonth).sort();
+  if (!allKeys.includes(curKey)) allKeys.unshift(curKey);
+  allKeys.sort();
+
+  // Limit to next 3 months max
+  const keys = allKeys.slice(0,3);
+
+  // Quick upcoming list: all pending sorted by date
+  const sortedPending = [...pending].sort((a,b)=>new Date(a.due)-new Date(b.due));
+
+  function dotColor(d) {
+    const s = getDayStatus(d.due);
+    return s==='overdue'?'var(--danger)':s==='soon'?'var(--warning)':'var(--gold)';
+  }
+
+  function buildMiniCal(key) {
+    const [y,m] = key.split('-').map(Number);
+    const monthName = MONTHS[m-1] + ' ' + y;
+    const events = byMonth[key] || [];
+    const count = events.length;
+
+    // Map day -> event (use worst status if multiple on same day)
+    const dayMap = {};
+    events.forEach(d => {
+      const day = new Date(d.due + 'T00:00:00').getDate();
+      const s = getDayStatus(d.due);
+      const priority = s==='overdue'?0:s==='soon'?1:2;
+      if (!dayMap[day] || priority < dayMap[day].priority) {
+        dayMap[day] = { priority, color: dotColor(d) };
+      }
+    });
+
+    const firstDay = new Date(y, m-1, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const todayDay = (today.getFullYear()===y && today.getMonth()===m-1) ? today.getDate() : -1;
+
+    let days = '';
+    for (let i=0;i<firstDay;i++) days += '<div class="mini-cal-day empty"><span class="mini-cal-day-num"></span></div>';
+    for (let d=1;d<=daysInMonth;d++) {
+      const ev = dayMap[d];
+      const isT = d===todayDay;
+      const cls = (ev?'has-event':'') + (isT?' is-today':'');
+      const dot = ev && !ev ? '' : (ev ? '<div class="mini-cal-event-dot" style="background:'+ev.color+'"></div>' : '');
+      days += '<div class="mini-cal-day '+cls+'"><span class="mini-cal-day-num">'+d+'</span>'+dot+'</div>';
+    }
+
+    return '<div class="mini-cal">' +
+      '<div class="mini-cal-hdr"><span class="mini-cal-hdr-title">'+monthName+'</span>'+(count?'<span class="mini-cal-hdr-count">'+count+' item'+(count===1?'':'s')+'</span>':'')+'</div>' +
+      '<div class="mini-cal-body">' +
+      '<div class="mini-cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>' +
+      '<div class="mini-cal-days">'+days+'</div>' +
+      '</div></div>';
+  }
+
+  const cals = keys.map(buildMiniCal).join('');
+
+  // Upcoming list panel
+  let listRows = '';
+  if (sortedPending.length) {
+    listRows = sortedPending.slice(0,10).map(d => {
+      const dt = new Date(d.due + 'T00:00:00');
+      const dateStr = dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const color = dotColor(d);
+      return '<div class="dates-upcoming-row">' +
+        '<div class="dates-upcoming-dot" style="background:'+color+'"></div>' +
+        '<div class="dates-upcoming-name">'+esc(d.title)+'</div>' +
+        '<div class="dates-upcoming-date">'+dateStr+'</div>' +
+        (d.requiredBy?'<div class="dates-upcoming-agency">'+esc(d.requiredBy)+'</div>':'') +
+        '</div>';
+    }).join('');
+  } else {
+    listRows = '<div style="padding:12px;text-align:center;font-size:12px;color:var(--slate-light)">No upcoming items</div>';
+  }
+
+  const upcomingPanel = '<div class="dates-upcoming-list">' +
+    '<div class="dates-upcoming-hdr"><span class="dates-upcoming-hdr-title">Upcoming</span></div>' +
+    listRows + '</div>';
+
+  container.innerHTML = cals + upcomingPanel;
 }
 
 function renderDateItem(d) {
