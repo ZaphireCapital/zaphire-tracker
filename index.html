@@ -7273,6 +7273,29 @@ function rsRenderPreviewTab(c) {
     <div class="rs-ws-disc">This worksheet is for comparison purposes only and does not constitute a loan commitment. All figures are estimates. · ${esc(oName)}${oNmls?' · NMLS '+esc(oNmls):''}</div>
   </div>`.replace('{{type}}',{purchase:'Purchase',refi:'Refinance',heloc:'HELOC'}[c.loanType]||'');
   panel.innerHTML = `${wsHtml}<div style="margin-top:10px;text-align:right"><button class="btn btn-navy" onclick="rsPrint()">🖨 Print PDF</button></div>`;
+  // Sync break-even column widths to the actual table header widths
+  requestAnimationFrame(()=>{
+    const tbl=panel.querySelector('.rs-ws-tbl');
+    const bePanel=panel.querySelector('.rs-ws-be-panel');
+    if(!tbl||!bePanel)return;
+    const ths=[...tbl.querySelectorAll('thead tr th')];
+    const beCols=[...bePanel.querySelectorAll('.rs-ws-be-col')];
+    if(!ths.length||!beCols.length)return;
+    // The be-cols row has: [label col, sc1..scN] — skip any "current" th (showCur adds one extra th before sc1)
+    // th[0] = label col, th[1] = current (if showCur), th[1 or 2..] = scenario ths
+    const showCur=ths.length>beCols.length; // current col in table but not in be panel
+    // Map: beCol[0] → th[0] (label), beCol[1..] → th[showCur?2:1..]
+    const thWidths=ths.map(th=>th.getBoundingClientRect().width);
+    beCols[0].style.width=thWidths[0]+'px';
+    beCols[0].style.minWidth=thWidths[0]+'px';
+    beCols[0].style.maxWidth=thWidths[0]+'px';
+    const offset=showCur?2:1;
+    for(let i=1;i<beCols.length;i++){
+      const w=thWidths[offset+i-1]||0;
+      if(w){beCols[i].style.width=w+'px';beCols[i].style.minWidth=w+'px';beCols[i].style.maxWidth=w+'px';}
+    }
+    bePanel.querySelector('.rs-ws-be-cols').style.width=tbl.getBoundingClientRect().width+'px';
+  });
 }
 
 function rsPrint() {
