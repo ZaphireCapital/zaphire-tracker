@@ -5420,8 +5420,14 @@ function paInvertLogoWhite(srcDataUrl) {
 
 function paPrint() {
   const l = paGetActive(); if (!l) { toast('No letter to print'); return; }
-  const rawLogo = cache.logo || ZC_LOGO_B64;
-  paInvertLogoWhite(rawLogo).then(function(whiteLogo) { paPrintWithLogo(l, whiteLogo); });
+  // Only use an actual uploaded logo (cache.logo); skip the hardcoded base64 fallback
+  // which fails to render in the print popup due to browser security restrictions.
+  // If no logo uploaded yet, paPrintWithLogo will render a styled text placeholder instead.
+  if (cache.logo) {
+    paInvertLogoWhite(cache.logo).then(function(whiteLogo) { paPrintWithLogo(l, whiteLogo); });
+  } else {
+    paPrintWithLogo(l, '');
+  }
 }
 
 function paPrintWithLogo(l, ZC_LOGO) {
@@ -5444,7 +5450,10 @@ function paPrintWithLogo(l, ZC_LOGO) {
   // (caller already resolved the white-logo data URL via canvas before calling this inner fn)
   const logoImg = ZC_LOGO
     ? '<img src="'+ZC_LOGO+'" style="width:100%;height:auto;display:block" alt="Zaphire Capital">'
-    : '<div style="font-size:11px;font-weight:800;color:#fff;letter-spacing:2px">ZAPHIRE</div>';
+    : '<div style="text-align:center;padding:6pt 0">'
+      + '<div style="font-size:22pt;font-weight:900;color:#c9a84c;letter-spacing:-1px;line-height:1">Z<\/div>'
+      + '<div style="font-size:6pt;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.12em;text-transform:uppercase;margin-top:4pt;line-height:1.3">ZAPHIRE<br>CAPITAL<\/div>'
+      + '<\/div>';
   const condRows = conds.map(c=>'<div style="display:flex;align-items:center;gap:9pt;font-size:10.5pt;color:#333;margin-bottom:5pt"><div style="width:5pt;height:5pt;border-radius:50%;background:#0d1728;flex-shrink:0"></div>'+esc(c)+'</div>').join('');
   const tileStyle = 'border:1pt solid #e8e3dc;border-radius:5pt;padding:9pt 12pt;background:#fff';
   const tileLbl = 'font-size:6.5pt;letter-spacing:.08em;text-transform:uppercase;color:#aaa;margin-bottom:3pt;font-family:sans-serif';
