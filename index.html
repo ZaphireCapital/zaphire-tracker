@@ -5420,14 +5420,9 @@ function paInvertLogoWhite(srcDataUrl) {
 
 function paPrint() {
   const l = paGetActive(); if (!l) { toast('No letter to print'); return; }
-  // Only use an actual uploaded logo (cache.logo); skip the hardcoded base64 fallback
-  // which fails to render in the print popup due to browser security restrictions.
-  // If no logo uploaded yet, paPrintWithLogo will render a styled text placeholder instead.
-  if (cache.logo) {
-    paInvertLogoWhite(cache.logo).then(function(whiteLogo) { paPrintWithLogo(l, whiteLogo); });
-  } else {
-    paPrintWithLogo(l, '');
-  }
+  // Skip canvas entirely — popup windows can't render canvas-tainted or processed data URLs.
+  // Pass cache.logo directly if uploaded; otherwise empty string triggers the text placeholder.
+  paPrintWithLogo(l, cache.logo || '');
 }
 
 function paPrintWithLogo(l, ZC_LOGO) {
@@ -5449,7 +5444,7 @@ function paPrintWithLogo(l, ZC_LOGO) {
   // Build the print window inline — must be synchronous, so logo is passed in
   // (caller already resolved the white-logo data URL via canvas before calling this inner fn)
   const logoImg = ZC_LOGO
-    ? '<img src="'+ZC_LOGO+'" style="width:100%;height:auto;display:block" alt="Zaphire Capital">'
+    ? '<div style="background:#fff;border-radius:5pt;padding:5pt;text-align:center"><img src="'+ZC_LOGO+'" style="width:100%;height:auto;display:block;max-height:60pt;object-fit:contain" alt="Zaphire Capital"><\/div>'
     : '<div style="text-align:center;padding:6pt 0">'
       + '<div style="font-size:22pt;font-weight:900;color:#c9a84c;letter-spacing:-1px;line-height:1">Z<\/div>'
       + '<div style="font-size:6pt;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.12em;text-transform:uppercase;margin-top:4pt;line-height:1.3">ZAPHIRE<br>CAPITAL<\/div>'
