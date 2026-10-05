@@ -804,6 +804,40 @@ input[type=file]{display:none}
   .cd-actions{display:flex;gap:6px;padding:7px 13px;border-top:1px solid var(--border);background:#faf9f7}
   .cd-add-card{background:var(--white);border:2px dashed var(--border-strong);border-radius:var(--radius-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:28px 20px;cursor:pointer;color:var(--slate-light);transition:border-color .15s,background .15s;min-height:180px}
   .cd-add-card:hover{border-color:var(--gold);background:#fffdf7;color:var(--navy)}
+  /* CD People stack */
+  .cd-people-stack{padding:8px 13px;display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--border)}
+  .cd-person-row{display:flex;align-items:center;gap:6px}
+  .cd-person-avatar{width:22px;height:22px;border-radius:50%;background:var(--navy-light,#1e3a6b);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--gold);flex-shrink:0}
+  .cd-person-name{font-size:11.5px;color:var(--slate);line-height:1.3}
+  .cd-person-title{font-size:10.5px;color:var(--slate-light);margin-left:auto;flex-shrink:0}
+  .cd-people-more{font-size:10.5px;color:var(--gold);font-weight:600;padding:1px 7px;background:var(--gold-pale);border-radius:10px;display:inline-block;margin-top:1px}
+  .cd-people-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;background:var(--success-bg,#dcfce7);color:var(--success,#166534);border-radius:10px;padding:1px 7px}
+  .cd-phones{display:flex;flex-wrap:wrap;gap:4px;padding:6px 13px;border-top:1px solid var(--border)}
+  .cd-phone-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:10.5px;background:#f0ece4;color:var(--slate)}
+  .cd-phone-pill b{font-weight:700;color:var(--slate-light);font-size:9.5px;margin-right:1px}
+  /* CD header actions */
+  .cd-header-row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 4px;flex-shrink:0}
+  /* CD Detail modal tabs */
+  .cd-tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);padding:0 18px;margin-bottom:0}
+  .cd-tab{padding:9px 14px;font-size:12.5px;font-weight:600;color:var(--slate-light);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .12s}
+  .cd-tab.on{color:var(--navy);border-bottom-color:var(--gold)}
+  .cd-tab-panel{display:none;padding:16px 18px;overflow-y:auto;max-height:55vh;flex:1}
+  .cd-tab-panel.on{display:block}
+  /* Notes in detail modal */
+  .cd-note-item{padding:9px 12px;background:#faf9f7;border:1px solid var(--border);border-radius:8px;margin-bottom:7px;position:relative}
+  .cd-note-text{font-size:12.5px;color:var(--navy);line-height:1.55}
+  .cd-note-meta{font-size:10.5px;color:var(--slate-light);margin-top:4px}
+  .cd-note-del{position:absolute;top:7px;right:9px;background:none;border:none;font-size:14px;color:var(--slate-light);cursor:pointer;padding:0 2px;line-height:1}
+  .cd-note-del:hover{color:#b91c1c}
+  /* Linked file rows */
+  .cd-linked-row{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px;background:var(--white)}
+  .cd-linked-icon{font-size:16px;flex-shrink:0}
+  .cd-linked-name{font-size:12.5px;font-weight:600;color:var(--navy);line-height:1.2}
+  .cd-linked-sub{font-size:10.5px;color:var(--slate-light)}
+  /* People edit blocks */
+  .cd-person-block{background:#faf9f7;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;position:relative}
+  .cd-person-block-del{position:absolute;top:7px;right:9px;background:none;border:none;font-size:16px;color:var(--slate-light);cursor:pointer;line-height:1;padding:0}
+  .cd-person-block-del:hover{color:#b91c1c}
 
   /* ── Contact Picker inside TPC cards ── */
   .tpc-picker-row{padding:7px 12px;background:#f8f6f2;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px;position:relative}
@@ -1651,6 +1685,10 @@ input[type=file]{display:none}
     <!-- CONTACTS DIRECTORY -->
     <div class="page" id="page-contacts">
       <div class="cd-body">
+        <div class="cd-header-row">
+          <div style="font-size:13px;font-weight:700;color:var(--navy)">Contact Directory</div>
+          <button class="btn btn-outline btn-sm" onclick="cdExportCSV()" style="font-size:11.5px;gap:4px;display:flex;align-items:center">⬇ Export CSV</button>
+        </div>
         <div class="cd-filter-bar">
           <div class="cd-search-wrap">
             <span class="cd-search-icon">🔍</span>
@@ -5339,15 +5377,60 @@ function paDelete() {
   toast('Letter deleted');
 }
 
+// Convert a dark logo to white using Canvas API (for print fidelity)
+function paInvertLogoWhite(srcDataUrl) {
+  return new Promise(function(resolve) {
+    if (!srcDataUrl) { resolve(''); return; }
+    const img = new Image();
+    img.onload = function() {
+      try {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth || 200; c.height = img.naturalHeight || 200;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const d = ctx.getImageData(0, 0, c.width, c.height);
+        const px = d.data;
+        for (let i = 0; i < px.length; i += 4) {
+          const a = px[i+3];
+          if (a > 10) {
+            // Check if pixel is already light/white — keep it white
+            // If pixel is dark (colored logo on light bg), also make it white for the navy sidebar
+            px[i] = 255; px[i+1] = 255; px[i+2] = 255;
+            px[i+3] = Math.min(255, a + 80); // boost alpha slightly for edge smoothness
+          } else {
+            px[i+3] = 0;
+          }
+        }
+        ctx.putImageData(d, 0, 0);
+        try {
+          resolve(c.toDataURL('image/png'));
+        } catch(e) {
+          // canvas tainted — return original and hope browser prints it
+          resolve(srcDataUrl);
+        }
+      } catch(e) {
+        resolve(srcDataUrl);
+      }
+    };
+    img.onerror = function() { resolve(''); };
+    img.crossOrigin = 'anonymous';
+    img.src = srcDataUrl;
+  });
+}
+
 function paPrint() {
   const l = paGetActive(); if (!l) { toast('No letter to print'); return; }
+  const rawLogo = cache.logo || ZC_LOGO_B64;
+  paInvertLogoWhite(rawLogo).then(function(whiteLogo) { paPrintWithLogo(l, whiteLogo); });
+}
+
+function paPrintWithLogo(l, ZC_LOGO) {
   const lo = cache.settings?.loanOfficer || {};
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
   const co = cache.settings || {};
   const nmls = co.nmls || '2511614';
-  const ZC_LOGO = cache.logo || ZC_LOGO_B64;
   const names = [l.b1, l.b2].filter(Boolean).map(esc).join(' & ');
   const clientAddr = (l.clientAddr||'').split('\n').map(x=>esc(x.trim())).filter(Boolean).join('<br>');
   const toBlock = [names, clientAddr].filter(Boolean).join('<br>');
@@ -5357,8 +5440,10 @@ function paPrint() {
   const conds = (l.conditions||[]).filter(x=>x.trim());
   const b = l.body || PA_DEFAULT_BODY;
   const propMeta = [l.propType, l.occupancy, l.transaction].filter(Boolean).map(esc).join(' · ');
+  // Build the print window inline — must be synchronous, so logo is passed in
+  // (caller already resolved the white-logo data URL via canvas before calling this inner fn)
   const logoImg = ZC_LOGO
-    ? '<img src="'+ZC_LOGO+'" style="width:100%;height:auto;display:block;-webkit-filter:brightness(0) invert(1);filter:brightness(0) invert(1)" alt="Zaphire Capital">'
+    ? '<img src="'+ZC_LOGO+'" style="width:100%;height:auto;display:block" alt="Zaphire Capital">'
     : '<div style="font-size:11px;font-weight:800;color:#fff;letter-spacing:2px">ZAPHIRE</div>';
   const condRows = conds.map(c=>'<div style="display:flex;align-items:center;gap:9pt;font-size:10.5pt;color:#333;margin-bottom:5pt"><div style="width:5pt;height:5pt;border-radius:50%;background:#0d1728;flex-shrink:0"></div>'+esc(c)+'</div>').join('');
   const tileStyle = 'border:1pt solid #e8e3dc;border-radius:5pt;padding:9pt 12pt;background:#fff';
@@ -5452,6 +5537,25 @@ function cdAvatarColor(name) {
   return colors[h];
 }
 
+function cdFmtPhone(raw) {
+  if (!raw) return '';
+  const d = (raw+'').replace(/\D/g,'');
+  if (d.length === 10) return '('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6);
+  if (d.length === 11 && d[0]==='1') return '('+d.slice(1,4)+') '+d.slice(4,7)+'-'+d.slice(7);
+  return raw;
+}
+
+function cdPhoneInput(e) {
+  const inp = e.target;
+  const pos = inp.selectionStart;
+  const raw = inp.value.replace(/\D/g,'').slice(0,10);
+  let fmt = raw;
+  if (raw.length >= 7) fmt = '('+raw.slice(0,3)+') '+raw.slice(3,6)+'-'+raw.slice(6);
+  else if (raw.length >= 4) fmt = '('+raw.slice(0,3)+') '+raw.slice(3);
+  else if (raw.length > 0) fmt = '('+raw;
+  inp.value = fmt;
+}
+
 function cdRender() {
   const grid = document.getElementById('cdGrid');
   if (!grid) return;
@@ -5459,19 +5563,19 @@ function cdRender() {
   const roles = cdGetRoles();
   let contacts = cdGetAll();
   if (cdFilterRole) contacts = contacts.filter(c => (c.roles||[]).includes(cdFilterRole));
-  if (q) contacts = contacts.filter(c =>
-    (c.contactName||'').toLowerCase().includes(q) ||
-    (c.companyName||'').toLowerCase().includes(q) ||
-    (c.phone||'').toLowerCase().includes(q) ||
-    (c.email||'').toLowerCase().includes(q)
-  );
+  if (q) contacts = contacts.filter(c => {
+    const people = (c.people||[]);
+    return (c.companyName||'').toLowerCase().includes(q) ||
+      (c.contactName||'').toLowerCase().includes(q) ||
+      (c.cellPhone||c.phone||'').toLowerCase().includes(q) ||
+      (c.workPhone||'').toLowerCase().includes(q) ||
+      (c.email||'').toLowerCase().includes(q) ||
+      people.some(p => (p.name||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q) || (p.phone||'').toLowerCase().includes(q));
+  });
   // Update filter chip bar dynamically
   const filterBar = document.querySelector('.cd-filter-bar');
   if (filterBar) {
-    const existing = filterBar.querySelector('.cd-search-wrap');
-    // Remove old chips (everything except search wrap)
     [...filterBar.children].forEach(ch => { if (!ch.classList.contains('cd-search-wrap')) ch.remove(); });
-    // Re-add chips
     const allBtn = document.createElement('button');
     allBtn.className = 'filter-btn' + (!cdFilterRole ? ' active' : '');
     allBtn.textContent = 'All';
@@ -5487,26 +5591,54 @@ function cdRender() {
   }
   const roleLabels = Object.fromEntries(roles.map(r=>[r.key, r.label]));
   grid.innerHTML = contacts.map(c => {
-    const initials = cdInitials(c.contactName||c.companyName);
-    const bg = cdAvatarColor(c.contactName||c.companyName);
+    const initials = cdInitials(c.companyName||c.contactName);
+    const bg = cdAvatarColor(c.companyName||c.contactName);
     const roleTags = (c.roles||[]).map(r=>`<span class="cd-role-tag">${esc(roleLabels[r]||r)}</span>`).join('');
-    return `<div class="cd-card">
+    const people = c.people||[];
+    const notesCount = (c.notes||[]).length;
+    // People count badge
+    const peopleBadge = people.length > 0
+      ? `<span class="cd-people-badge" title="${people.length} contact${people.length>1?'s':''} at this company">👤 ${people.length} ${people.length===1?'person':'people'}</span>`
+      : '';
+    // Show first 2 people
+    const shown = people.slice(0,2);
+    const extra = people.length > 2 ? people.length - 2 : 0;
+    const peopleRows = shown.map(p => `<div class="cd-person-row">
+      <div class="cd-person-avatar">${cdInitials(p.name)}</div>
+      <div class="cd-person-name">${esc(p.name||'')}</div>
+      ${p.title?`<div class="cd-person-title">${esc(p.title)}</div>`:''}
+    </div>`).join('');
+    const peopleSection = people.length > 0 ? `<div class="cd-people-stack">
+      ${peopleRows}
+      ${extra > 0 ? `<span class="cd-people-more">+${extra} more</span>` : ''}
+    </div>` : '';
+    // Phone pills — cell/work/fax
+    const cellP = c.cellPhone || c.phone; // backwards compat
+    const workP = c.workPhone;
+    const faxP  = c.fax;
+    const phonePills = [
+      cellP ? `<span class="cd-phone-pill"><b>Cell</b>${esc(cdFmtPhone(cellP))}</span>` : '',
+      workP ? `<span class="cd-phone-pill"><b>Work</b>${esc(cdFmtPhone(workP))}</span>` : '',
+      faxP  ? `<span class="cd-phone-pill"><b>Fax</b>${esc(cdFmtPhone(faxP))}</span>`  : '',
+    ].filter(Boolean).join('');
+    const phonesSection = phonePills ? `<div class="cd-phones">${phonePills}</div>` : '';
+    return `<div class="cd-card" style="cursor:pointer" onclick="cdOpenDetail('${c.id}')">
       <div class="cd-card-hdr">
         <div class="cd-avatar" style="background:${bg}">${initials}</div>
-        <div>
-          <div class="cd-name">${esc(c.contactName||'—')}</div>
-          <div class="cd-company">${esc(c.companyName||'')}</div>
+        <div style="flex:1;min-width:0">
+          <div class="cd-name">${esc(c.companyName||c.contactName||'—')}</div>
+          ${c.companyName&&c.contactName?`<div class="cd-company">${esc(c.contactName)}</div>`:''}
         </div>
+        ${peopleBadge}
       </div>
+      ${peopleSection}
+      ${phonesSection}
       <div class="cd-body-rows">
-        ${c.phone?`<div class="cd-det"><span class="cd-det-icon">📞</span>${esc(c.phone)}</div>`:''}
         ${c.email?`<div class="cd-det"><span class="cd-det-icon">✉️</span>${esc(c.email)}</div>`:''}
         ${c.address?`<div class="cd-det"><span class="cd-det-icon">📍</span>${esc(c.address)}${c.city?', '+esc(c.city):''}${c.state?' '+esc(c.state):''}${c.zip?' '+esc(c.zip):''}</div>`:''}
-        ${c.compLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span>${esc(c.compLicense)}</div>`:''}
-        ${c.contactLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span>${esc(c.contactLicense)}</div>`:''}
       </div>
-      ${roleTags?`<div class="cd-roles">${roleTags}</div>`:''}
-      <div class="cd-actions">
+      ${roleTags?`<div class="cd-roles">${roleTags}${notesCount>0?`<span class="cd-role-tag" style="background:#e0edff;color:#1e40af">📝 ${notesCount} note${notesCount>1?'s':''}</span>`:''}</div>`:''}
+      <div class="cd-actions" onclick="event.stopPropagation()">
         <button class="btn btn-outline btn-sm" onclick="cdOpenModal('${c.id}')">Edit</button>
         <button class="btn btn-sm" style="color:var(--slate-light);background:none;border:none;cursor:pointer;font-size:11px" onclick="cdDelete('${c.id}')">Delete</button>
       </div>
@@ -5529,13 +5661,18 @@ function cdDelete(id) {
 function cdOpenModal(id) {
   const existing = id ? (cache.contactDir||[]).find(c=>c.id===id) : null;
   document.getElementById('cdModalTitle').textContent = id ? 'Edit Contact' : 'Add Contact';
-  // Store editing id
   document.getElementById('cdModal').dataset.editId = id || '';
-  // Populate fields
-  ['contactName','companyName','phone','email','address','city','state','zip','compLicense','contactLicense'].forEach(f => {
+  // Populate main fields
+  ['companyName','email','address','city','state','zip','compLicense','contactLicense'].forEach(f => {
     const el = document.getElementById('cd_'+f);
     if (el) el.value = existing?.[f] || '';
   });
+  // Phone fields — migrate legacy 'phone' → 'cellPhone'
+  document.getElementById('cd_cellPhone').value = cdFmtPhone(existing?.cellPhone || existing?.phone || '');
+  document.getElementById('cd_workPhone').value = cdFmtPhone(existing?.workPhone || '');
+  document.getElementById('cd_fax').value = cdFmtPhone(existing?.fax || '');
+  // Render people blocks
+  cdRenderPeopleBlocks(existing?.people || []);
   // Render role checkboxes dynamically
   document.getElementById('cdRoleChecks').innerHTML = cdGetRoles().map(r =>
     `<label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;padding:3px 0">
@@ -5543,18 +5680,62 @@ function cdOpenModal(id) {
       ${esc(r.label)}
     </label>`
   ).join('');
+  // Show main tab first
+  cdModalTab('main');
   openModal('cdModal');
+}
+
+function cdRenderPeopleBlocks(people) {
+  const wrap = document.getElementById('cdPeopleBlocks');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  (people.length ? people : []).forEach((p, i) => cdAddPersonBlock(p));
+}
+
+function cdAddPersonBlock(data) {
+  const wrap = document.getElementById('cdPeopleBlocks');
+  if (!wrap) return;
+  const idx = wrap.children.length;
+  const d = data || {};
+  const block = document.createElement('div');
+  block.className = 'cd-person-block';
+  block.innerHTML = `<button class="cd-person-block-del" onclick="this.closest('.cd-person-block').remove()" title="Remove">✕</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px">
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:10.5px">Name</label>
+        <input class="form-input cd-person-name-inp" placeholder="Jane Smith" style="font-size:12.5px" value="${esc(d.name||'')}"></div>
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:10.5px">Title / Role</label>
+        <input class="form-input cd-person-title-inp" placeholder="Agent" style="font-size:12.5px" value="${esc(d.title||'')}"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:10.5px">Direct Phone</label>
+        <input class="form-input cd-person-phone-inp" placeholder="(203) 555-0000" style="font-size:12.5px" value="${esc(cdFmtPhone(d.phone||''))}" oninput="cdPhoneInput(event)"></div>
+      <div class="form-group" style="margin:0"><label class="form-label" style="font-size:10.5px">Email</label>
+        <input class="form-input cd-person-email-inp" placeholder="jane@firm.com" style="font-size:12.5px" value="${esc(d.email||'')}"></div>
+    </div>`;
+  wrap.appendChild(block);
+}
+
+function cdModalTab(tab) {
+  document.querySelectorAll('#cdModal .cd-tab').forEach(t => t.classList.toggle('on', t.dataset.tab===tab));
+  document.querySelectorAll('#cdModal .cd-tab-panel').forEach(p => p.classList.toggle('on', p.dataset.panel===tab));
 }
 
 function cdSaveModal() {
   const id = document.getElementById('cdModal').dataset.editId || '';
   const g = i => document.getElementById(i)?.value.trim()||'';
   const roles = cdGetRoles().map(r=>r.key).filter(k=>document.getElementById('cdRole_'+k)?.checked);
+  // Collect people from dynamic blocks
+  const people = [...document.querySelectorAll('#cdPeopleBlocks .cd-person-block')].map(block => ({
+    name: block.querySelector('.cd-person-name-inp')?.value.trim()||'',
+    title: block.querySelector('.cd-person-title-inp')?.value.trim()||'',
+    phone: block.querySelector('.cd-person-phone-inp')?.value.trim()||'',
+    email: block.querySelector('.cd-person-email-inp')?.value.trim()||'',
+  })).filter(p => p.name || p.phone || p.email);
+  // Preserve existing notes from current record
+  const existing = id ? (cache.contactDir||[]).find(c=>c.id===id) : null;
   const contact = {
     id: id || uid(),
-    contactName: g('cd_contactName'),
     companyName: g('cd_companyName'),
-    phone: g('cd_phone'),
     email: g('cd_email'),
     address: g('cd_address'),
     city: g('cd_city'),
@@ -5562,9 +5743,17 @@ function cdSaveModal() {
     zip: g('cd_zip'),
     compLicense: g('cd_compLicense'),
     contactLicense: g('cd_contactLicense'),
+    cellPhone: g('cd_cellPhone'),
+    workPhone: g('cd_workPhone'),
+    fax: g('cd_fax'),
+    people,
+    notes: existing?.notes || [],
     roles,
+    // Legacy compat: keep contactName = first person name if available
+    contactName: people[0]?.name || '',
+    phone: g('cd_cellPhone'), // legacy compat for TPC picker
   };
-  if (!contact.contactName && !contact.companyName) { toast('Please enter a name or company','error'); return; }
+  if (!contact.companyName && !contact.contactName && !people[0]?.name) { toast('Please enter a company name or add a person','error'); return; }
   if (!cache.contactDir) cache.contactDir = [];
   if (id) {
     const idx = cache.contactDir.findIndex(c=>c.id===id);
@@ -5577,6 +5766,168 @@ function cdSaveModal() {
   cdRender();
   toast(id ? 'Contact updated' : 'Contact added');
 }
+
+// ── Contact Detail Modal ──
+function cdOpenDetail(id) {
+  const c = (cache.contactDir||[]).find(x=>x.id===id);
+  if (!c) return;
+  document.getElementById('cdDetailModal').dataset.contactId = id;
+  // Header
+  document.getElementById('cdDetailName').textContent = c.companyName || c.contactName || '—';
+  document.getElementById('cdDetailSub').textContent = c.companyName && c.contactName ? c.contactName : '';
+  // Roles
+  const roles = cdGetRoles();
+  const roleLabels = Object.fromEntries(roles.map(r=>[r.key,r.label]));
+  document.getElementById('cdDetailRoles').innerHTML = (c.roles||[]).map(r=>`<span class="cd-role-tag">${esc(roleLabels[r]||r)}</span>`).join('');
+  // Tab counts
+  const people = c.people||[];
+  const notes = c.notes||[];
+  document.getElementById('cdDTab_people').textContent = `People (${people.length})`;
+  document.getElementById('cdDTab_notes').textContent = `Notes (${notes.length})`;
+  // INFO tab
+  const cell = c.cellPhone||c.phone; const work = c.workPhone; const fax = c.fax;
+  document.getElementById('cdDetailInfo').innerHTML = `
+    ${cell?`<div class="cd-det"><span class="cd-det-icon">📱</span><b style="font-size:10.5px;color:var(--slate-light);margin-right:3px">Cell</b>${esc(cdFmtPhone(cell))}</div>`:''}
+    ${work?`<div class="cd-det"><span class="cd-det-icon">📞</span><b style="font-size:10.5px;color:var(--slate-light);margin-right:3px">Work</b>${esc(cdFmtPhone(work))}</div>`:''}
+    ${fax?`<div class="cd-det"><span class="cd-det-icon">🖷</span><b style="font-size:10.5px;color:var(--slate-light);margin-right:3px">Fax</b>${esc(cdFmtPhone(fax))}</div>`:''}
+    ${c.email?`<div class="cd-det"><span class="cd-det-icon">✉️</span>${esc(c.email)}</div>`:''}
+    ${c.address?`<div class="cd-det"><span class="cd-det-icon">📍</span>${esc(c.address)}${c.city?', '+esc(c.city):''}${c.state?' '+esc(c.state):''}${c.zip?' '+esc(c.zip):''}</div>`:''}
+    ${c.compLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span><b style="font-size:10.5px;color:var(--slate-light);margin-right:3px">Company Lic.</b>${esc(c.compLicense)}</div>`:''}
+    ${c.contactLicense?`<div class="cd-det"><span class="cd-det-icon">🪪</span><b style="font-size:10.5px;color:var(--slate-light);margin-right:3px">Contact Lic.</b>${esc(c.contactLicense)}</div>`:''}
+  `;
+  // PEOPLE tab
+  cdDetailRenderPeople(people);
+  // NOTES tab
+  cdDetailRenderNotes(id);
+  // LINKED FILES tab
+  cdDetailRenderLinkedFiles(id);
+  cdDetailTab('info');
+  const noteWrap = document.getElementById('cdNoteInputWrap');
+  if (noteWrap) noteWrap.style.display = 'none';
+  const noteInp = document.getElementById('cdNoteInput');
+  if (noteInp) noteInp.value = '';
+  openModal('cdDetailModal');
+}
+
+function cdDetailTab(tab) {
+  document.querySelectorAll('#cdDetailModal .cd-tab').forEach(t => t.classList.toggle('on', t.dataset.tab===tab));
+  document.querySelectorAll('#cdDetailModal .cd-tab-panel').forEach(p => p.classList.toggle('on', p.dataset.panel===tab));
+  // Show note input only on notes tab
+  const noteWrap = document.getElementById('cdNoteInputWrap');
+  if (noteWrap) noteWrap.style.display = tab==='notes' ? '' : 'none';
+}
+
+function cdDetailRenderPeople(people) {
+  document.getElementById('cdDetailPeople').innerHTML = people.length ? people.map(p => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div class="cd-avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0">${cdInitials(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--navy)">${esc(p.name||'')}</div>
+        ${p.title?`<div style="font-size:11px;color:var(--slate-light)">${esc(p.title)}</div>`:''}
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+          ${p.phone?`<span style="font-size:11.5px;color:var(--slate)">📞 ${esc(cdFmtPhone(p.phone))}</span>`:''}
+          ${p.email?`<span style="font-size:11.5px;color:var(--slate)">✉️ ${esc(p.email)}</span>`:''}
+        </div>
+      </div>
+    </div>
+  `).join('') : '<div style="font-size:12.5px;color:var(--slate-light);text-align:center;padding:20px">No people added yet.<br><small>Click Edit to add contacts at this company.</small></div>';
+}
+
+function cdDetailRenderNotes(id) {
+  const c = (cache.contactDir||[]).find(x=>x.id===id);
+  const notes = c?.notes || [];
+  document.getElementById('cdDetailNotes').innerHTML = notes.length ? notes.map((n,i) => `
+    <div class="cd-note-item">
+      <button class="cd-note-del" onclick="cdDeleteNote('${id}',${i})">✕</button>
+      <div class="cd-note-text">${esc(n.text||'')}</div>
+      <div class="cd-note-meta">${esc(n.date||'')}${n.author?' · '+esc(n.author):''}</div>
+    </div>
+  `).join('') : '<div style="font-size:12.5px;color:var(--slate-light);text-align:center;padding:16px">No notes yet. Add one below.</div>';
+}
+
+function cdAddNote(id) {
+  const inp = document.getElementById('cdNoteInput');
+  const text = inp?.value.trim();
+  if (!text) return;
+  const c = (cache.contactDir||[]).find(x=>x.id===id);
+  if (!c) return;
+  if (!c.notes) c.notes = [];
+  const now = new Date();
+  c.notes.unshift({ text, date: now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}), author: (cache.settings?.loanOfficer?.name||'').split(' ')[0]||'' });
+  cdSave();
+  if (inp) inp.value = '';
+  cdDetailRenderNotes(id);
+  // Update tab count
+  document.getElementById('cdDTab_notes').textContent = `Notes (${c.notes.length})`;
+  cdRender();
+}
+
+function cdDeleteNote(id, idx) {
+  const c = (cache.contactDir||[]).find(x=>x.id===id);
+  if (!c||!c.notes) return;
+  c.notes.splice(idx,1);
+  cdSave();
+  cdDetailRenderNotes(id);
+  document.getElementById('cdDTab_notes').textContent = `Notes (${c.notes.length})`;
+  cdRender();
+}
+
+function cdDetailRenderLinkedFiles(contactId) {
+  const c = (cache.contactDir||[]).find(x=>x.id===contactId);
+  if (!c) return;
+  // Scan all files for thirdPartyContacts that reference this contact id OR matching name+company
+  const linked = (cache.files||[]).filter(f => {
+    const tpc = f.thirdPartyContacts || {};
+    return Object.values(tpc).some(v => {
+      if (!v) return false;
+      const matches = (v.contactDirId && v.contactDirId===contactId) ||
+        (v.companyName && c.companyName && v.companyName.toLowerCase()===c.companyName.toLowerCase());
+      return matches;
+    });
+  });
+  document.getElementById('cdDetailLinked').innerHTML = linked.length
+    ? linked.map(f => `<div class="cd-linked-row" onclick="closeModal('cdDetailModal');showPage('filedetail','${esc(f.id||'')}')" style="cursor:pointer">
+        <div class="cd-linked-icon">📁</div>
+        <div style="flex:1;min-width:0">
+          <div class="cd-linked-name">${esc([f.b1,f.b2].filter(Boolean).join(' & ')||'Unnamed File')}</div>
+          <div class="cd-linked-sub">${esc(f.property||f.propAddr||'')}${f.bank?' · '+esc(f.bank):''}</div>
+        </div>
+        <div style="font-size:11px;color:var(--slate-light)">›</div>
+      </div>`).join('')
+    : '<div style="font-size:12.5px;color:var(--slate-light);text-align:center;padding:16px">No files linked to this contact yet.</div>';
+  document.getElementById('cdDTab_files').textContent = `Linked Files (${linked.length})`;
+}
+
+// ── CSV Export ──
+function cdExportCSV() {
+  const contacts = cdGetAll();
+  if (!contacts.length) { toast('No contacts to export','error'); return; }
+  const roles = cdGetRoles();
+  const roleLabels = Object.fromEntries(roles.map(r=>[r.key,r.label]));
+  const csvQ = v => '"'+(v||'').toString().replace(/"/g,'""')+'"';
+  const headers = ['Company','Primary Contact','Cell Phone','Work Phone','Fax','Email','Address','City','State','Zip','Company License','Contact License','Roles','Notes Count','People'];
+  const rows = contacts.map(c => {
+    const peopleStr = (c.people||[]).map(p=>[p.name,p.title,p.phone,p.email].filter(Boolean).join('|')).join('; ');
+    return [
+      c.companyName, c.contactName||((c.people||[])[0]?.name||''),
+      cdFmtPhone(c.cellPhone||c.phone), cdFmtPhone(c.workPhone), cdFmtPhone(c.fax),
+      c.email, c.address, c.city, c.state, c.zip,
+      c.compLicense, c.contactLicense,
+      (c.roles||[]).map(r=>roleLabels[r]||r).join('; '),
+      (c.notes||[]).length,
+      peopleStr,
+    ].map(csvQ).join(',');
+  });
+  const csv = [headers.map(csvQ).join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'contacts_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
+  toast('Contacts exported to CSV');
+}
+
 // ── TPC section base definitions (fields only; title comes from cdGetRoles at runtime) ──
 const TPC_SECTION_DEFS = {
   closingAgent:{fields:[{key:'companyName',label:'Company Name',span:1},{key:'contactName',label:'Contact Name',span:1},{key:'address',label:'Address',span:'addr'},{key:'city',label:'City',span:'city'},{key:'state',label:'State',span:'state'},{key:'zip',label:'Zip Code',span:'zip'},{key:'compLicense',label:'Company License #',span:1},{key:'contactLicense',label:"Contact's License # (if applicable)",span:1},{key:'email',label:'Email',span:1},{key:'phone',label:"Contact's Phone",span:1}]},
@@ -5787,8 +6138,10 @@ function cdPickerSearch(input, secKey) {
     contacts = allContacts.filter(c =>
       (c.contactName||'').toLowerCase().includes(q) ||
       (c.companyName||'').toLowerCase().includes(q) ||
-      (c.phone||'').toLowerCase().includes(q) ||
-      (c.email||'').toLowerCase().includes(q)
+      (c.cellPhone||c.phone||'').toLowerCase().includes(q) ||
+      (c.workPhone||'').toLowerCase().includes(q) ||
+      (c.email||'').toLowerCase().includes(q) ||
+      (c.people||[]).some(p=>(p.name||'').toLowerCase().includes(q)||(p.email||'').toLowerCase().includes(q))
     );
   } else {
     // Show contacts tagged for this role; fall back to all if none are tagged
@@ -5799,16 +6152,19 @@ function cdPickerSearch(input, secKey) {
     dd.innerHTML = `<div class="tpc-dd-empty">No contacts in directory — <span style="color:var(--gold);cursor:pointer" onclick="cdOpenModal()">Add one</span></div>`;
   } else {
     dd.innerHTML = contacts.map(c => {
-      const initials = (c.contactName||c.companyName||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+      const initials = cdInitials(c.companyName||c.contactName);
       const roleLabels = (c.roles||[]).map(rk => {
         const found = cdGetRoles().find(r=>r.key===rk);
         return found ? esc(found.label) : '';
       }).filter(Boolean).join(', ');
+      const primaryPhone = c.cellPhone||c.phone;
+      const people = (c.people||[]);
+      const peopleSub = people.length > 0 ? people.slice(0,2).map(p=>esc(p.name||'')).filter(Boolean).join(', ')+(people.length>2?` +${people.length-2}`:'') : '';
       return `<div class="tpc-dd-item" onmousedown="cdPickerFill('${secKey}','${c.id}')">
         <div class="tpc-dd-avatar">${initials}</div>
         <div style="flex:1;min-width:0">
-          <div class="tpc-dd-name">${esc(c.contactName||c.companyName)}</div>
-          <div class="tpc-dd-sub">${esc(c.companyName&&c.contactName?c.companyName:'')}${c.phone?' · '+esc(c.phone):''}</div>
+          <div class="tpc-dd-name">${esc(c.companyName||c.contactName||'—')}</div>
+          <div class="tpc-dd-sub">${peopleSub||esc(c.contactName||'')}${primaryPhone?' · '+esc(cdFmtPhone(primaryPhone)):''}</div>
         </div>
         ${roleLabels?`<div class="tpc-dd-role">${roleLabels}</div>`:''}
       </div>`;
@@ -5822,19 +6178,26 @@ function cdPickerFill(secKey, contactId) {
   if (!c) return;
   // Set the picker input label
   const input = document.getElementById('tpcPicker_' + secKey);
-  if (input) input.value = [c.contactName, c.companyName].filter(Boolean).join(' — ');
+  if (input) input.value = [c.companyName, c.contactName||(c.people&&c.people[0]?.name)||''].filter(Boolean).join(' — ');
   cdPickerClose(secKey);
   // Fill all matching TPC fields
   const fieldMap = {
-    companyName: c.companyName, contactName: c.contactName,
+    companyName: c.companyName, contactName: c.contactName || (c.people&&c.people[0]?.name)||'',
     address: c.address, city: c.city, state: c.state, zip: c.zip,
     compLicense: c.compLicense, contactLicense: c.contactLicense,
-    email: c.email, phone: c.phone,
+    email: c.email, phone: cdFmtPhone(c.cellPhone||c.phone),
   };
   Object.entries(fieldMap).forEach(([k, val]) => {
     const el = document.getElementById(`tpc_${secKey}_${k}`);
     if (el && val !== undefined) el.value = val || '';
   });
+  // Store contactDirId so linked-files lookup works
+  const f = cache.files&&cache.files.find(x=>x.id===currentFileId);
+  if (f) {
+    if (!f.thirdPartyContacts) f.thirdPartyContacts = {};
+    if (!f.thirdPartyContacts[secKey]) f.thirdPartyContacts[secKey] = {};
+    f.thirdPartyContacts[secKey].contactDirId = contactId;
+  }
   tpcSave();
   // Refresh chip status
   const chip = document.querySelector(`#tpcDd_${secKey}`)?.closest('.tpc-card')?.querySelector('.tpc-chip,.tpc-chip-done,.tpc-chip-part,.tpc-chip-empty');
@@ -6819,6 +7182,7 @@ function rsRenderSetupTab(c) {
   const curMortgageSection = (isR||isH)?`<div class="rs-card"><div class="rs-section" style="margin-top:0">Current Mortgage Expenses <span style="font-size:9px;color:var(--slate-light);font-weight:400;text-transform:none">(shows in comparison column)</span></div><div class="rs-grid3"><div class="rs-fg"><label>Current Rate (%)</label><input type="number" step="0.001" value="${c.curRate||''}" onchange="rsUC('curRate',parseFloat(this.value))"></div><div class="rs-fg"><label>Remaining Term (yrs)</label><input type="number" value="${c.curTerm||30}" onchange="rsUC('curTerm',parseFloat(this.value))"></div><div class="rs-fg"><label>Monthly P&amp;I</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.curPmt).replace('$','').trim()}" data-raw="${c.curPmt||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('curPmt',+this.dataset.raw))" oninput="rsCiI(this)"></div></div><div class="rs-fg"><label>Balance to Pay Off</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.curBalance).replace('$','').trim()}" data-raw="${c.curBalance||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('curBalance',+this.dataset.raw))" oninput="rsCiI(this)"></div></div><div class="rs-fg"><label>Home Ins (mo)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.curHomeIns||0).replace('$','').trim()}" data-raw="${c.curHomeIns||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('curHomeIns',+this.dataset.raw))" oninput="rsCiI(this)"></div></div><div class="rs-fg"><label>Prop Tax (mo)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.curPropTax||0).replace('$','').trim()}" data-raw="${c.curPropTax||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('curPropTax',+this.dataset.raw))" oninput="rsCiI(this)"></div></div><div class="rs-fg"><label>Mort Ins (mo)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.curMortIns||0).replace('$','').trim()}" data-raw="${c.curMortIns||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('curMortIns',+this.dataset.raw))" oninput="rsCiI(this)"></div></div><div class="rs-fg"><label>Other (mo)</label><div class="rs-cur-wrap"><span class="rs-cur-pfx">$</span><input type="text" value="${rsFmt(c.curOther||0).replace('$','').trim()}" data-raw="${c.curOther||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUC('curOther',+this.dataset.raw))" oninput="rsCiI(this)"></div></div></div><div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:7px;padding:7px 10px;font-size:12px;color:#1b5e20">📊 Current total: <strong>${rsFmt((c.curPmt||0)+(c.curHomeIns||0)+(c.curPropTax||0)+(c.curMortIns||0)+(c.curOther||0))}/mo</strong></div></div>`:'';
 
   const prepaidHtml = (c.prepaidClosingItems||[]).map((it,i)=>`<div class="rs-prepaid-row"><input type="text" value="${esc(it.label||'')}" placeholder="e.g. Appraisal paid upfront" onchange="rsUpdatePrepaid(${i},'label',this.value)"><div class="rs-cw"><span class="rs-p">$</span><input type="text" value="${rsFmt(it.amount||0).replace('$','').trim()}" data-raw="${it.amount||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUpdatePrepaid(${i},'amount',rsParseCur(this.dataset.raw)))" oninput="rsCiI(this)"></div><button class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px" onclick="rsRemovePrepaid(${i})">✕</button></div>`).join('');
+  const debtPayoffsHtml = (c.debtPayoffs||[]).map((it,i)=>`<div class="rs-prepaid-row"><input type="text" value="${esc(it.label||'')}" placeholder="e.g. Car loan payoff" onchange="rsUpdateDebt(${i},'label',this.value)"><div class="rs-cw"><span class="rs-p">$</span><input type="text" value="${rsFmt(it.amount||0).replace('$','').trim()}" data-raw="${it.amount||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUpdateDebt(${i},'amount',rsParseCur(this.dataset.raw)))" oninput="rsCiI(this)"></div><button class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px" onclick="rsRemoveDebt(${i})">✕</button></div>`).join('');
 
   panel.innerHTML = `
     <div class="rs-card">
@@ -6991,6 +7355,14 @@ function rsRenderSetupTab(c) {
         <button class="btn btn-outline btn-sm" onclick="rsAddPrepaid()">+ Add Item</button>
       </div>
       <div id="rsPrepaidList">${prepaidHtml||'<div style="font-size:12px;color:var(--slate-light);padding:4px 0">No items yet.</div>'}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:14px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="rs-section" style="margin:0;border:none;padding:0">Debts to Pay Off at Closing</div>
+          <span style="font-size:10px;font-weight:600;background:#eef3ff;color:#1e5fa8;border:1px solid #b8d0f7;border-radius:12px;padding:1px 7px">+ adds to cash to close</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="rsAddDebt()">+ Add Debt</button>
+      </div>
+      <div id="rsDebtList">${debtPayoffsHtml||'<div style="font-size:12px;color:var(--slate-light);padding:4px 0">No debts yet.</div>'}</div>
     </div>`;
 
 }
@@ -7022,6 +7394,23 @@ function rsRemovePrepaid(i) {
   rsRefreshSetup();
 }
 function rsUpdatePrepaid(i,f,v) { const opts=rsGetOptions(); if(!opts[rsActiveIdx])return; if(!opts[rsActiveIdx].prepaidClosingItems[i])return; opts[rsActiveIdx].prepaidClosingItems[i][f]=v; rsSaveOptions(opts); }
+
+function rsAddDebt() {
+  const opts=rsGetOptions(); if(!opts[rsActiveIdx])return;
+  if(!opts[rsActiveIdx].debtPayoffs) opts[rsActiveIdx].debtPayoffs=[];
+  opts[rsActiveIdx].debtPayoffs.push({label:'',amount:0});
+  rsSaveOptions(opts);
+  const c=opts[rsActiveIdx];
+  const list=document.getElementById('rsDebtList'); if(!list)return;
+  list.innerHTML=(c.debtPayoffs||[]).map((it,i)=>`<div class="rs-prepaid-row"><input type="text" value="${esc(it.label||'')}" placeholder="e.g. Car loan payoff" onchange="rsUpdateDebt(${i},'label',this.value)"><div class="rs-cw"><span class="rs-p">$</span><input type="text" value="${rsFmt(it.amount||0).replace('$','').trim()}" data-raw="${it.amount||0}" onfocus="rsCiF(this)" onblur="rsCiB(this,()=>rsUpdateDebt(${i},'amount',rsParseCur(this.dataset.raw)))" oninput="rsCiI(this)"></div><button class="btn btn-danger btn-sm" style="padding:2px 6px;font-size:11px" onclick="rsRemoveDebt(${i})">✕</button></div>`).join('');
+}
+function rsRemoveDebt(i) {
+  const opts=rsGetOptions(); if(!opts[rsActiveIdx])return;
+  opts[rsActiveIdx].debtPayoffs.splice(i,1);
+  rsSaveOptions(opts);
+  rsRefreshSetup();
+}
+function rsUpdateDebt(i,f,v) { const opts=rsGetOptions(); if(!opts[rsActiveIdx])return; if(!(opts[rsActiveIdx].debtPayoffs||[])[i])return; opts[rsActiveIdx].debtPayoffs[i][f]=v; rsSaveOptions(opts); }
 
 // ── Rate Scenarios Tab ──
 function rsFlushScNum() {
@@ -7059,6 +7448,7 @@ function rsRenderScenariosTab(c) {
   function corDollar(sc){if(c.costRateMethod==='single')return calcLoan(sc)*(c.singleCostRate||0)/100;return calcLoan(sc)*getCorFinal(sc)/100;}
   function totalClose(sc){return(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc);}
   function prePaidTotal(){return(c.prepaidClosingItems||[]).reduce((a,x)=>a+(x.amount||0),0);}
+  function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt(sc){
     if(c.loanType==='heloc'){
       // For HELOC: cash received = loan amount minus payoff (if any) minus closing costs
@@ -7068,7 +7458,7 @@ function rsRenderScenariosTab(c) {
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
     return (c.curBalance||0)-calcLoan(sc);
   }
-  function cashToClose(sc){return dpAmt(sc)+(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc)-prePaidTotal();}
+  function cashToClose(sc){return dpAmt(sc)+(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc)-prePaidTotal()+debtPayoffsTotal();}
   const ditto='<span class="rs-ditto">″</span>';
   const addBtn=n<10?`<button class="btn btn-outline btn-sm" onclick="rsAddScenario()">+ Add Scenario</button>`:`<span style="font-size:12px;color:var(--slate-light)">Max 10</span>`;
   const delBtn=n>1?`<button class="btn btn-outline btn-sm" style="color:var(--danger)" onclick="rsRemoveScenario()">− Remove Last</button>`:'';
@@ -7138,6 +7528,7 @@ function rsRenderScenariosTab(c) {
           return showCur ? row('Balance to Pay Off','—',s.map(()=>rsFmt(c.curBalance||0)),'',false) : '';
         })()}
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(()=>`<td style="color:var(--success)">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
+        ${(c.debtPayoffs||[]).map(it=>`<tr class="rs-pre"><td>↑ ${esc(it.label||'Debt Payoff')}</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(()=>`<td style="color:#1e5fa8">+${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${row(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.map(sc=>{const v=cashToClose(sc);return`<strong style="color:${v<=0?'var(--success)':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-cash',false)}
       </tbody>
     </table></div>${corSection}
@@ -7210,6 +7601,7 @@ function rsRenderPreviewTab(c) {
   function corDollar(sc){if(c.costRateMethod==='single')return calcLoan(sc)*(c.singleCostRate||0)/100;return calcLoan(sc)*getCorFinal(sc)/100;}
   function totalClose(sc){return(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc);}
   function prePaidTotal(){return(c.prepaidClosingItems||[]).reduce((a,x)=>a+(x.amount||0),0);}
+  function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt2(sc){
     if(c.loanType==='heloc'){
       const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
@@ -7218,7 +7610,7 @@ function rsRenderPreviewTab(c) {
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
     return (c.curBalance||0)-calcLoan(sc);
   }
-  function cash2close(sc){return dpAmt2(sc)+(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc)-prePaidTotal();}
+  function cash2close(sc){return dpAmt2(sc)+(c.closingCosts||0)+(c.prepaidItems||0)+corDollar(sc)-prePaidTotal()+debtPayoffsTotal();}
   const ditto='<span style="color:#ccc">″</span>';
   const curHdrTh=showCur?`<th class="rs-ws-cur-h">Current</th>`:'';
   const scThs=Array.from({length:n},(_,i)=>`<th>${i+1}</th>`).join('');
@@ -7313,6 +7705,7 @@ function rsRenderPreviewTab(c) {
           return showCur ? wr('Balance to Pay Off','—',s.slice(0,n).map(()=>rsFmt(c.curBalance||0)),'',false) : '';
         })()}
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-ws-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-ws-cc">—</td>':''}${s.slice(0,n).map(()=>`<td style="color:#27ae60">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
+        ${(c.debtPayoffs||[]).map(it=>`<tr class="rs-ws-pre"><td>↑ ${esc(it.label||'Debt Payoff')}</td>${showCur?'<td class="rs-ws-cc">—</td>':''}${s.slice(0,n).map(()=>`<td style="color:#1e5fa8">+${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${wr(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.slice(0,n).map(sc=>{const v=cash2close(sc);return`<strong style="color:${v<=0?'#27ae60':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-ws-cash',false)}
       </tbody>
     </table>
@@ -8508,14 +8901,23 @@ function printDocChecklist() {
 </div>
 <!-- CONTACT DIRECTORY MODAL -->
 <div class="modal-overlay" id="cdModal">
-  <div class="modal" style="max-width:580px;width:95%">
+  <div class="modal" style="max-width:600px;width:95%;display:flex;flex-direction:column;max-height:90vh">
     <div class="modal-header"><div class="modal-title" id="cdModalTitle">Add Contact</div><button class="btn btn-ghost" onclick="closeModal('cdModal')" style="padding:6px 8px;font-size:18px">✕</button></div>
-    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+    <div class="cd-tab-bar">
+      <div class="cd-tab on" data-tab="main" onclick="cdModalTab('main')">Company Info</div>
+      <div class="cd-tab" data-tab="people" onclick="cdModalTab('people')">People</div>
+      <div class="cd-tab" data-tab="roles" onclick="cdModalTab('roles')">Roles</div>
+    </div>
+    <!-- MAIN INFO TAB -->
+    <div class="cd-tab-panel on" data-panel="main">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="form-group"><label class="form-label">Contact Name</label><input class="form-input" id="cd_contactName" placeholder="Maria Gonzalez"></div>
-        <div class="form-group"><label class="form-label">Company Name</label><input class="form-input" id="cd_companyName" placeholder="Riverside Title Co."></div>
-        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="cd_phone" placeholder="(203) 555-0000"></div>
-        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cd_email" placeholder="name@company.com"></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Company Name</label><input class="form-input" id="cd_companyName" placeholder="Riverside Title Co."></div>
+        <div class="form-group"><label class="form-label">Company Email</label><input class="form-input" id="cd_email" placeholder="info@company.com"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;grid-column:1/-1">
+          <div class="form-group" style="margin:0"><label class="form-label">Cell Phone</label><input class="form-input" id="cd_cellPhone" placeholder="(203) 555-0000" oninput="cdPhoneInput(event)"></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Work Phone</label><input class="form-input" id="cd_workPhone" placeholder="(203) 555-0001" oninput="cdPhoneInput(event)"></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Fax</label><input class="form-input" id="cd_fax" placeholder="(203) 555-0002" oninput="cdPhoneInput(event)"></div>
+        </div>
         <div class="form-group" style="grid-column:1/-1"><label class="form-label">Address</label><input class="form-input" id="cd_address" placeholder="221 Harbor Blvd"></div>
         <div class="form-group"><label class="form-label">City</label><input class="form-input" id="cd_city" placeholder="Stamford"></div>
         <div style="display:grid;grid-template-columns:.5fr 1fr;gap:8px">
@@ -8525,12 +8927,53 @@ function printDocChecklist() {
         <div class="form-group"><label class="form-label">Company License #</label><input class="form-input" id="cd_compLicense" placeholder="Optional"></div>
         <div class="form-group"><label class="form-label">Contact License #</label><input class="form-input" id="cd_contactLicense" placeholder="Optional"></div>
       </div>
-      <div>
-        <div class="form-label" style="margin-bottom:8px">Roles (select all that apply)</div>
-        <div id="cdRoleChecks" style="display:grid;grid-template-columns:1fr 1fr;gap:4px"></div>
-      </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('cdModal')">Cancel</button><button class="btn btn-gold" onclick="cdSaveModal()">Save Contact</button></div>
+    <!-- PEOPLE TAB -->
+    <div class="cd-tab-panel" data-panel="people">
+      <div id="cdPeopleBlocks"></div>
+      <button class="btn btn-outline btn-sm" onclick="cdAddPersonBlock()" style="margin-top:4px;width:100%">＋ Add Person</button>
+    </div>
+    <!-- ROLES TAB -->
+    <div class="cd-tab-panel" data-panel="roles">
+      <div class="form-label" style="margin-bottom:8px">Roles (select all that apply)</div>
+      <div id="cdRoleChecks" style="display:grid;grid-template-columns:1fr 1fr;gap:4px"></div>
+    </div>
+    <div class="modal-footer" style="margin-top:auto"><button class="btn btn-outline" onclick="closeModal('cdModal')">Cancel</button><button class="btn btn-gold" onclick="cdSaveModal()">Save Contact</button></div>
+  </div>
+</div>
+
+<!-- CONTACT DETAIL MODAL -->
+<div class="modal-overlay" id="cdDetailModal">
+  <div class="modal" style="max-width:560px;width:95%;display:flex;flex-direction:column;max-height:90vh">
+    <div class="modal-header" style="align-items:flex-start">
+      <div>
+        <div class="modal-title" id="cdDetailName">Contact</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px" id="cdDetailSub"></div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px" id="cdDetailRoles"></div>
+      </div>
+      <button class="btn btn-ghost" onclick="closeModal('cdDetailModal')" style="padding:6px 8px;font-size:18px;margin-left:auto;flex-shrink:0">✕</button>
+    </div>
+    <div class="cd-tab-bar">
+      <div class="cd-tab on" data-tab="info" onclick="cdDetailTab('info')">Contact Info</div>
+      <div class="cd-tab" data-tab="people" id="cdDTab_people" onclick="cdDetailTab('people')">People (0)</div>
+      <div class="cd-tab" data-tab="notes" id="cdDTab_notes" onclick="cdDetailTab('notes')">Notes (0)</div>
+      <div class="cd-tab" data-tab="files" id="cdDTab_files" onclick="cdDetailTab('files')">Linked Files (0)</div>
+    </div>
+    <div class="cd-tab-panel on" data-panel="info" id="cdDetailInfo"></div>
+    <div class="cd-tab-panel" data-panel="people" id="cdDetailPeople"></div>
+    <div class="cd-tab-panel" data-panel="notes" id="cdDetailNotes">
+      <!-- notes rendered dynamically -->
+    </div>
+    <div class="cd-tab-panel" data-panel="files" id="cdDetailLinked"></div>
+    <!-- Note input always visible on notes tab — rendered via JS -->
+    <div id="cdNoteInputWrap" style="padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-start">
+      <textarea id="cdNoteInput" class="form-input" placeholder="Add a note…" style="flex:1;resize:none;height:56px;font-size:12.5px;padding:8px 10px"></textarea>
+      <button class="btn btn-gold btn-sm" style="margin-top:4px;white-space:nowrap" onclick="cdAddNote(document.getElementById('cdDetailModal').dataset.contactId)">Add Note</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('cdDetailModal')">Close</button>
+      <button class="btn btn-gold" onclick="closeModal('cdDetailModal');cdOpenModal(document.getElementById('cdDetailModal').dataset.contactId)">Edit Contact</button>
+    </div>
   </div>
 </div>
 <!-- RATE LOCK MODAL -->
