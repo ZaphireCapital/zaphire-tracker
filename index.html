@@ -839,6 +839,55 @@ input[type=file]{display:none}
   .cd-person-block-del{position:absolute;top:7px;right:9px;background:none;border:none;font-size:16px;color:var(--slate-light);cursor:pointer;line-height:1;padding:0}
   .cd-person-block-del:hover{color:#b91c1c}
 
+  /* ── View toggle ── */
+  .cd-view-toggle{display:flex;gap:2px;background:var(--cream);border:1.5px solid var(--border-strong);border-radius:8px;padding:2px;flex-shrink:0}
+  .cd-vt-btn{padding:4px 9px;border-radius:5px;border:none;background:none;font-size:14px;cursor:pointer;color:var(--slate-light);transition:background .12s,color .12s;line-height:1}
+  .cd-vt-btn.on{background:var(--white);color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.09)}
+
+  /* ── Table view ── */
+  .cd-table-wrap{flex:1;overflow-y:auto;overflow-x:auto;background:var(--white);border-top:1px solid var(--border)}
+  .cd-table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .cd-table thead{background:var(--navy);position:sticky;top:0;z-index:1}
+  .cd-table th{padding:9px 14px;text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);white-space:nowrap;border-right:1px solid rgba(255,255,255,.07)}
+  .cd-table th:last-child{border-right:none}
+  .cd-table tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+  .cd-table tbody tr:hover{background:#fffdf7}
+  .cd-table td{padding:10px 14px;vertical-align:middle;color:var(--navy)}
+  .cd-tbl-company{font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .cd-tbl-avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--gold);flex-shrink:0}
+  .cd-tbl-people{display:flex;flex-direction:column;gap:1px}
+  .cd-tbl-prow{font-size:11.5px;color:var(--slate)}
+  .cd-tbl-prow b{color:var(--navy);font-weight:600}
+  .cd-tbl-more{font-size:10.5px;color:var(--gold);font-weight:600}
+  .cd-tbl-phone{font-size:12px;color:var(--slate);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .cd-tbl-email{font-size:11.5px;color:var(--slate);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cd-tbl-chip{display:inline-flex;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:var(--gold-pale);color:#7b5c12;white-space:nowrap;margin-bottom:2px}
+  .cd-tbl-actions{display:flex;gap:5px;justify-content:flex-end;white-space:nowrap}
+  .cd-tbl-add-row td{padding:12px 14px;text-align:center;color:var(--slate-light);font-size:12.5px;cursor:pointer}
+  .cd-tbl-add-row:hover td{background:#fffdf7;color:var(--navy)}
+
+  /* ── Kanban view ── */
+  .cd-kanban-wrap{flex:1;overflow-x:auto;overflow-y:auto;background:var(--cream);border-top:1px solid var(--border)}
+  .cd-kanban-lanes{display:flex;gap:12px;padding:14px;min-width:max-content;align-items:flex-start}
+  .cd-k-lane{width:210px;flex-shrink:0}
+  .cd-k-lane-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--navy);border-radius:8px 8px 0 0}
+  .cd-k-lane-name{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+  .cd-k-lane-count{font-size:10px;font-weight:700;background:rgba(201,168,76,.18);color:var(--gold);padding:1px 7px;border-radius:8px}
+  .cd-k-lane-body{background:rgba(10,22,40,.04);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:8px;display:flex;flex-direction:column;gap:8px;min-height:80px}
+  .cd-k-mini{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:9px 10px;cursor:pointer;transition:box-shadow .12s,transform .1s}
+  .cd-k-mini:hover{box-shadow:0 2px 10px rgba(10,22,40,.12);transform:translateY(-1px)}
+  .cd-k-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .cd-k-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:var(--gold);flex-shrink:0}
+  .cd-k-name{font-size:12px;font-weight:700;color:var(--navy);line-height:1.2}
+  .cd-k-sub{font-size:10.5px;color:var(--slate-light)}
+  .cd-k-avatars{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+  .cd-k-pa{width:16px;height:16px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:var(--slate)}
+  .cd-k-more{font-size:10px;color:var(--slate-light);align-self:center}
+  .cd-k-phone{font-size:10.5px;color:var(--slate);margin-top:4px;font-variant-numeric:tabular-nums}
+  .cd-k-add-lane{width:210px;flex-shrink:0;display:flex;align-items:flex-start;padding-top:2px}
+  .cd-k-add-btn{padding:7px 12px;border:2px dashed var(--border-strong);border-radius:8px;background:none;cursor:pointer;font-family:var(--font-body);font-size:12px;color:var(--slate-light);width:100%;text-align:center;transition:border-color .15s,color .15s}
+  .cd-k-add-btn:hover{border-color:var(--gold);color:var(--navy)}
+
   /* ── Contact Picker inside TPC cards ── */
   .tpc-picker-row{padding:7px 12px;background:#f8f6f2;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px;position:relative}
   .tpc-picker-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
@@ -1687,12 +1736,19 @@ input[type=file]{display:none}
       <div class="cd-body">
         <div class="cd-header-row">
           <div style="font-size:13px;font-weight:700;color:var(--navy)">Contact Directory</div>
-          <button class="btn btn-outline btn-sm" onclick="cdExportCSV()" style="font-size:11.5px;gap:4px;display:flex;align-items:center">⬇ Export CSV</button>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="cd-view-toggle">
+              <button class="cd-vt-btn on" id="cdVtGrid" onclick="cdSetView('grid')" title="Card Grid">⊞</button>
+              <button class="cd-vt-btn" id="cdVtTable" onclick="cdSetView('table')" title="Table">☰</button>
+              <button class="cd-vt-btn" id="cdVtKanban" onclick="cdSetView('kanban')" title="Kanban by Role">⊟</button>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="cdExportCSV()" style="font-size:11.5px;gap:4px;display:flex;align-items:center">⬇ Export CSV</button>
+          </div>
         </div>
-        <div class="cd-filter-bar">
+        <div class="cd-filter-bar" id="cdFilterBar">
           <div class="cd-search-wrap">
             <span class="cd-search-icon">🔍</span>
-            <input type="text" id="cdSearch" placeholder="Search contacts by name, company, or phone…" oninput="cdRender()">
+            <input type="text" id="cdSearch" placeholder="Search contacts…" oninput="cdRender()">
           </div>
           <button class="filter-btn active" id="cdChipAll" onclick="cdSetFilter('',this)">All</button>
           <button class="filter-btn" onclick="cdSetFilter('closingAgent',this)">Closing Agent</button>
@@ -1703,7 +1759,21 @@ input[type=file]{display:none}
           <button class="filter-btn" onclick="cdSetFilter('appraiser',this)">Appraiser</button>
           <button class="filter-btn" onclick="cdSetFilter('hoa',this)">HOA</button>
         </div>
+        <!-- Grid view -->
         <div class="cd-grid" id="cdGrid"></div>
+        <!-- Table view -->
+        <div class="cd-table-wrap" id="cdTableWrap" style="display:none">
+          <table class="cd-table" id="cdTable">
+            <thead><tr>
+              <th>Company</th><th>People</th><th>Phone</th><th>Email</th><th>Role(s)</th><th></th>
+            </tr></thead>
+            <tbody id="cdTableBody"></tbody>
+          </table>
+        </div>
+        <!-- Kanban view -->
+        <div class="cd-kanban-wrap" id="cdKanbanWrap" style="display:none">
+          <div class="cd-kanban-lanes" id="cdKanbanLanes"></div>
+        </div>
       </div>
     </div>
     <!-- IMPORTANT DATES -->
@@ -5519,6 +5589,7 @@ function paPrintWithLogo(l, ZC_LOGO) {
 }
 // CD_ROLES replaced by cdGetRoles() — see renderSettings section above
 let cdFilterRole = '';
+let cdViewMode = 'grid'; // 'grid' | 'table' | 'kanban'
 
 function cdGetAll() { return cache.contactDir || []; }
 
@@ -5528,6 +5599,26 @@ function cdSetFilter(role, btn) {
   cdFilterRole = role;
   document.querySelectorAll('.cd-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  cdRender();
+}
+
+function cdSetView(mode) {
+  cdViewMode = mode;
+  // Toggle button states
+  ['grid','table','kanban'].forEach(m => {
+    const btn = document.getElementById('cdVt'+m.charAt(0).toUpperCase()+m.slice(1));
+    if (btn) btn.classList.toggle('on', m === mode);
+  });
+  // Show/hide filter bar (hidden in kanban since it groups by role)
+  const fb = document.getElementById('cdFilterBar');
+  if (fb) fb.style.display = mode === 'kanban' ? 'none' : '';
+  // Show/hide panels
+  const grid = document.getElementById('cdGrid');
+  const tableWrap = document.getElementById('cdTableWrap');
+  const kanbanWrap = document.getElementById('cdKanbanWrap');
+  if (grid) grid.style.display = mode === 'grid' ? '' : 'none';
+  if (tableWrap) tableWrap.style.display = mode === 'table' ? '' : 'none';
+  if (kanbanWrap) kanbanWrap.style.display = mode === 'kanban' ? '' : 'none';
   cdRender();
 }
 
@@ -5560,11 +5651,9 @@ function cdPhoneInput(e) {
   inp.value = fmt;
 }
 
-function cdRender() {
-  const grid = document.getElementById('cdGrid');
-  if (!grid) return;
+// ── Shared: filter contacts by search + role ──
+function cdFilterContacts() {
   const q = (document.getElementById('cdSearch')?.value||'').toLowerCase();
-  const roles = cdGetRoles();
   let contacts = cdGetAll();
   if (cdFilterRole) contacts = contacts.filter(c => (c.roles||[]).includes(cdFilterRole));
   if (q) contacts = contacts.filter(c => {
@@ -5576,7 +5665,13 @@ function cdRender() {
       (c.email||'').toLowerCase().includes(q) ||
       people.some(p => (p.name||'').toLowerCase().includes(q) || (p.email||'').toLowerCase().includes(q) || (p.phone||'').toLowerCase().includes(q));
   });
+  return contacts;
+}
+
+// ── Main render dispatcher ──
+function cdRender() {
   // Update filter chip bar dynamically
+  const roles = cdGetRoles();
   const filterBar = document.querySelector('.cd-filter-bar');
   if (filterBar) {
     [...filterBar.children].forEach(ch => { if (!ch.classList.contains('cd-search-wrap')) ch.remove(); });
@@ -5593,18 +5688,27 @@ function cdRender() {
       filterBar.appendChild(btn);
     });
   }
+  if (cdViewMode === 'table') { cdRenderTable(); return; }
+  if (cdViewMode === 'kanban') { cdRenderKanban(); return; }
+  cdRenderGrid();
+}
+
+// ── VIEW 1: Card Grid ──
+function cdRenderGrid() {
+  const grid = document.getElementById('cdGrid');
+  if (!grid) return;
+  const roles = cdGetRoles();
   const roleLabels = Object.fromEntries(roles.map(r=>[r.key, r.label]));
+  const contacts = cdFilterContacts();
   grid.innerHTML = contacts.map(c => {
     const initials = cdInitials(c.companyName||c.contactName);
     const bg = cdAvatarColor(c.companyName||c.contactName);
     const roleTags = (c.roles||[]).map(r=>`<span class="cd-role-tag">${esc(roleLabels[r]||r)}</span>`).join('');
     const people = c.people||[];
     const notesCount = (c.notes||[]).length;
-    // People count badge
     const peopleBadge = people.length > 0
       ? `<span class="cd-people-badge" title="${people.length} contact${people.length>1?'s':''} at this company">👤 ${people.length} ${people.length===1?'person':'people'}</span>`
       : '';
-    // Show first 2 people
     const shown = people.slice(0,2);
     const extra = people.length > 2 ? people.length - 2 : 0;
     const peopleRows = shown.map(p => `<div class="cd-person-row">
@@ -5616,14 +5720,11 @@ function cdRender() {
       ${peopleRows}
       ${extra > 0 ? `<span class="cd-people-more">+${extra} more</span>` : ''}
     </div>` : '';
-    // Phone pills — cell/work/fax
-    const cellP = c.cellPhone || c.phone; // backwards compat
-    const workP = c.workPhone;
-    const faxP  = c.fax;
+    const cellP = c.cellPhone || c.phone;
     const phonePills = [
       cellP ? `<span class="cd-phone-pill"><b>Cell</b>${esc(cdFmtPhone(cellP))}</span>` : '',
-      workP ? `<span class="cd-phone-pill"><b>Work</b>${esc(cdFmtPhone(workP))}</span>` : '',
-      faxP  ? `<span class="cd-phone-pill"><b>Fax</b>${esc(cdFmtPhone(faxP))}</span>`  : '',
+      c.workPhone ? `<span class="cd-phone-pill"><b>Work</b>${esc(cdFmtPhone(c.workPhone))}</span>` : '',
+      c.fax ? `<span class="cd-phone-pill"><b>Fax</b>${esc(cdFmtPhone(c.fax))}</span>` : '',
     ].filter(Boolean).join('');
     const phonesSection = phonePills ? `<div class="cd-phones">${phonePills}</div>` : '';
     return `<div class="cd-card" style="cursor:pointer" onclick="cdOpenDetail('${c.id}')">
@@ -5652,6 +5753,90 @@ function cdRender() {
     <div style="font-size:13px;font-weight:500">Add Contact</div>
     <div style="font-size:11.5px;color:var(--slate-light);text-align:center;margin-top:3px;line-height:1.5">Save a regular contact<br>to use across all files</div>
   </div>`;
+}
+
+// ── VIEW 2: Table ──
+function cdRenderTable() {
+  const tbody = document.getElementById('cdTableBody');
+  if (!tbody) return;
+  const roles = cdGetRoles();
+  const roleLabels = Object.fromEntries(roles.map(r=>[r.key, r.label]));
+  const contacts = cdFilterContacts();
+  if (!contacts.length) {
+    tbody.innerHTML = `<tr class="cd-tbl-add-row" onclick="cdOpenModal()"><td colspan="6">No contacts yet — click to add one</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = contacts.map(c => {
+    const bg = cdAvatarColor(c.companyName||c.contactName);
+    const people = c.people||[];
+    const shown = people.slice(0,2);
+    const extra = people.length > 2 ? people.length - 2 : 0;
+    const peopleHtml = shown.map(p=>`<div class="cd-tbl-prow"><b>${esc(p.name||'')}</b>${p.title?' · '+esc(p.title):''}</div>`).join('')
+      + (extra > 0 ? `<div class="cd-tbl-more">+${extra} more</div>` : '');
+    const cellP = cdFmtPhone(c.cellPhone||c.phone||'');
+    const workP = cdFmtPhone(c.workPhone||'');
+    const phoneHtml = [cellP,workP].filter(Boolean).join('<br>') || '—';
+    const roleChips = (c.roles||[]).map(r=>`<span class="cd-tbl-chip">${esc(roleLabels[r]||r)}</span>`).join(' ');
+    return `<tr onclick="cdOpenDetail('${c.id}')">
+      <td><div class="cd-tbl-company"><div class="cd-tbl-avatar" style="background:${bg}">${cdInitials(c.companyName||c.contactName)}</div>${esc(c.companyName||c.contactName||'—')}</div></td>
+      <td><div class="cd-tbl-people">${peopleHtml||'—'}</div></td>
+      <td><div class="cd-tbl-phone">${phoneHtml}</div></td>
+      <td><div class="cd-tbl-email" title="${esc(c.email||'')}">${esc(c.email||'—')}</div></td>
+      <td>${roleChips||'—'}</td>
+      <td onclick="event.stopPropagation()"><div class="cd-tbl-actions">
+        <button class="btn btn-outline btn-sm" onclick="cdOpenModal('${c.id}')">Edit</button>
+        <button class="btn btn-sm" style="color:var(--slate-light);background:none;border:none;cursor:pointer;font-size:11px" onclick="cdDelete('${c.id}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('') + `<tr class="cd-tbl-add-row" onclick="cdOpenModal()"><td colspan="6">＋ Add Contact</td></tr>`;
+}
+
+// ── VIEW 3: Kanban by Role ──
+function cdRenderKanban() {
+  const lanes = document.getElementById('cdKanbanLanes');
+  if (!lanes) return;
+  const roles = cdGetRoles();
+  const allContacts = cdGetAll();
+  const q = (document.getElementById('cdSearch')?.value||'').toLowerCase();
+  // Build a lane for each role that has at least one contact (or all roles)
+  const laneData = roles.map(r => {
+    let contacts = allContacts.filter(c => (c.roles||[]).includes(r.key));
+    if (q) contacts = contacts.filter(c => {
+      const people = c.people||[];
+      return (c.companyName||'').toLowerCase().includes(q) ||
+        people.some(p=>(p.name||'').toLowerCase().includes(q));
+    });
+    return { role: r, contacts };
+  }).filter(l => l.contacts.length > 0 || true); // show all lanes even empty
+  lanes.innerHTML = laneData.map(({role, contacts}) => {
+    const cards = contacts.map(c => {
+      const bg = cdAvatarColor(c.companyName||c.contactName);
+      const people = c.people||[];
+      const shown = people.slice(0,4);
+      const extra = people.length > 4 ? people.length - 4 : 0;
+      const avatars = shown.map(p=>`<div class="cd-k-pa" title="${esc(p.name||'')}">${cdInitials(p.name)}</div>`).join('')
+        + (extra > 0 ? `<div class="cd-k-more">+${extra}</div>` : '');
+      const cellP = cdFmtPhone(c.cellPhone||c.phone||'');
+      return `<div class="cd-k-mini" onclick="cdOpenDetail('${c.id}')">
+        <div class="cd-k-top">
+          <div class="cd-k-av" style="background:${bg}">${cdInitials(c.companyName||c.contactName)}</div>
+          <div><div class="cd-k-name">${esc(c.companyName||c.contactName||'—')}</div>
+          <div class="cd-k-sub">${people.length} ${people.length===1?'person':'people'}</div></div>
+        </div>
+        ${people.length>0?`<div class="cd-k-avatars">${avatars}</div>`:''}
+        ${cellP?`<div class="cd-k-phone">📞 ${cellP}</div>`:''}
+      </div>`;
+    }).join('');
+    const emptyState = contacts.length === 0
+      ? `<div style="font-size:11.5px;color:var(--slate-light);text-align:center;padding:10px 4px">No contacts yet</div>` : '';
+    return `<div class="cd-k-lane">
+      <div class="cd-k-lane-hdr">
+        <span class="cd-k-lane-name">${esc(role.label)}</span>
+        <span class="cd-k-lane-count">${contacts.length}</span>
+      </div>
+      <div class="cd-k-lane-body">${cards}${emptyState}</div>
+    </div>`;
+  }).join('') + `<div class="cd-k-add-lane"><button class="cd-k-add-btn" onclick="cdOpenModal()">＋ Add Contact</button></div>`;
 }
 
 function cdDelete(id) {
