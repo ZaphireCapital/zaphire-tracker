@@ -1029,7 +1029,7 @@ input[type=file]{display:none}
   .tpc-toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .18s}
   .tpc-vis-toggle input:checked + .tpc-toggle-track::after{transform:translateX(14px)}
   /* ── Pipeline Info Tab (in-file panel) ── */
-  .pl-group{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:18px}
+  .pl-group{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:18px;position:relative}
   .pl-group-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border)}
   .pl-group-title{font-size:13px;font-weight:700;color:var(--navy)}
   .pl-group-sub{font-size:11px;color:var(--slate-light);margin-left:auto}
@@ -10044,13 +10044,14 @@ const PL_GROUPS = [
       { key: 'pl_loanAmt',      label: 'Loan Amount',           type: 'text', placeholder: '$000,000' },
       { key: 'pl_lo',           label: 'Loan Officer',          type: 'text', placeholder: 'Name' },
       { key: 'pl_lender',       label: 'Lender',                type: 'text', placeholder: 'Lender name' },
-      { key: 'pl_loanNum',      label: 'Loan #',                type: 'text', placeholder: 'Lender loan number' },
+      { key: 'pl_loanNum',      label: 'Loan # (Zaphire Capital)', type: 'text', placeholder: 'Your internal loan number' },
+      { key: 'pl_lenderLoanNum', label: 'Lender Loan #',          type: 'text', placeholder: 'Lender\'s loan number' },
       { key: 'pl_propType',     label: 'Property Type',         type: 'select', opts: ['','SFR','Condo','2-4 Unit','Townhome','PUD','Commercial','Land','Other'] },
       { key: 'pl_txType',       label: 'Purchase / Refi',       type: 'select', opts: ['','Purchase','Rate/Term Refi','Cash-Out Refi'] },
       { key: 'pl_loanType',     label: 'Conv / FHA / VA / Other', type: 'select', opts: ['','Conventional','FHA','VA','USDA','Jumbo','Non-QM','Bridge','HELOC','Other'] },
       { key: 'pl_occupancy',    label: 'Occupancy',             type: 'select', opts: ['','Primary','Second Home','Investment'] },
       { key: 'pl_creditAmt',    label: 'Credit Report $',       type: 'text', placeholder: '$0.00' },
-      { key: 'pl_creditCo',     label: 'Credit Company',        type: 'text', placeholder: 'Company name' },
+      { key: 'pl_creditCo',     label: 'Credit Company',        type: 'contact-picker', role: 'creditCompany', placeholder: 'Search contacts…' },
       { key: 'pl_creditAddr',   label: 'Credit Company Address',type: 'text', placeholder: 'Address' },
     ]
   },
@@ -10060,7 +10061,6 @@ const PL_GROUPS = [
     sub: 'Fill when appraisal ordered',
     color: '#5b21b6',
     fields: [
-      { key: 'pl_aprDir',       label: 'APR / Director',        type: 'text', placeholder: 'Name' },
       { key: 'pl_aprFee',       label: 'Appraisal Fee',         type: 'text', placeholder: '$0.00' },
       { key: 'pl_amc',          label: 'AMC',                   type: 'text', placeholder: 'AMC name' },
       { key: 'pl_appraiserCo',  label: 'Appraiser Company',     type: 'text', placeholder: 'Company' },
@@ -10076,7 +10076,7 @@ const PL_GROUPS = [
       { key: 'pl_closingAtty',  label: 'Closing Attorney Company',   type: 'text', placeholder: 'Company' },
       { key: 'pl_closingAttyPerson', label: 'Closing Attorney',      type: 'text', placeholder: 'Person name' },
       { key: 'pl_titleCo',      label: 'Title Company',              type: 'text', placeholder: 'Company' },
-      { key: 'pl_lenderPaid',   label: 'Lender Paid',                type: 'text', placeholder: '$0.00' },
+      { key: 'pl_lenderPaid',   label: 'Lender / Borrower Paid',     type: 'select', opts: ['','Lender Paid','Borrower Paid'] },
       { key: 'pl_refSrc',       label: 'Referral Source',            type: 'text', placeholder: 'Source name' },
       { key: 'pl_refAddr',      label: 'Referral Address',           type: 'text', placeholder: 'Address' },
     ]
@@ -10269,6 +10269,17 @@ function plInfoRender() {
           return;
         }
 
+        // Contact-picker type (creditCompany or other contact roles)
+        if (field.type === 'contact-picker') {
+          // Find contacts by role — role may be a custom role added by the user
+          const roleKey = field.role || '';
+          const pickerContacts = allContacts.filter(c => Array.isArray(c.roles) && c.roles.includes(roleKey));
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          html += renderContactPicker(field.key, pickerContacts, plVal(field.key, ''));
+          html += '<\/div>';
+          return;
+        }
+
         // Default entry field rendering
         const val = pl[field.key] || '';
         html += `<div class="pl-label">${esc(field.label)}<\/div>`;
@@ -10292,6 +10303,13 @@ function plInfoRender() {
           html += renderContactPicker('pl_closingAtty', closingAttyContacts, plVal('pl_closingAtty', ''));
         } else if (field.key === 'pl_titleCo') {
           html += renderContactPicker('pl_titleCo', titleCoContacts, plVal('pl_titleCo', ''));
+        } else if (field.type === 'select') {
+          const val = pl[field.key] || '';
+          html += `<select class="pl-select" id="pli_${field.key}">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select>';
         } else {
           const val = pl[field.key] || '';
           html += `<input class="pl-input" type="text" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
@@ -10379,6 +10397,18 @@ function plContactPick(fieldKey, uid_s, name) {
   if (input) input.value = name;
   const dd = document.getElementById(uid_s + '_dd');
   if (dd) dd.style.display = 'none';
+  // Auto-fill related fields when a contact is picked
+  if (fieldKey === 'pl_creditCo') {
+    // Find the contact by company name and fill in the address
+    const allC = (typeof cdGetAll === 'function') ? cdGetAll() : [];
+    const match = allC.find(c => (c.companyName || c.contactName || '') === name);
+    if (match) {
+      const addrParts = [match.address, match.city, match.state, match.zip].filter(Boolean);
+      const addrStr = addrParts.join(', ');
+      const addrEl = document.getElementById('pli_pl_creditAddr');
+      if (addrEl && addrStr) addrEl.value = addrStr;
+    }
+  }
 }
 
 async function plInfoSave() {
@@ -10408,9 +10438,9 @@ const PL_COLS = [
   { label: 'Borrower',          get: f => [f.b1, f.b2].filter(Boolean).join(' & ') },
   { label: 'Stage',             get: f => f.fileStatus || 'active', render: v => `<span class="pl-chip pl-chip-${(v||'active').replace(/\s/g,'-').toLowerCase()}">${esc(plStageLabel(v))}</span>` },
   { label: 'Property',          get: f => f.prop || '' },
-  { label: 'App Date',          get: f => (f.pipeline||{}).pl_appDate || '' },
-  { label: 'Submit Date',       get: f => (f.pipeline||{}).pl_submitDate || '' },
-  { label: 'Loan Amount',       get: f => (f.pipeline||{}).pl_loanAmt || (f.la ? fmtCur(f.la) : '') },
+  { label: 'App Date',          get: f => (f.pipeline||{}).pl_appDate || '', render: v => v ? (d => `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`)(new Date(v+'T12:00:00')) : '—' },
+  { label: 'Submit Date',       get: f => (f.pipeline||{}).pl_submitDate || '', render: v => v ? (d => `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`)(new Date(v+'T12:00:00')) : '—' },
+  { label: 'Loan Amount',       get: f => { const v = (f.pipeline||{}).pl_loanAmt; return v ? fmtCur(v) : (f.la ? fmtCur(f.la) : ''); } },
   { label: 'Loan Officer',      get: f => (f.pipeline||{}).pl_lo || '' },
   { label: 'Lender',            get: f => (f.pipeline||{}).pl_lender || f.bank || '' },
   { label: 'Loan #',            get: f => (f.pipeline||{}).pl_loanNum || '' },
@@ -10429,11 +10459,11 @@ const PL_COLS = [
   { label: 'Closing Atty Co',   get: f => (f.pipeline||{}).pl_closingAtty || '' },
   { label: 'Closing Atty',      get: f => (f.pipeline||{}).pl_closingAttyPerson || '' },
   { label: 'Title Company',     get: f => (f.pipeline||{}).pl_titleCo || '' },
-  { label: 'Lender Paid',       get: f => (f.pipeline||{}).pl_lenderPaid || '' },
+  { label: 'Lender / Borrower Paid', get: f => (f.pipeline||{}).pl_lenderPaid || '' },
   { label: 'Referral Source',   get: f => (f.pipeline||{}).pl_refSrc || '' },
   { label: 'Referral Address',  get: f => (f.pipeline||{}).pl_refAddr || '' },
-  { label: 'Date Closed',       get: f => (f.pipeline||{}).pl_closeDate || '' },
-  { label: 'Closed Amt',        get: f => (f.pipeline||{}).pl_closedAmt || '' },
+  { label: 'Date Closed',       get: f => (f.pipeline||{}).pl_closeDate || '', render: v => v ? (d => `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`)(new Date(v+'T12:00:00')) : '—' },
+  { label: 'Closed Amt',        get: f => { const v = (f.pipeline||{}).pl_closedAmt; return v ? fmtCur(v) : ''; } },
   { label: 'Final Rate %',      get: f => (f.pipeline||{}).pl_finalRate || '' },
   { label: 'Broker Fee %',      get: f => (f.pipeline||{}).pl_brokerFeePct || '' },
   { label: 'Broker Fee $',      get: f => (f.pipeline||{}).pl_brokerFeeAmt || '' },
@@ -10487,7 +10517,7 @@ const PL_FILTER_FIELDS = [
   { key: 'pl_closingAtty',  label: 'Closing Attorney Co',  type: 'text',   get: f => (f.pipeline||{}).pl_closingAtty || '' },
   { key: 'pl_closingAttyPerson', label: 'Closing Attorney',type: 'text',   get: f => (f.pipeline||{}).pl_closingAttyPerson || '' },
   { key: 'pl_titleCo',      label: 'Title Company',        type: 'text',   get: f => (f.pipeline||{}).pl_titleCo || '' },
-  { key: 'pl_lenderPaid',   label: 'Lender Paid',          type: 'text',   get: f => (f.pipeline||{}).pl_lenderPaid || '' },
+  { key: 'pl_lenderPaid',   label: 'Lender / Borrower Paid', type: 'select', get: f => (f.pipeline||{}).pl_lenderPaid || '', opts: ['Lender Paid','Borrower Paid'] },
   { key: 'pl_refSrc',       label: 'Referral Source',      type: 'text',   get: f => (f.pipeline||{}).pl_refSrc || '' },
   { key: 'pl_refAddr',      label: 'Referral Address',     type: 'text',   get: f => (f.pipeline||{}).pl_refAddr || '' },
   // ── Closed ──
