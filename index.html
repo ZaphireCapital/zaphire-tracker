@@ -10108,37 +10108,277 @@ function plInfoRender() {
   const el = document.getElementById('plInfoPanel');
   if (!el) return;
 
+  // Resolve value: pipeline first, then fallback to file field
+  function plVal(key, fallback) {
+    const v = pl[key];
+    if (v !== undefined && v !== null && v !== '') return String(v);
+    return (fallback !== undefined && fallback !== null) ? String(fallback) : '';
+  }
+
+  // Format a loan amount for display ($X,XXX)
+  function fmtLoanInput(raw) {
+    if (!raw && raw !== 0) return '';
+    const n = parseFloat(String(raw).replace(/[^0-9.]/g, ''));
+    if (isNaN(n)) return String(raw);
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  // LO options from settings
+  const loUsers = (cache.settings && cache.settings.users) || [];
+
+  // Contact directory contacts filtered by role
+  const allContacts = (typeof cdGetAll === 'function') ? cdGetAll() : [];
+  function contactsByRole(roleKey) {
+    return allContacts.filter(c => Array.isArray(c.roles) && c.roles.includes(roleKey));
+  }
+  const closingAttyContacts = contactsByRole('closingAgent');
+  const titleCoContacts = contactsByRole('titleCompany');
+
+  // Render a searchable contact picker (reuses tpc-picker-dd styling)
+  function renderContactPicker(fieldKey, contacts, currentVal) {
+    const uid_s = 'plicp_' + fieldKey;
+    const curName = currentVal || '';
+    const itemsHtml = contacts.length === 0
+      ? '<div style="padding:8px 12px;font-size:11px;color:var(--slate-light)">No contacts with this role yet</div>'
+      : contacts.map(c => {
+          const cName = (c.companyName || c.contactName || '').replace(/'/g, '&#39;');
+          const dispName = esc(c.companyName || c.contactName || '');
+          const dispSub  = (c.contactName && c.companyName) ? '<span style="font-size:10.5px;color:var(--slate-light);margin-left:6px">' + esc(c.contactName) + '<\/span>' : '';
+          return '<div class="tpc-dd-item pli-dd-item" onmousedown="plContactPick(\'' + fieldKey + '\',\'' + uid_s + '\',\'' + cName + '\')">'
+            + '<span style="font-size:12px;font-weight:600;color:var(--navy)">' + dispName + '<\/span>' + dispSub
+            + '<\/div>';
+        }).join('');
+
+    return '<div class="pli-cp-wrap" style="position:relative">'
+      + '<input class="pl-input" type="text"'
+      + ' id="pli_' + fieldKey + '"'
+      + ' value="' + esc(curName) + '"'
+      + ' placeholder="Search contacts…"'
+      + ' autocomplete="off"'
+      + ' oninput="plContactSearch(\'' + fieldKey + '\',\'' + uid_s + '\')"'
+      + ' onfocus="plContactSearch(\'' + fieldKey + '\',\'' + uid_s + '\')"'
+      + ' onblur="setTimeout(function(){ var dd=document.getElementById(\'' + uid_s + '_dd\'); if(dd) dd.style.display=\'none\'; },200)"'
+      + '>'
+      + '<div class="tpc-picker-dd pli-cp-dd" id="' + uid_s + '_dd"'
+      + ' style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:300">'
+      + itemsHtml
+      + '<\/div>'
+      + '<\/div>';
+  }
+
   let html = '<div style="padding:4px 0 16px">';
-  html += '<div class="pl-save-bar"><button class="btn btn-gold btn-sm" onclick="plInfoSave()">💾 Save Pipeline Info</button></div>';
+  html += '<div class="pl-save-bar"><button class="btn btn-gold btn-sm" onclick="plInfoSave()">💾 Save Pipeline Info<\/button><\/div>';
 
   PL_GROUPS.forEach(g => {
     const isGold = g.gold;
     html += `<div class="pl-group${isGold ? ' pl-closed' : ''}">`;
     html += `<div class="pl-group-hdr" style="${isGold ? '' : 'border-left:4px solid ' + g.color}">`;
-    html += `<div class="pl-group-title" style="${isGold ? '' : 'color:' + g.color}">${esc(g.label)}</div>`;
-    html += `<div class="pl-group-sub">${esc(g.sub)}</div>`;
-    html += '</div>';
+    html += `<div class="pl-group-title" style="${isGold ? '' : 'color:' + g.color}">${esc(g.label)}<\/div>`;
+    html += `<div class="pl-group-sub">${esc(g.sub)}<\/div>`;
+    html += '<\/div>';
     html += '<div class="pl-grid">';
-    g.fields.forEach(field => {
-      const val = pl[field.key] || '';
-      html += '<div class="pl-field">';
-      html += `<div class="pl-label">${esc(field.label)}</div>`;
-      if (field.type === 'select') {
-        html += `<select class="pl-select" id="pli_${field.key}">`;
-        (field.opts || []).forEach(opt => {
-          html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}</option>`;
-        });
-        html += '</select>';
-      } else {
-        html += `<input class="pl-input" type="${field.type === 'date' ? 'date' : 'text'}" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
-      }
-      html += '</div>';
-    });
-    html += '</div></div>';
+
+    if (g.key === 'entry') {
+      g.fields.forEach(field => {
+        html += '<div class="pl-field">';
+
+        if (field.key === 'pl_loanAmt') {
+          // Loan Amount Submitted (pre-populate from f.la)
+          const rawSub = plVal('pl_loanAmt', f.la);
+          const dispSub = fmtLoanInput(rawSub);
+          html += '<div class="pl-label">Loan Amount Submitted<\/div>';
+          html += `<input class="pl-input" type="text" id="pli_pl_loanAmt" value="${esc(dispSub)}" placeholder="$000,000" onchange="this.value=plFmtLoanBlur(this.value)">`;
+          html += '<\/div>';
+
+          // Loan Amount Closed reference (read-only, updates when Closed section changes)
+          html += '<div class="pl-field">';
+          const closedRaw = plVal('pl_closedAmt', '');
+          const closedDisp = closedRaw ? fmtLoanInput(closedRaw) : '';
+          html += '<div class="pl-label" style="color:#92400e;font-weight:600">Loan Amount Closed<\/div>';
+          html += `<input class="pl-input" type="text" id="pli_pl_closedAmt_entry_ref" value="${esc(closedDisp)}" placeholder="(Set in Closed File section)" style="background:var(--bg-subtle,#f8f6f1);color:#92400e;font-weight:500" readonly tabindex="-1">`;
+          html += '<\/div>';
+          return;
+        }
+
+        if (field.key === 'pl_lo') {
+          const curLO = plVal('pl_lo', '');
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          if (loUsers.length > 0) {
+            html += `<select class="pl-select" id="pli_pl_lo">`;
+            html += '<option value="">— Select LO —<\/option>';
+            loUsers.forEach(u => {
+              html += `<option value="${esc(u)}" ${curLO === u ? 'selected' : ''}>${esc(u)}<\/option>`;
+            });
+            html += '<\/select>';
+          } else {
+            html += `<input class="pl-input" type="text" id="pli_pl_lo" value="${esc(curLO)}" placeholder="Loan Officer name">`;
+          }
+          html += '<\/div>';
+          return;
+        }
+
+        if (field.key === 'pl_lender') {
+          const val = plVal('pl_lender', f.bank);
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          html += `<input class="pl-input" type="text" id="pli_pl_lender" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
+          html += '<\/div>';
+          return;
+        }
+
+        if (field.key === 'pl_propType') {
+          const val = plVal('pl_propType', f.propType);
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          html += `<select class="pl-select" id="pli_pl_propType">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select><\/div>';
+          return;
+        }
+
+        if (field.key === 'pl_loanType') {
+          const val = plVal('pl_loanType', f.loanType);
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          html += `<select class="pl-select" id="pli_pl_loanType">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select><\/div>';
+          return;
+        }
+
+        if (field.key === 'pl_occupancy') {
+          const val = plVal('pl_occupancy', f.occupancy);
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          html += `<select class="pl-select" id="pli_pl_occupancy">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select><\/div>';
+          return;
+        }
+
+        if (field.key === 'pl_txType') {
+          const val = plVal('pl_txType', '');
+          html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+          html += `<select class="pl-select" id="pli_pl_txType">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select><\/div>';
+          return;
+        }
+
+        // Default entry field rendering
+        const val = pl[field.key] || '';
+        html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+        if (field.type === 'select') {
+          html += `<select class="pl-select" id="pli_${field.key}">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select>';
+        } else {
+          html += `<input class="pl-input" type="${field.type === 'date' ? 'date' : 'text'}" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
+        }
+        html += '<\/div>';
+      });
+
+    } else if (g.key === 'closing') {
+      g.fields.forEach(field => {
+        html += '<div class="pl-field">';
+        html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+        if (field.key === 'pl_closingAtty') {
+          html += renderContactPicker('pl_closingAtty', closingAttyContacts, plVal('pl_closingAtty', ''));
+        } else if (field.key === 'pl_titleCo') {
+          html += renderContactPicker('pl_titleCo', titleCoContacts, plVal('pl_titleCo', ''));
+        } else {
+          const val = pl[field.key] || '';
+          html += `<input class="pl-input" type="text" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
+        }
+        html += '<\/div>';
+      });
+
+    } else if (g.key === 'closed') {
+      g.fields.forEach(field => {
+        html += '<div class="pl-field">';
+        html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+        if (field.key === 'pl_closedAmt') {
+          const rawAmt = plVal('pl_closedAmt', '');
+          const dispAmt = rawAmt ? fmtLoanInput(rawAmt) : '';
+          html += `<input class="pl-input" type="text" id="pli_pl_closedAmt" value="${esc(dispAmt)}" placeholder="$000,000"`
+            + ' onchange="this.value=plFmtLoanBlur(this.value);var ref=document.getElementById(\'pli_pl_closedAmt_entry_ref\');if(ref)ref.value=this.value;">';
+        } else if (field.type === 'select') {
+          const val = pl[field.key] || '';
+          html += `<select class="pl-select" id="pli_${field.key}">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select>';
+        } else {
+          const val = pl[field.key] || '';
+          html += `<input class="pl-input" type="${field.type === 'date' ? 'date' : 'text'}" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
+        }
+        html += '<\/div>';
+      });
+
+    } else {
+      // Appraisal + any future groups: standard rendering
+      g.fields.forEach(field => {
+        const val = pl[field.key] || '';
+        html += '<div class="pl-field">';
+        html += `<div class="pl-label">${esc(field.label)}<\/div>`;
+        if (field.type === 'select') {
+          html += `<select class="pl-select" id="pli_${field.key}">`;
+          (field.opts || []).forEach(opt => {
+            html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}<\/option>`;
+          });
+          html += '<\/select>';
+        } else {
+          html += `<input class="pl-input" type="${field.type === 'date' ? 'date' : 'text'}" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
+        }
+        html += '<\/div>';
+      });
+    }
+
+    html += '<\/div><\/div>'; // pl-grid + pl-group
   });
 
-  html += '</div>';
+  html += '<\/div>';
   el.innerHTML = html;
+}
+
+// Format a loan amount on blur (strips to raw number, then re-formats)
+function plFmtLoanBlur(raw) {
+  if (!raw) return '';
+  const n = parseFloat(String(raw).replace(/[^0-9.]/g, ''));
+  if (isNaN(n)) return raw;
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+// Pipeline contact picker: filter dropdown on typing
+function plContactSearch(fieldKey, uid_s) {
+  const input = document.getElementById('pli_' + fieldKey);
+  const dd = document.getElementById(uid_s + '_dd');
+  if (!dd || !input) return;
+  const q = input.value.toLowerCase().trim();
+  const items = dd.querySelectorAll('.pli-dd-item');
+  let anyVisible = false;
+  items.forEach(item => {
+    const txt = item.textContent || '';
+    const match = !q || txt.toLowerCase().includes(q);
+    item.style.display = match ? '' : 'none';
+    if (match) anyVisible = true;
+  });
+  dd.style.display = (anyVisible || items.length === 0) ? 'block' : 'none';
+}
+
+// Pipeline contact picker: select an item and close dropdown
+function plContactPick(fieldKey, uid_s, name) {
+  const input = document.getElementById('pli_' + fieldKey);
+  if (input) input.value = name;
+  const dd = document.getElementById(uid_s + '_dd');
+  if (dd) dd.style.display = 'none';
 }
 
 async function plInfoSave() {
@@ -10147,11 +10387,19 @@ async function plInfoSave() {
   if (!f.pipeline) f.pipeline = {};
   PL_ALL_KEYS.forEach(key => {
     const el = document.getElementById('pli_' + key);
-    if (el) f.pipeline[key] = el.value;
+    if (!el) return;
+    // Strip $ and commas from loan amount fields — save raw number string
+    if (key === 'pl_loanAmt' || key === 'pl_closedAmt') {
+      const raw = String(el.value).replace(/[^0-9.]/g, '');
+      f.pipeline[key] = raw;
+    } else {
+      f.pipeline[key] = el.value;
+    }
   });
   await syncToCloud();
   toast('Pipeline info saved ✓', 'success');
 }
+
 
 // ── Pipeline Master List ──────────────────────────────────────
 
