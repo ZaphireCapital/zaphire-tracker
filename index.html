@@ -1983,25 +1983,26 @@ input[type=file]{display:none}
     </div>
     <!-- PIPELINE MASTER LIST -->
     <div class="page" id="page-pipeline" style="padding:0;overflow:hidden">
-      <div style="padding:20px 28px 12px;background:var(--white);border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <!-- Stage filter chips -->
+      <div style="padding:14px 24px 10px;background:var(--white);border-bottom:1px solid var(--border)">
+        <!-- Row 1: stage chips + search -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
           <div id="plFilterChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-          <!-- Date range -->
-          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap">
-            <span style="font-size:12px;color:var(--slate-light);white-space:nowrap">App Date:</span>
-            <input type="date" id="plDateFrom" class="form-input" style="font-size:12px;padding:4px 8px;height:auto;width:auto" onchange="plMasterRender()">
-            <span style="font-size:12px;color:var(--slate-light)">to</span>
-            <input type="date" id="plDateTo" class="form-input" style="font-size:12px;padding:4px 8px;height:auto;width:auto" onchange="plMasterRender()">
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('plDateFrom').value='';document.getElementById('plDateTo').value='';plMasterRender()">✕ Clear</button>
-            <div style="width:1px;height:20px;background:var(--border-strong)"></div>
-            <input type="text" id="plSearch" placeholder="Search name / property…" class="form-input" style="font-size:12px;padding:4px 10px;height:auto;width:180px" oninput="plMasterRender()">
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:var(--slate-light)">🔍</span>
+            <input type="text" id="plSearch" placeholder="Search all fields…" class="form-input" style="font-size:12px;padding:4px 10px;height:auto;width:200px" oninput="plMasterRender()">
           </div>
         </div>
+        <!-- Row 2: field filters -->
+        <div id="plFieldFilters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding:10px 12px;background:var(--cream);border:1px solid var(--border);border-radius:8px;margin-bottom:8px">
+          <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);align-self:center;white-space:nowrap">Filter by:</div>
+          <div id="plActiveFilters" style="display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:flex-end"></div>
+          <button class="btn btn-outline btn-sm" onclick="plAddFilter()" style="white-space:nowrap;flex-shrink:0">+ Add Filter</button>
+          <button class="btn btn-ghost btn-sm" onclick="plClearFilters()" style="white-space:nowrap;flex-shrink:0;color:var(--slate-light)">✕ Clear All</button>
+        </div>
         <!-- Summary tiles -->
-        <div id="plSummaryTiles" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"></div>
+        <div id="plSummaryTiles" style="display:flex;gap:8px;flex-wrap:wrap"></div>
       </div>
-      <div style="overflow-x:auto;height:calc(100vh - 60px - 120px)">
+      <div style="overflow-x:auto;height:calc(100vh - 60px - 160px)">
         <table class="pl-table" id="plTable">
           <thead id="plThead"></thead>
           <tbody id="plTbody"></tbody>
@@ -10198,8 +10199,209 @@ function plStageLabel(s) {
 
 let _plStageFilter = 'all';
 
+// ── Multi-field filter system ─────────────────────────────────
+// Each filter: { fieldKey, label, type, value, valueFrom, valueTo }
+let _plActiveFilters = [];
+
+// Filterable field definitions (all pipeline fields + core file fields)
+const PL_FILTER_FIELDS = [
+  // ── Core file fields ──
+  { key: '_borrower',    label: 'Borrower Name',        type: 'text',   get: f => [f.b1,f.b2].filter(Boolean).join(' & ') },
+  { key: '_property',   label: 'Property Address',     type: 'text',   get: f => f.prop || '' },
+  { key: '_stage',      label: 'Stage',                type: 'select', get: f => f.fileStatus || 'active',
+    opts: ['active','presubmission','closing','closed','cancelled'],
+    optLabels: { active:'In Process', presubmission:'Pre-Submission', closing:'Closing', closed:'Closed', cancelled:'Cancelled' } },
+  // ── Entry ──
+  { key: 'pl_appDate',      label: 'Application Date',      type: 'date',   get: f => (f.pipeline||{}).pl_appDate || '' },
+  { key: 'pl_submitDate',   label: 'Submit Date',           type: 'date',   get: f => (f.pipeline||{}).pl_submitDate || '' },
+  { key: 'pl_loanAmt',      label: 'Loan Amount',           type: 'text',   get: f => (f.pipeline||{}).pl_loanAmt || '' },
+  { key: 'pl_lo',           label: 'Loan Officer',          type: 'text',   get: f => (f.pipeline||{}).pl_lo || '' },
+  { key: 'pl_lender',       label: 'Lender',               type: 'text',   get: f => (f.pipeline||{}).pl_lender || f.bank || '' },
+  { key: 'pl_loanNum',      label: 'Loan #',               type: 'text',   get: f => (f.pipeline||{}).pl_loanNum || '' },
+  { key: 'pl_propType',     label: 'Property Type',        type: 'select', get: f => (f.pipeline||{}).pl_propType || '',
+    opts: ['SFR','Condo','2-4 Unit','Townhome','PUD','Commercial','Land','Other'] },
+  { key: 'pl_txType',       label: 'Purchase / Refi',      type: 'select', get: f => (f.pipeline||{}).pl_txType || '',
+    opts: ['Purchase','Rate/Term Refi','Cash-Out Refi'] },
+  { key: 'pl_loanType',     label: 'Loan Type',            type: 'select', get: f => (f.pipeline||{}).pl_loanType || f.loanType || '',
+    opts: ['Conventional','FHA','VA','USDA','Jumbo','Non-QM','Bridge','HELOC','Other'] },
+  { key: 'pl_occupancy',    label: 'Occupancy',            type: 'select', get: f => (f.pipeline||{}).pl_occupancy || f.occupancy || '',
+    opts: ['Primary','Second Home','Investment'] },
+  { key: 'pl_creditAmt',    label: 'Credit Report $',      type: 'text',   get: f => (f.pipeline||{}).pl_creditAmt || '' },
+  { key: 'pl_creditCo',     label: 'Credit Company',       type: 'text',   get: f => (f.pipeline||{}).pl_creditCo || '' },
+  { key: 'pl_creditAddr',   label: 'Credit Address',       type: 'text',   get: f => (f.pipeline||{}).pl_creditAddr || '' },
+  // ── Appraisal ──
+  { key: 'pl_aprDir',       label: 'APR / Director',       type: 'text',   get: f => (f.pipeline||{}).pl_aprDir || '' },
+  { key: 'pl_aprFee',       label: 'Appraisal Fee',        type: 'text',   get: f => (f.pipeline||{}).pl_aprFee || '' },
+  { key: 'pl_amc',          label: 'AMC',                  type: 'text',   get: f => (f.pipeline||{}).pl_amc || '' },
+  { key: 'pl_appraiserCo',  label: 'Appraiser Company',    type: 'text',   get: f => (f.pipeline||{}).pl_appraiserCo || '' },
+  { key: 'pl_appraiserAddr',label: 'Appraiser Address',    type: 'text',   get: f => (f.pipeline||{}).pl_appraiserAddr || '' },
+  // ── Closing ──
+  { key: 'pl_closingAtty',  label: 'Closing Attorney Co',  type: 'text',   get: f => (f.pipeline||{}).pl_closingAtty || '' },
+  { key: 'pl_closingAttyPerson', label: 'Closing Attorney',type: 'text',   get: f => (f.pipeline||{}).pl_closingAttyPerson || '' },
+  { key: 'pl_titleCo',      label: 'Title Company',        type: 'text',   get: f => (f.pipeline||{}).pl_titleCo || '' },
+  { key: 'pl_lenderPaid',   label: 'Lender Paid',          type: 'text',   get: f => (f.pipeline||{}).pl_lenderPaid || '' },
+  { key: 'pl_refSrc',       label: 'Referral Source',      type: 'text',   get: f => (f.pipeline||{}).pl_refSrc || '' },
+  { key: 'pl_refAddr',      label: 'Referral Address',     type: 'text',   get: f => (f.pipeline||{}).pl_refAddr || '' },
+  // ── Closed ──
+  { key: 'pl_closeDate',    label: 'Date Closed',          type: 'date',   get: f => (f.pipeline||{}).pl_closeDate || '' },
+  { key: 'pl_closedAmt',    label: 'Closed Loan Amount',   type: 'text',   get: f => (f.pipeline||{}).pl_closedAmt || '' },
+  { key: 'pl_finalRate',    label: 'Final Rate %',         type: 'text',   get: f => (f.pipeline||{}).pl_finalRate || '' },
+  { key: 'pl_brokerFeePct', label: 'Broker Fee %',         type: 'text',   get: f => (f.pipeline||{}).pl_brokerFeePct || '' },
+  { key: 'pl_brokerFeeAmt', label: 'Broker Fee $',         type: 'text',   get: f => (f.pipeline||{}).pl_brokerFeeAmt || '' },
+  { key: 'pl_fileResult',   label: 'File Result',          type: 'select', get: f => (f.pipeline||{}).pl_fileResult || '',
+    opts: ['Funded','Withdrawn','Denied','Cancelled','Suspended'] },
+];
+
+// Add a new filter row
+function plAddFilter() {
+  const idx = _plActiveFilters.length;
+  _plActiveFilters.push({ fieldKey: '', label: '', type: 'text', value: '', valueFrom: '', valueTo: '' });
+  plRenderActiveFilters();
+  const sel = document.getElementById('plff_' + idx);
+  if (sel) sel.focus();
+}
+
+// Remove a filter by index and re-render
+function plRemoveFilter(idx) {
+  _plActiveFilters.splice(idx, 1);
+  plRenderActiveFilters();
+  plMasterRender();
+}
+
+// Clear all filters
+function plClearFilters() {
+  _plActiveFilters = [];
+  plRenderActiveFilters();
+  plMasterRender();
+}
+
+// Render active filter widgets into #plActiveFilters
+function plRenderActiveFilters() {
+  const wrap = document.getElementById('plActiveFilters');
+  if (!wrap) return;
+  if (!_plActiveFilters.length) {
+    wrap.innerHTML = '<span style="font-size:11.5px;color:var(--slate-light);align-self:center">No field filters active. Click + Add Filter to begin.</span>';
+    return;
+  }
+  wrap.innerHTML = _plActiveFilters.map((flt, i) => {
+    const fd = PL_FILTER_FIELDS.find(x => x.key === flt.fieldKey);
+    let html = `<div style="display:flex;align-items:flex-end;gap:6px;background:var(--white);border:1.5px solid var(--border-strong);border-radius:8px;padding:7px 10px;flex-shrink:0">`;
+    html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+    html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">Field</label>`;
+    html += `<select class="pl-select" id="plff_${i}" style="min-width:170px;font-size:12px;padding:4px 8px" onchange="plFilterFieldChange(${i},this.value)">`;
+    html += `<option value="">— choose field —</option>`;
+    PL_FILTER_FIELDS.forEach(f2 => {
+      html += `<option value="${esc(f2.key)}"${flt.fieldKey === f2.key ? ' selected' : ''}>${esc(f2.label)}</option>`;
+    });
+    html += `</select></div>`;
+
+    if (fd) {
+      if (fd.type === 'date') {
+        html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+        html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">From</label>`;
+        html += `<input type="date" class="pl-input" id="plfrom_${i}" value="${esc(flt.valueFrom)}" style="font-size:12px;padding:4px 8px;width:150px" onchange="plFilterValChange(${i},'from',this.value)">`;
+        html += `</div>`;
+        html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+        html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">To</label>`;
+        html += `<input type="date" class="pl-input" id="plto_${i}" value="${esc(flt.valueTo)}" style="font-size:12px;padding:4px 8px;width:150px" onchange="plFilterValChange(${i},'to',this.value)">`;
+        html += `</div>`;
+      } else if (fd.type === 'select') {
+        html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+        html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">Value</label>`;
+        html += `<select class="pl-select" id="plval_${i}" style="min-width:170px;font-size:12px;padding:4px 8px" onchange="plFilterValChange(${i},'val',this.value)">`;
+        html += `<option value="">— any —</option>`;
+        (fd.opts || []).forEach(opt => {
+          const displayOpt = (fd.optLabels && fd.optLabels[opt]) ? fd.optLabels[opt] : opt;
+          html += `<option value="${esc(opt)}"${flt.value === opt ? ' selected' : ''}>${esc(displayOpt)}</option>`;
+        });
+        html += `</select></div>`;
+      } else {
+        html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+        html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">Contains</label>`;
+        html += `<input type="text" class="pl-input" id="plval_${i}" value="${esc(flt.value)}" placeholder="type to filter…" style="font-size:12px;padding:4px 8px;min-width:160px" oninput="plFilterValChange(${i},'val',this.value)">`;
+        html += `</div>`;
+      }
+    }
+
+    html += `<button onclick="plRemoveFilter(${i})" style="flex-shrink:0;align-self:flex-end;background:none;border:none;font-size:16px;color:var(--slate-light);cursor:pointer;padding:3px 4px;line-height:1;border-radius:4px" title="Remove filter">✕</button>`;
+    html += `</div>`;
+    return html;
+  }).join('');
+}
+
+// Called when user picks a new field in a filter row
+function plFilterFieldChange(idx, key) {
+  const fd = PL_FILTER_FIELDS.find(x => x.key === key);
+  _plActiveFilters[idx] = {
+    fieldKey: key,
+    label: fd ? fd.label : '',
+    type: fd ? fd.type : 'text',
+    value: '', valueFrom: '', valueTo: ''
+  };
+  plRenderActiveFilters();
+  plMasterRender();
+}
+
+// Called when user changes a filter value
+function plFilterValChange(idx, which, val) {
+  if (which === 'from') _plActiveFilters[idx].valueFrom = val;
+  else if (which === 'to') _plActiveFilters[idx].valueTo = val;
+  else _plActiveFilters[idx].value = val;
+  plMasterRender();
+}
+
+// Apply all active filters to a file array and return the filtered result
+function plApplyFilters(files) {
+  const search = (document.getElementById('plSearch')?.value || '').toLowerCase();
+
+  // Stage chip filter
+  if (_plStageFilter !== 'all') {
+    files = files.filter(f => (f.fileStatus || 'active') === _plStageFilter);
+  }
+
+  // Each active field filter (AND logic)
+  _plActiveFilters.forEach(flt => {
+    if (!flt.fieldKey) return;
+    const fd = PL_FILTER_FIELDS.find(x => x.key === flt.fieldKey);
+    if (!fd) return;
+
+    if (fd.type === 'date') {
+      const fromDate = flt.valueFrom ? new Date(flt.valueFrom + 'T00:00:00') : null;
+      const toDate   = flt.valueTo   ? new Date(flt.valueTo   + 'T23:59:59') : null;
+      if (!fromDate && !toDate) return;
+      files = files.filter(f => {
+        const raw = fd.get(f);
+        if (!raw) return false;
+        const d = new Date(raw + 'T12:00:00');
+        if (isNaN(d.getTime())) return false;
+        if (fromDate && d < fromDate) return false;
+        if (toDate   && d > toDate)   return false;
+        return true;
+      });
+    } else if (fd.type === 'select') {
+      if (!flt.value) return;
+      files = files.filter(f => fd.get(f) === flt.value);
+    } else {
+      const needle = flt.value.toLowerCase().trim();
+      if (!needle) return;
+      files = files.filter(f => (fd.get(f) || '').toLowerCase().includes(needle));
+    }
+  });
+
+  // Global text search
+  if (search) {
+    files = files.filter(f => {
+      const pl = f.pipeline || {};
+      const hay = ([f.b1, f.b2, f.prop, f.bank].join(' ') + ' ' + PL_ALL_KEYS.map(k => pl[k]||'').join(' ')).toLowerCase();
+      return hay.includes(search);
+    });
+  }
+
+  return files;
+}
+
 function plMasterRender() {
-  // Init filter chips once
+  // Init stage filter chips once
   const chipWrap = document.getElementById('plFilterChips');
   if (chipWrap && !chipWrap.dataset.init) {
     chipWrap.dataset.init = '1';
@@ -10216,44 +10418,15 @@ function plMasterRender() {
     ).join('');
   }
 
-  // Gather filters
-  const fromVal = document.getElementById('plDateFrom')?.value || '';
-  const toVal   = document.getElementById('plDateTo')?.value || '';
-  const search  = (document.getElementById('plSearch')?.value || '').toLowerCase();
-  const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
-  const toDate   = toVal   ? new Date(toVal   + 'T23:59:59') : null;
-
-  // All files (active, closed, cancelled, pre-sub)
-  let files = (cache.files || []).slice().reverse();
-
-  // Stage filter
-  if (_plStageFilter !== 'all') {
-    files = files.filter(f => {
-      const s = f.fileStatus || 'active';
-      return s === _plStageFilter;
-    });
+  // Init active filter panel if empty
+  const afWrap = document.getElementById('plActiveFilters');
+  if (afWrap && !afWrap.dataset.init) {
+    afWrap.dataset.init = '1';
+    plRenderActiveFilters();
   }
 
-  // App Date range filter
-  if (fromDate || toDate) {
-    files = files.filter(f => {
-      const appDateStr = (f.pipeline || {}).pl_appDate;
-      if (!appDateStr) return false;
-      const d = new Date(appDateStr + 'T12:00:00');
-      if (fromDate && d < fromDate) return false;
-      if (toDate   && d > toDate)   return false;
-      return true;
-    });
-  }
-
-  // Text search
-  if (search) {
-    files = files.filter(f => {
-      const pl = f.pipeline || {};
-      const hay = ([f.b1, f.b2, f.prop, f.bank].join(' ') + ' ' + PL_ALL_KEYS.map(k => pl[k]||'').join(' ')).toLowerCase();
-      return hay.includes(search);
-    });
-  }
+  // Apply all filters
+  let files = plApplyFilters((cache.files || []).slice().reverse());
 
   // Summary tiles
   const totalFiles = files.length;
@@ -10289,7 +10462,7 @@ function plMasterRender() {
   tbody.innerHTML = files.map(f => {
     const cols = PL_COLS.map((col, i) => {
       const val = col.get(f);
-      const display = col.render ? col.render(val) : esc(val || '—');
+      const display = col.render ? col.render(val) : esc(val || '');
       if (i === 0) return `<td onclick="showPage('filedetail','${esc(f.id)}')" style="cursor:pointer;color:var(--navy)">${display}</td>`;
       return `<td>${display || '<span style="color:var(--border-strong)">—</span>'}</td>`;
     }).join('');
@@ -10305,30 +10478,7 @@ function plSetStage(key, btn) {
 }
 
 function plExportCSV() {
-  // Get current filtered data — re-run same logic
-  const fromVal  = document.getElementById('plDateFrom')?.value || '';
-  const toVal    = document.getElementById('plDateTo')?.value || '';
-  const search   = (document.getElementById('plSearch')?.value || '').toLowerCase();
-  const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
-  const toDate   = toVal   ? new Date(toVal   + 'T23:59:59') : null;
-
-  let files = (cache.files || []).slice().reverse();
-  if (_plStageFilter !== 'all') files = files.filter(f => (f.fileStatus||'active') === _plStageFilter);
-  if (fromDate || toDate) {
-    files = files.filter(f => {
-      const d = new Date(((f.pipeline||{}).pl_appDate||'') + 'T12:00:00');
-      if (isNaN(d)) return false;
-      if (fromDate && d < fromDate) return false;
-      if (toDate   && d > toDate)   return false;
-      return true;
-    });
-  }
-  if (search) {
-    files = files.filter(f => {
-      const pl = f.pipeline || {};
-      return ([f.b1,f.b2,f.prop,f.bank].join(' ')+' '+PL_ALL_KEYS.map(k=>pl[k]||'').join(' ')).toLowerCase().includes(search);
-    });
-  }
+  const files = plApplyFilters((cache.files || []).slice().reverse());
 
   const headers = PL_COLS.map(c => '"' + c.label.replace(/"/g,'""') + '"').join(',');
   const rows = files.map(f =>
@@ -10339,7 +10489,6 @@ function plExportCSV() {
   );
   const csv = [headers, ...rows].join('\n');
 
-  // Download
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
