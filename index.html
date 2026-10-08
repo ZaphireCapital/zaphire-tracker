@@ -888,6 +888,88 @@ input[type=file]{display:none}
   .cd-k-add-btn{padding:7px 12px;border:2px dashed var(--border-strong);border-radius:8px;background:none;cursor:pointer;font-family:var(--font-body);font-size:12px;color:var(--slate-light);width:100%;text-align:center;transition:border-color .15s,color .15s}
   .cd-k-add-btn:hover{border-color:var(--gold);color:var(--navy)}
 
+  /* ── CRM Tabs (Clients / Professionals) ── */
+  .crm-tab-bar{display:flex;background:var(--white);border-bottom:2px solid var(--border);padding:0 20px;flex-shrink:0}
+  .crm-tab-btn{padding:11px 18px;font-size:13px;font-weight:600;color:var(--slate-light);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:7px;font-family:var(--font-body);white-space:nowrap;transition:color .15s}
+  .crm-tab-btn.on{color:var(--navy);border-bottom-color:var(--gold)}
+  .crm-tab-btn .ctb-badge{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;background:var(--gold-pale);color:#7b5c12}
+  .crm-tab-btn.on .ctb-badge{background:var(--navy);color:var(--gold)}
+  /* Outlook status banner */
+  .ol-banner{display:flex;align-items:center;gap:10px;padding:8px 20px;background:#e8f0fe;border-bottom:1px solid #c5d8fb;flex-shrink:0;font-size:12px}
+  .ol-logo{width:22px;height:22px;background:#0078d4;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0}
+  .ol-banner-text{color:#1e3a6b;flex:1}
+  .ol-banner-text b{font-weight:700}
+  .ol-setup-btn{padding:4px 12px;border-radius:6px;background:#0078d4;color:#fff;border:none;font-family:var(--font-body);font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .ol-conn-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;background:var(--success-bg);color:var(--success);font-size:12px;font-weight:700;flex-shrink:0}
+  /* Client stage badges */
+  .cl-stage{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap}
+  .cl-stage-lead{background:#f0ece4;color:var(--slate)}
+  .cl-stage-preapp{background:var(--warning-bg);color:var(--warning)}
+  .cl-stage-active{background:var(--info-bg);color:var(--info)}
+  .cl-stage-closing{background:#ede9fe;color:#5b21b6}
+  .cl-stage-closed{background:var(--success-bg);color:var(--success)}
+  /* Client cards grid */
+  .cl-grid{flex:1;overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-content:start;background:var(--cream)}
+  .cl-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .15s;box-shadow:0 1px 4px rgba(10,22,40,.05)}
+  .cl-card:hover{box-shadow:0 4px 16px rgba(10,22,40,.11)}
+  .cl-card-stripe{height:3px}
+  .cl-card-hdr{display:flex;align-items:center;gap:10px;padding:11px 13px 8px}
+  .cl-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--gold);flex-shrink:0;background:var(--navy)}
+  .cl-card-name{font-size:13.5px;font-weight:700;color:var(--navy);line-height:1.25}
+  .cl-card-sub{font-size:11px;color:var(--slate-light);margin-top:1px;font-variant-numeric:tabular-nums}
+  .cl-card-row{display:flex;align-items:center;justify-content:space-between;padding:5px 13px;border-top:1px solid var(--border)}
+  .cl-card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
+  .cl-card-val{font-size:12px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
+  .cl-card-foot{display:flex;align-items:center;gap:6px;padding:7px 10px;border-top:1px solid var(--border);background:#faf9f7}
+  .cl-card-spacer{flex:1}
+  .cl-email-btn{padding:4px 9px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--info-bg);color:var(--info);border:none;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;gap:4px}
+  .cl-email-btn:hover{background:#bfdbfe}
+  .cl-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;color:var(--slate-light);text-align:center;background:var(--cream)}
+  .cl-empty-icon{font-size:36px;margin-bottom:12px}
+  .cl-empty-title{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:6px}
+  .cl-toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--cream);flex-wrap:wrap}
+  .cl-search-wrap{display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--border-strong);border-radius:8px;padding:5px 10px;flex:1;max-width:240px}
+  .cl-search-wrap input{border:none;background:none;font-family:var(--font-body);font-size:12.5px;color:var(--navy);outline:none;width:100%}
+  /* Email compose modal */
+  .email-modal-wrap{position:fixed;inset:0;background:rgba(10,22,40,.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px}
+  .email-modal{background:var(--white);border-radius:14px;width:560px;max-width:100%;box-shadow:0 20px 60px rgba(10,22,40,.25);overflow:hidden;display:flex;flex-direction:column;max-height:90vh}
+  .email-modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 20px 12px;border-bottom:1px solid var(--border);background:var(--navy);flex-shrink:0}
+  .email-modal-title{font-size:14px;font-weight:800;color:var(--gold)}
+  .email-modal-close{background:none;border:none;font-size:20px;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;padding:2px 6px}
+  .email-modal-body{padding:20px;overflow-y:auto;flex:1}
+  .em-field{margin-bottom:14px}
+  .em-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);margin-bottom:5px}
+  .em-from{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:#f0f4ff;color:#1e40af;font-weight:600}
+  .em-input{width:100%;padding:7px 10px;border:1.5px solid var(--border-strong);border-radius:8px;font-family:var(--font-body);font-size:13px;background:var(--cream);color:var(--navy);outline:none}
+  .em-input:focus{border-color:var(--gold)}
+  .em-textarea{width:100%;padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:8px;font-family:var(--font-body);font-size:13px;background:var(--cream);color:var(--navy);outline:none;resize:vertical;min-height:130px;line-height:1.65}
+  .em-textarea:focus{border-color:var(--gold)}
+  .em-chips{display:flex;flex-wrap:wrap;gap:5px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;min-height:38px;flex:1}
+  .em-chip-x{cursor:pointer;opacity:.6;font-size:13px;margin-left:2px}
+  .em-chip-x:hover{opacity:1}
+  .em-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11.5px;background:var(--info-bg);color:var(--info);font-weight:600}
+  .em-merge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+  .em-merge-tag{padding:1px 7px;border-radius:5px;background:#f0ece4;color:var(--slate);font-family:monospace;font-size:11px;cursor:pointer;border:none;font-family:var(--font-body);transition:background .1s}
+  .em-merge-tag:hover{background:var(--gold-pale);color:#7b5c12}
+  .em-filter-group{background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:14px}
+  .em-filter-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);margin-bottom:8px}
+  .em-filter-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .em-fchip{padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:600;border:1.5px solid var(--border-strong);background:var(--white);color:var(--slate);cursor:pointer;white-space:nowrap;transition:background .1s,color .1s}
+  .em-fchip.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+  .em-send-banner{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--success-bg);border:1.5px solid #86efac;border-radius:8px;margin-bottom:14px}
+  .em-send-banner-text{font-size:12.5px;color:var(--success);font-weight:600;flex:1}
+  .email-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);background:var(--cream);flex-shrink:0}
+  /* Outlook settings card */
+  .outlook-settings-card{background:var(--white);border:1.5px solid #0078d4;border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px}
+  .ol-user-row{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--cream)}
+  .ol-user-av{width:36px;height:36px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .ol-user-name{font-size:13.5px;font-weight:700;color:var(--navy)}
+  .ol-user-email{font-size:12px;color:var(--slate-light)}
+  .ol-conn-badge{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--success)}
+  .ol-disconn-badge{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--slate-light)}
+  .ol-conn-btn{padding:5px 12px;border-radius:7px;background:#0078d4;color:#fff;border:none;font-family:var(--font-body);font-size:12px;font-weight:700;cursor:pointer}
+  .ol-disconn-btn{padding:5px 12px;border-radius:7px;background:var(--danger-bg);color:var(--danger);border:none;font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer}
+
   /* ── Contact Picker inside TPC cards ── */
   .tpc-picker-row{padding:7px 12px;background:#f8f6f2;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px;position:relative}
   .tpc-picker-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
@@ -946,6 +1028,45 @@ input[type=file]{display:none}
   .tpc-vis-toggle input:checked + .tpc-toggle-track{background:var(--navy)}
   .tpc-toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .18s}
   .tpc-vis-toggle input:checked + .tpc-toggle-track::after{transform:translateX(14px)}
+  /* ── Pipeline Info Tab (in-file panel) ── */
+  .pl-group{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:18px}
+  .pl-group-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border)}
+  .pl-group-title{font-size:13px;font-weight:700;color:var(--navy)}
+  .pl-group-sub{font-size:11px;color:var(--slate-light);margin-left:auto}
+  .pl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;padding:0 4px 4px}
+  .pl-field{display:flex;flex-direction:column;gap:3px;padding:10px 14px}
+  .pl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light)}
+  .pl-input{padding:6px 9px;border:1.5px solid var(--border-strong);border-radius:7px;font-family:var(--font-body);font-size:13px;background:var(--cream);color:var(--navy);outline:none;width:100%}
+  .pl-input:focus{border-color:var(--gold);background:#fffdf7}
+  .pl-select{padding:6px 9px;border:1.5px solid var(--border-strong);border-radius:7px;font-family:var(--font-body);font-size:13px;background:var(--cream);color:var(--navy);outline:none;width:100%;cursor:pointer}
+  .pl-select:focus{border-color:var(--gold)}
+  .pl-group.pl-closed .pl-group-hdr{background:linear-gradient(135deg,#0a1628,#112240)}
+  .pl-group.pl-closed .pl-group-title{color:var(--gold)}
+  .pl-group.pl-closed .pl-group-sub{color:rgba(255,255,255,.5)}
+  .pl-save-bar{display:flex;justify-content:flex-end;gap:8px;padding:0 0 4px 0;margin-bottom:0}
+  /* ── Pipeline Master List table ── */
+  .pl-table{border-collapse:collapse;width:100%;min-width:1600px}
+  .pl-table th{position:sticky;top:0;background:var(--navy);color:var(--gold);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;text-align:left;white-space:nowrap;z-index:5;border-right:1px solid rgba(255,255,255,.08)}
+  .pl-table th:first-child{position:sticky;left:0;z-index:10;background:var(--navy)}
+  .pl-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:12.5px;white-space:nowrap;vertical-align:middle;border-right:1px solid #f0ece4}
+  .pl-table td:first-child{position:sticky;left:0;background:var(--white);font-weight:600;color:var(--navy);z-index:2;border-right:1px solid var(--border-strong)}
+  .pl-table tr:nth-child(even) td{background:#fdfbf8}
+  .pl-table tr:nth-child(even) td:first-child{background:#fdfbf8}
+  .pl-table tr:hover td{background:#fffdf5;cursor:pointer}
+  .pl-table tr:hover td:first-child{background:#fffdf5}
+  .pl-chip{display:inline-flex;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:700}
+  .pl-chip-lead{background:#f0ece4;color:var(--slate)}
+  .pl-chip-preapp{background:var(--warning-bg);color:var(--warning)}
+  .pl-chip-active{background:var(--info-bg);color:var(--info)}
+  .pl-chip-closing{background:#ede9fe;color:#5b21b6}
+  .pl-chip-closed{background:var(--success-bg);color:var(--success)}
+  .pl-chip-cancelled{background:var(--danger-bg);color:var(--danger)}
+  .pl-tile{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;flex-direction:column;gap:1px;min-width:120px}
+  .pl-tile-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)}
+  .pl-tile-val{font-size:18px;font-weight:300;color:var(--navy);font-family:var(--font-display);font-variant-numeric:tabular-nums}
+  .pl-filter-chip{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:600;border:1.5px solid var(--border-strong);background:var(--white);color:var(--slate);cursor:pointer;white-space:nowrap;transition:background .1s,color .1s}
+  .pl-filter-chip.on{background:var(--navy);color:var(--gold);border-color:var(--navy)}
+  @media print{#sidebar,#topbar,.topbar{display:none!important}#main{margin-left:0!important}#page-pipeline{display:block!important;position:static!important;overflow:visible!important}#page-pipeline>div:first-child{position:static!important}.pl-table th{position:static!important}}
   .rs-body{display:flex;min-height:520px}
   .rs-sidebar{width:210px;min-width:210px;border-right:1px solid var(--border);background:#f8f6f1;display:flex;flex-direction:column;padding:12px 10px;gap:5px;overflow-y:auto}
   .rs-sidebar-hdr{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--slate-light);padding:4px 2px 6px;border-bottom:1px solid var(--border);margin-bottom:2px}
@@ -1136,6 +1257,7 @@ input[type=file]{display:none}
       <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"></span>Settings</button>
       <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
       <button class="nav-item" onclick="showPage('contacts')"><span class="nav-icon"></span>Contacts</button>
+      <button class="nav-item" onclick="showPage('pipeline')"><span class="nav-icon"></span>Pipeline Master List</button>
       <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon"></span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon"></span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
@@ -1196,6 +1318,7 @@ input[type=file]{display:none}
             <button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
             <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
             <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+            <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>
           </div>
           <div class="tab-content active" id="tab-conditions">
             <div class="section-header"><div class="section-title">Conditions</div><button class="btn btn-gold btn-sm" onclick="openNewConditionModal()">+ Add Condition</button></div>
@@ -1239,6 +1362,10 @@ input[type=file]{display:none}
           <div class="tab-content" id="tab-custom">
             <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
             <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
+          </div>
+          <!-- PIPELINE INFO TAB -->
+          <div class="tab-content" id="tab-plinfo">
+            <div id="plInfoPanel"></div>
           </div>
           <!-- WORKSHEET TAB -->
           <div class="tab-content" id="tab-worksheet">
@@ -1639,6 +1766,37 @@ input[type=file]{display:none}
         </div>
       </div>
       <div class="divider"></div>
+      <div class="section-header"><div class="section-title">Outlook Email — Per-User Setup</div></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6;max-width:680px">Each team member connects their own Outlook account once. When they send an email from the CRM, it goes from their address and appears in their own Sent folder. Requires a free Azure app registration — <a href="#" onclick="showOlSetupGuide();return false" style="color:var(--gold);font-weight:600">setup guide ↗</a>.</p>
+      <div class="outlook-settings-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div class="ol-logo" style="width:28px;height:28px;font-size:14px">O</div>
+          <div style="font-size:14px;font-weight:700;color:#0078d4">Microsoft Outlook / Graph API</div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);margin-bottom:6px">Azure App Credentials <span style="font-weight:400;text-transform:none;letter-spacing:0">(shared — enter once for all users)</span></div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;max-width:640px">
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Azure Client ID</label><input class="form-input" type="text" id="ol_clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="olSaveCreds()"></div>
+            <div class="form-group" style="margin-bottom:0"><label class="form-label">Azure Tenant ID</label><input class="form-input" type="text" id="ol_tenantId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="olSaveCreds()"></div>
+          </div>
+          <p style="font-size:11.5px;color:var(--slate-light);margin-top:8px">These come from your Azure app registration. They are the same for all users.</p>
+        </div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-light);margin-bottom:8px">Team Members</div>
+        <div id="olUserList"></div>
+        <p style="font-size:11.5px;color:var(--slate-light);margin-top:10px;line-height:1.5">Each person connects their own account from this page. Their token is stored in their browser only — not shared with teammates.</p>
+      </div>
+      <div id="olSetupGuideBox" style="display:none;margin-top:16px;max-width:680px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px">Azure App Setup — 5 Minutes, Free</div>
+        <ol style="padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--slate);line-height:1.7">
+          <li>Go to <b>portal.azure.com</b> → Azure Active Directory → App Registrations → New Registration.</li>
+          <li>Name it anything (e.g. "Zaphire Capital CRM"). Set redirect URI to <b>https://zaphirecapital.github.io</b> (Single-page application).</li>
+          <li>After creating, copy the <b>Application (client) ID</b> and <b>Directory (tenant) ID</b> — paste them above.</li>
+          <li>Under <b>API Permissions</b> → Add → Microsoft Graph → Delegated → add <b>Mail.Send</b> and <b>offline_access</b>. Grant admin consent.</li>
+          <li>Each user then clicks <b>Connect My Outlook</b> above and signs in once with their Microsoft account.</li>
+        </ol>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('olSetupGuideBox').style.display='none'" style="margin-top:14px">Close Guide</button>
+      </div>
+      <div class="divider"></div>
       <div class="section-header"><div class="section-title">Document Checklist Print Settings</div></div>
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
         <p style="font-size:13px;color:var(--slate-light);margin-bottom:18px;line-height:1.6">Customize the header and footer that appear on every printed Client Document Checklist. Changes sync to all team members.</p>
@@ -1734,45 +1892,74 @@ input[type=file]{display:none}
     <!-- CONTACTS DIRECTORY -->
     <div class="page" id="page-contacts">
       <div class="cd-body">
-        <div class="cd-header-row">
-          <div style="font-size:13px;font-weight:700;color:var(--navy)">Contact Directory</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="cd-view-toggle">
-              <button class="cd-vt-btn on" id="cdVtGrid" onclick="cdSetView('grid')" title="Card Grid">⊞</button>
-              <button class="cd-vt-btn" id="cdVtTable" onclick="cdSetView('table')" title="Table">☰</button>
-              <button class="cd-vt-btn" id="cdVtKanban" onclick="cdSetView('kanban')" title="Kanban by Role">⊟</button>
+        <!-- Outlook connection banner -->
+        <div id="olBanner" class="ol-banner" style="display:none"></div>
+        <!-- CRM Tab Bar -->
+        <div class="crm-tab-bar">
+          <button class="crm-tab-btn on" id="crmTabClients" onclick="crmSetTab('clients')">Clients <span class="ctb-badge" id="crmClientBadge">0</span></button>
+          <button class="crm-tab-btn" id="crmTabProfs" onclick="crmSetTab('professionals')">Professionals <span class="ctb-badge" id="crmProfBadge">0</span></button>
+          <div style="flex:1"></div>
+          <div style="padding:0 20px;display:flex;align-items:center;gap:8px" id="crmTabActions"></div>
+        </div>
+
+        <!-- ── CLIENTS PANEL ── -->
+        <div id="crmClientsPanel" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+          <div class="cl-toolbar">
+            <div class="cl-search-wrap">
+              <span style="font-size:12px;color:var(--slate-light)">🔍</span>
+              <input type="text" id="clSearch" placeholder="Search clients…" oninput="clRender()">
             </div>
-            <button class="btn btn-outline btn-sm" onclick="cdExportCSV()" style="font-size:11.5px;gap:4px;display:flex;align-items:center">⬇ Export CSV</button>
+            <button class="filter-btn on" id="clChipAll" onclick="clSetStageFilter('',this)">All</button>
+            <button class="filter-btn" onclick="clSetStageFilter('lead',this)">Leads</button>
+            <button class="filter-btn" onclick="clSetStageFilter('preapp',this)">Pre-Approval</button>
+            <button class="filter-btn" onclick="clSetStageFilter('active',this)">Active</button>
+            <button class="filter-btn" onclick="clSetStageFilter('closing',this)">Closing</button>
+            <button class="filter-btn" onclick="clSetStageFilter('closed',this)">Closed</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-outline btn-sm" onclick="openMassEmailModal('clients')" style="display:flex;align-items:center;gap:5px;background:var(--info-bg);color:var(--info);border-color:#bfdbfe">✉ Mass Email</button>
+            <button class="btn btn-gold btn-sm" onclick="openClientModal()">＋ Add Client</button>
           </div>
+          <div class="cl-grid" id="clGrid"></div>
         </div>
-        <div class="cd-filter-bar" id="cdFilterBar">
-          <div class="cd-search-wrap">
-            <span class="cd-search-icon">🔍</span>
-            <input type="text" id="cdSearch" placeholder="Search contacts…" oninput="cdRender()">
+
+        <!-- ── PROFESSIONALS PANEL ── -->
+        <div id="crmProfsPanel" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+          <div class="cd-header-row">
+            <div style="font-size:13px;font-weight:700;color:var(--navy)">Contact Directory</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="cd-view-toggle">
+                <button class="cd-vt-btn on" id="cdVtGrid" onclick="cdSetView('grid')" title="Card Grid">⊞</button>
+                <button class="cd-vt-btn" id="cdVtTable" onclick="cdSetView('table')" title="Table">☰</button>
+                <button class="cd-vt-btn" id="cdVtKanban" onclick="cdSetView('kanban')" title="Kanban by Role">⊟</button>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="openMassEmailModal('professionals')" style="display:flex;align-items:center;gap:5px;background:var(--info-bg);color:var(--info);border-color:#bfdbfe;font-size:11.5px">✉ Mass Email</button>
+              <button class="btn btn-outline btn-sm" onclick="cdExportCSV()" style="font-size:11.5px;gap:4px;display:flex;align-items:center">⬇ CSV</button>
+            </div>
           </div>
-          <button class="filter-btn active" id="cdChipAll" onclick="cdSetFilter('',this)">All</button>
-          <button class="filter-btn" onclick="cdSetFilter('closingAgent',this)">Closing Agent</button>
-          <button class="filter-btn" onclick="cdSetFilter('titleCompany',this)">Title</button>
-          <button class="filter-btn" onclick="cdSetFilter('insurance',this)">Insurance</button>
-          <button class="filter-btn" onclick="cdSetFilter('sellingAgent',this)">Selling Agent</button>
-          <button class="filter-btn" onclick="cdSetFilter('listingAgent',this)">Listing Agent</button>
-          <button class="filter-btn" onclick="cdSetFilter('appraiser',this)">Appraiser</button>
-          <button class="filter-btn" onclick="cdSetFilter('hoa',this)">HOA</button>
-        </div>
-        <!-- Grid view -->
-        <div class="cd-grid" id="cdGrid"></div>
-        <!-- Table view -->
-        <div class="cd-table-wrap" id="cdTableWrap" style="display:none">
-          <table class="cd-table" id="cdTable">
-            <thead><tr>
-              <th>Company</th><th>People</th><th>Phone</th><th>Email</th><th>Role(s)</th><th></th>
-            </tr></thead>
-            <tbody id="cdTableBody"></tbody>
-          </table>
-        </div>
-        <!-- Kanban view -->
-        <div class="cd-kanban-wrap" id="cdKanbanWrap" style="display:none">
-          <div class="cd-kanban-lanes" id="cdKanbanLanes"></div>
+          <div class="cd-filter-bar" id="cdFilterBar">
+            <div class="cd-search-wrap">
+              <span class="cd-search-icon">🔍</span>
+              <input type="text" id="cdSearch" placeholder="Search contacts…" oninput="cdRender()">
+            </div>
+            <button class="filter-btn active" id="cdChipAll" onclick="cdSetFilter('',this)">All</button>
+            <button class="filter-btn" onclick="cdSetFilter('closingAgent',this)">Closing Agent</button>
+            <button class="filter-btn" onclick="cdSetFilter('titleCompany',this)">Title</button>
+            <button class="filter-btn" onclick="cdSetFilter('insurance',this)">Insurance</button>
+            <button class="filter-btn" onclick="cdSetFilter('sellingAgent',this)">Selling Agent</button>
+            <button class="filter-btn" onclick="cdSetFilter('listingAgent',this)">Listing Agent</button>
+            <button class="filter-btn" onclick="cdSetFilter('appraiser',this)">Appraiser</button>
+            <button class="filter-btn" onclick="cdSetFilter('hoa',this)">HOA</button>
+          </div>
+          <div class="cd-grid" id="cdGrid"></div>
+          <div class="cd-table-wrap" id="cdTableWrap" style="display:none">
+            <table class="cd-table" id="cdTable">
+              <thead><tr><th>Company</th><th>People</th><th>Phone</th><th>Email</th><th>Role(s)</th><th></th></tr></thead>
+              <tbody id="cdTableBody"></tbody>
+            </table>
+          </div>
+          <div class="cd-kanban-wrap" id="cdKanbanWrap" style="display:none">
+            <div class="cd-kanban-lanes" id="cdKanbanLanes"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1792,6 +1979,33 @@ input[type=file]{display:none}
       <div class="dates-layout">
         <div id="datesContent"></div>
         <div class="dates-cal-stack" id="datesMiniCals"></div>
+      </div>
+    </div>
+    <!-- PIPELINE MASTER LIST -->
+    <div class="page" id="page-pipeline" style="padding:0;overflow:hidden">
+      <div style="padding:20px 28px 12px;background:var(--white);border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <!-- Stage filter chips -->
+          <div id="plFilterChips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          <!-- Date range -->
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--slate-light);white-space:nowrap">App Date:</span>
+            <input type="date" id="plDateFrom" class="form-input" style="font-size:12px;padding:4px 8px;height:auto;width:auto" onchange="plMasterRender()">
+            <span style="font-size:12px;color:var(--slate-light)">to</span>
+            <input type="date" id="plDateTo" class="form-input" style="font-size:12px;padding:4px 8px;height:auto;width:auto" onchange="plMasterRender()">
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('plDateFrom').value='';document.getElementById('plDateTo').value='';plMasterRender()">✕ Clear</button>
+            <div style="width:1px;height:20px;background:var(--border-strong)"></div>
+            <input type="text" id="plSearch" placeholder="Search name / property…" class="form-input" style="font-size:12px;padding:4px 10px;height:auto;width:180px" oninput="plMasterRender()">
+          </div>
+        </div>
+        <!-- Summary tiles -->
+        <div id="plSummaryTiles" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"></div>
+      </div>
+      <div style="overflow-x:auto;height:calc(100vh - 60px - 120px)">
+        <table class="pl-table" id="plTable">
+          <thead id="plThead"></thead>
+          <tbody id="plTbody"></tbody>
+        </table>
       </div>
     </div>
     <!-- CUSTOM FIELDS -->
@@ -2169,6 +2383,8 @@ async function syncFromCloud() {
     if (contactDir) cache.contactDir = contactDir;
     const docs = await sbGet('docs');
     if (docs) cache.docs = docs;
+    const clients = await sbGet('clients');
+    if (clients) cache.clients = clients;
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
     return true;
@@ -2203,7 +2419,8 @@ async function syncToCloud() {
       sbSet('dates', cache.dates || []),
       sbSet('lenders', cache.lenders || []),
       sbSet('contactDir', cache.contactDir || []),
-      sbSet('docs', cache.docs || {})
+      sbSet('docs', cache.docs || {}),
+      sbSet('clients', cache.clients || [])
       // preapprovals stored per-file inside cache.files — no separate key needed
     ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
@@ -2404,10 +2621,10 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory',contacts:'Contact Directory'};
+  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory',contacts:'Contact Directory',pipeline:'Pipeline Master List'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:4,lenders:5,dates:6,trash:7};
+  const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:4,lenders:5,contacts:6,pipeline:7,dates:8,trash:9};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   if (page === 'lenders') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-outline btn-sm" onclick="openSpecialtiesModal()" style="margin-right:6px">⚙ Manage Specialties</button><button class="btn btn-gold" onclick="openLenderModal()">+ Add Lender</button>';
@@ -2415,6 +2632,8 @@ function showPage(page, fid) {
     document.getElementById('topbarActions').innerHTML = '';
   } else if (page === 'closedfiles' || page === 'presubmission') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New Prospect</button>';
+  } else if (page === 'contacts') {
+    document.getElementById('topbarActions').innerHTML = '';
   } else {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
   }
@@ -2438,10 +2657,12 @@ function showPage(page, fid) {
   if (page === 'trash') renderTrash();
   if (page === 'dates') renderDates();
   if (page === 'lenders') renderLenderList();
-  if (page === 'contacts') cdRender();
+  if (page === 'contacts') { crmRenderAll(); olRenderBanner(); }
+  if (page === 'pipeline') plMasterRender();
   // Topbar action button
   const actions = document.getElementById('topbarActions');
-  if (page === 'contacts') actions.innerHTML = '<button class="btn btn-gold" onclick="cdOpenModal()">+ Add Contact</button>';
+  if (page === 'contacts') actions.innerHTML = '';
+  else if (page === 'pipeline') actions.innerHTML = '<button class="btn btn-outline btn-sm" onclick="plExportCSV()" style="margin-right:6px">⬇ Export CSV</button><button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Print</button>';
   else if (page !== 'filedetail') actions.innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
 }
 
@@ -2457,6 +2678,7 @@ function switchTab(tab, btn) {
   if (tab === 'income') incInit();
   if (tab === 'contacts') tpcInit();
   if (tab === 'preapproval') paInit();
+  if (tab === 'plinfo') plInfoRender();
 }
 
 //                                        
@@ -2626,7 +2848,8 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('income',this)">Income</button>
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
-         <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`
+         <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+         <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
          <button class="tab-btn" onclick="switchTab('worksheet',this)">Worksheet</button>
@@ -2634,7 +2857,8 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('income',this)">Income</button>
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
-         <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>`;
+         <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+         <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>`;
   }
   // Restore the correct active tab — if user was on worksheet/ratesheet/custom, keep them there
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -3298,6 +3522,7 @@ function renderSettings() {
   renderCdRolesList();
   tpcMgrRender();
   renderCFList();
+  olRenderSettingsPage();
 }
 
 // ═══════════════════════════════════════════════
@@ -9225,6 +9450,927 @@ function printDocChecklist() {
     </div>
   </div>
 </div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   CRM — CLIENTS + EMAIL (Microsoft Graph per-user)
+   ═══════════════════════════════════════════════════ */
+
+// ── User email map ──────────────────────────────────
+const USER_EMAILS = {
+  'Deric':   'deric@zaphirecapital.com',
+  'Jules':   'jules@zaphirecapital.com',
+  'Stephan': 'stephan@zaphirecapital.com'
+};
+
+// ── Microsoft Graph OAuth (PKCE) ────────────────────
+// Store: localStorage zc_ol_token_<user>, zc_ol_exp_<user>
+const OL_SCOPE   = 'https://graph.microsoft.com/Mail.Send openid profile offline_access';
+const OL_GRAPH   = 'https://graph.microsoft.com/v1.0';
+
+function olGetClientId()  { return (cache.settings && cache.settings.ol_clientId)  || lsGet('ol_clientId')  || ''; }
+function olGetTenantId()  { return (cache.settings && cache.settings.ol_tenantId)  || lsGet('ol_tenantId')  || ''; }
+
+function olGetToken(user) {
+  try {
+    const exp = parseInt(localStorage.getItem('zc_ol_exp_'  + user) || '0', 10);
+    if (Date.now() < exp - 60000) {
+      return localStorage.getItem('zc_ol_token_' + user);
+    }
+  } catch(e) {}
+  return null;
+}
+
+function olSaveToken(user, token, expiresIn) {
+  try {
+    localStorage.setItem('zc_ol_token_' + user, token);
+    localStorage.setItem('zc_ol_exp_'   + user, String(Date.now() + expiresIn * 1000));
+  } catch(e) {}
+}
+
+function olClearToken(user) {
+  try {
+    localStorage.removeItem('zc_ol_token_' + user);
+    localStorage.removeItem('zc_ol_exp_'   + user);
+  } catch(e) {}
+}
+
+// PKCE helpers
+async function pkceChallenge() {
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  const verifier = btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  const enc  = new TextEncoder().encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  return { verifier, challenge };
+}
+
+async function olConnect(user) {
+  const clientId = olGetClientId();
+  const tenantId = olGetTenantId();
+  if (!clientId || !tenantId) {
+    toast('Enter Azure Client ID and Tenant ID in Settings → Outlook Email first.', 'warn');
+    return;
+  }
+  const { verifier, challenge } = await pkceChallenge();
+  const state = user + '|' + Math.random().toString(36).slice(2);
+  // Store verifier + state so callback can finish
+  try {
+    sessionStorage.setItem('zc_pkce_verifier', verifier);
+    sessionStorage.setItem('zc_pkce_state',    state);
+    sessionStorage.setItem('zc_pkce_user',     user);
+  } catch(e) {}
+  const redirect = location.href.split('#')[0].split('?')[0];
+  const params = new URLSearchParams({
+    client_id:             clientId,
+    response_type:         'code',
+    redirect_uri:          redirect,
+    response_mode:         'fragment',
+    scope:                 OL_SCOPE,
+    state:                 state,
+    code_challenge:        challenge,
+    code_challenge_method: 'S256',
+    login_hint:            USER_EMAILS[user] || ''
+  });
+  location.href = 'https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/authorize?' + params.toString();
+}
+
+async function olHandleCallback() {
+  try {
+    const hash = location.hash.slice(1);
+    if (!hash.includes('code=')) return;
+    const params  = new URLSearchParams(hash);
+    const code    = params.get('code');
+    const stateRx = params.get('state');
+    if (!code || !stateRx) return;
+    const storedState    = sessionStorage.getItem('zc_pkce_state');
+    const storedVerifier = sessionStorage.getItem('zc_pkce_verifier');
+    const storedUser     = sessionStorage.getItem('zc_pkce_user');
+    if (!storedState || stateRx !== storedState || !storedUser) return;
+    sessionStorage.removeItem('zc_pkce_state');
+    sessionStorage.removeItem('zc_pkce_verifier');
+    sessionStorage.removeItem('zc_pkce_user');
+    // Clear hash from URL
+    history.replaceState(null, '', location.pathname + location.search);
+    const clientId = olGetClientId();
+    const tenantId = olGetTenantId();
+    const redirect = location.href.split('#')[0].split('?')[0];
+    const body = new URLSearchParams({
+      client_id:     clientId,
+      code:          code,
+      redirect_uri:  redirect,
+      grant_type:    'authorization_code',
+      code_verifier: storedVerifier
+    });
+    const r = await fetch('https://login.microsoftonline.com/' + tenantId + '/oauth2/v2.0/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    });
+    if (!r.ok) { toast('Outlook connect failed — check Azure credentials.', 'error'); return; }
+    const data = await r.json();
+    olSaveToken(storedUser, data.access_token, data.expires_in || 3600);
+    toast(storedUser + '\'s Outlook connected ✓', 'success');
+    olRenderBanner();
+    olRenderSettingsPage();
+  } catch(e) { console.warn('OAuth callback error:', e); }
+}
+
+function olDisconnect(user) {
+  olClearToken(user);
+  toast(user + '\'s Outlook disconnected.', 'info');
+  olRenderBanner();
+  olRenderSettingsPage();
+}
+
+// ── Outlook Settings Page ───────────────────────────
+function olSaveCreds() {
+  if (!cache.settings) cache.settings = { ...DEFAULTS };
+  cache.settings.ol_clientId = document.getElementById('ol_clientId').value.trim();
+  cache.settings.ol_tenantId = document.getElementById('ol_tenantId').value.trim();
+  lsSet('ol_clientId', cache.settings.ol_clientId);
+  lsSet('ol_tenantId', cache.settings.ol_tenantId);
+  syncToCloud();
+}
+
+function olRenderSettingsPage() {
+  const cid = document.getElementById('ol_clientId');
+  const tid = document.getElementById('ol_tenantId');
+  if (cid) cid.value = olGetClientId();
+  if (tid) tid.value = olGetTenantId();
+  const el = document.getElementById('olUserList');
+  if (!el) return;
+  const users = ['Deric','Jules','Stephan'];
+  el.innerHTML = users.map(u => {
+    const email   = USER_EMAILS[u] || '';
+    const token   = olGetToken(u);
+    const initials= u.slice(0,1);
+    const connBtn = token
+      ? `<button class="ol-disconn-btn" onclick="olDisconnect('${u}')">Disconnect</button>`
+      : `<button class="ol-conn-btn"    onclick="olConnect('${u}')">Connect Outlook</button>`;
+    const status = token
+      ? '<span style="color:var(--success);font-size:12px;font-weight:600">● Connected</span>'
+      : '<span style="color:var(--slate-light);font-size:12px">○ Not connected</span>';
+    return `<div class="ol-user-row">
+      <div class="ol-user-av">${initials}</div>
+      <div style="flex:1">
+        <div class="ol-user-name">${u}</div>
+        <div class="ol-user-email">${email}</div>
+        ${status}
+      </div>
+      ${connBtn}
+    </div>`;
+  }).join('');
+}
+
+function showOlSetupGuide() {
+  const el = document.getElementById('olSetupGuideBox');
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Outlook Banner (on Contacts page) ──────────────
+function olRenderBanner() {
+  const el = document.getElementById('olBanner');
+  if (!el) return;
+  const u     = currentUser;
+  const token = olGetToken(u);
+  if (token) {
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = 'flex';
+  el.innerHTML = `<span>⚠️ <strong>${u}</strong>'s Outlook is not connected — emails will use a fallback. <a href="#" onclick="event.preventDefault();showPage('settings');setTimeout(()=>document.getElementById('ol_clientId')?.scrollIntoView({behavior:'smooth'}),300)">Connect in Settings →</a></span>`;
+}
+
+// ── CRM Tab Switching ───────────────────────────────
+let crmCurrentTab = 'clients';
+
+function crmSetTab(tab) {
+  crmCurrentTab = tab;
+  document.getElementById('crmClientsPanel').style.display = tab === 'clients' ? 'flex' : 'none';
+  document.getElementById('crmProfsPanel').style.display   = tab === 'professionals' ? 'flex' : 'none';
+  document.getElementById('crmTabClients').classList.toggle('on', tab === 'clients');
+  document.getElementById('crmTabProfs').classList.toggle('on', tab === 'professionals');
+  if (tab === 'professionals') cdRender();
+  else clRender();
+}
+
+function crmRenderAll() {
+  clRender();
+  cdRender();
+  crmUpdateBadges();
+}
+
+function crmUpdateBadges() {
+  const cb = document.getElementById('crmClientBadge');
+  const pb = document.getElementById('crmProfBadge');
+  if (cb) cb.textContent = (cache.clients || []).length;
+  if (pb) pb.textContent = (cache.contactDir || []).length;
+}
+
+// ── Clients Data ────────────────────────────────────
+function clSave() {
+  lsSet('clients', cache.clients || []);
+  syncToCloud();
+  crmUpdateBadges();
+}
+
+let clStageFilter = '';
+
+function clSetStageFilter(stage, btn) {
+  clStageFilter = stage;
+  document.querySelectorAll('.cl-toolbar .filter-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  clRender();
+}
+
+const CL_STAGE_LABEL = { lead:'Lead', preapp:'Pre-Approval', active:'Active', closing:'Closing', closed:'Closed' };
+const CL_STAGE_ORDER = ['lead','preapp','active','closing','closed'];
+
+function clRender() {
+  const grid = document.getElementById('clGrid');
+  if (!grid) return;
+  const q = (document.getElementById('clSearch')?.value || '').toLowerCase().trim();
+  const clients = (cache.clients || []).filter(c => {
+    if (clStageFilter && c.stage !== clStageFilter) return false;
+    if (q) {
+      const hay = (c.name + ' ' + c.email + ' ' + c.phone + ' ' + c.notes + ' ' + (c.loanType||'')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  if (!clients.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--slate-light);font-size:14px">' + (q || clStageFilter ? 'No clients match this filter.' : 'No clients yet. Click <strong>+ Add Client</strong> to get started.') + '</div>';
+    return;
+  }
+  grid.innerHTML = clients.map(c => {
+    const initials = (c.name || 'C').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const stageKey = c.stage || 'lead';
+    const stageLabel = CL_STAGE_LABEL[stageKey] || stageKey;
+    const loanAmt = c.loanAmt ? '$' + Number(c.loanAmt).toLocaleString() : '';
+    return `<div class="cl-card" onclick="openClientModal('${c.id}')">
+      <div class="cl-card-hdr">
+        <div class="cl-av">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div class="cl-card-name">${escHtml(c.name || '')}</div>
+          <div class="cl-card-sub">${escHtml(c.email || '')}</div>
+          ${c.phone ? '<div class="cl-card-sub">'+escHtml(c.phone)+'</div>' : ''}
+        </div>
+      </div>
+      ${(loanAmt || c.loanType) ? `<div class="cl-card-row"><span class="cl-card-label">${escHtml(c.loanType||'Loan')}</span><span class="cl-card-val">${loanAmt||'—'}</span></div>` : ''}
+      <div class="cl-card-foot">
+        <span class="cl-stage cl-stage-${stageKey}">${stageLabel}</span>
+        <span class="cl-card-spacer"></span>
+        ${c.email ? `<button class="cl-email-btn" onclick="event.stopPropagation();openEmailModal('${c.id}')">✉ Email</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Client Modal (Add / Edit) ───────────────────────
+let _editClientId = null;
+
+function openClientModal(id) {
+  _editClientId = id || null;
+  const c = id ? (cache.clients||[]).find(x=>x.id===id) : null;
+  const m = document.getElementById('clientModal');
+  if (!m) { buildClientModal(); return openClientModal(id); }
+  document.getElementById('cm_name').value     = c?.name     || '';
+  document.getElementById('cm_email').value    = c?.email    || '';
+  document.getElementById('cm_phone').value    = c?.phone    || '';
+  document.getElementById('cm_loanType').value = c?.loanType || '';
+  document.getElementById('cm_loanAmt').value  = c?.loanAmt  || '';
+  document.getElementById('cm_stage').value    = c?.stage    || 'lead';
+  document.getElementById('cm_notes').value    = c?.notes    || '';
+  document.getElementById('cm_title').textContent = id ? 'Edit Client' : 'Add Client';
+  document.getElementById('cm_delete').style.display = id ? 'inline-block' : 'none';
+  m.style.display = 'flex';
+}
+
+function buildClientModal() {
+  const div = document.createElement('div');
+  div.id = 'clientModal';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(10,22,40,.5);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px';
+  div.innerHTML = `<div style="background:var(--white);border-radius:12px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(10,22,40,.3)">
+    <div class="modal-header"><div class="modal-title" id="cm_title">Add Client</div><button class="modal-close" onclick="closeClientModal()">✕</button></div>
+    <div class="modal-body" style="display:grid;gap:14px;padding:20px">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="cm_name" placeholder="Jane Smith"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="cm_email" type="email" placeholder="jane@example.com"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="cm_phone" type="tel" placeholder="(555) 000-0000"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">Loan Type</label><select class="form-input" id="cm_loanType"><option value="">— Select —</option><option>Purchase</option><option>Refinance</option><option>HELOC</option><option>Construction</option><option>Reverse</option><option>Commercial</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Loan Amount</label><input class="form-input" id="cm_loanAmt" type="number" min="0" step="1000" placeholder="500000"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Stage</label>
+        <select class="form-input" id="cm_stage">
+          <option value="lead">Lead</option>
+          <option value="preapp">Pre-Approval</option>
+          <option value="active">Active</option>
+          <option value="closing">Closing</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="cm_notes" rows="3" placeholder="Any additional notes…" style="resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="cm_delete" onclick="deleteClient()" style="display:none;margin-right:auto">Delete</button>
+      <button class="btn btn-outline" onclick="closeClientModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+  openClientModal(_editClientId);
+}
+
+function closeClientModal() {
+  const m = document.getElementById('clientModal');
+  if (m) m.style.display = 'none';
+}
+
+function saveClient() {
+  const name = document.getElementById('cm_name').value.trim();
+  if (!name) { toast('Name is required.', 'warn'); return; }
+  if (!cache.clients) cache.clients = [];
+  if (_editClientId) {
+    const idx = cache.clients.findIndex(x=>x.id===_editClientId);
+    if (idx > -1) {
+      cache.clients[idx] = { ...cache.clients[idx],
+        name, email: document.getElementById('cm_email').value.trim(),
+        phone: document.getElementById('cm_phone').value.trim(),
+        loanType: document.getElementById('cm_loanType').value,
+        loanAmt: document.getElementById('cm_loanAmt').value,
+        stage: document.getElementById('cm_stage').value,
+        notes: document.getElementById('cm_notes').value.trim()
+      };
+    }
+  } else {
+    cache.clients.push({
+      id: 'cl_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      name, email: document.getElementById('cm_email').value.trim(),
+      phone: document.getElementById('cm_phone').value.trim(),
+      loanType: document.getElementById('cm_loanType').value,
+      loanAmt: document.getElementById('cm_loanAmt').value,
+      stage: document.getElementById('cm_stage').value,
+      notes: document.getElementById('cm_notes').value.trim(),
+      createdAt: new Date().toISOString()
+    });
+  }
+  clSave(); clRender();
+  closeClientModal();
+  toast(_editClientId ? 'Client updated.' : 'Client added.', 'success');
+}
+
+function deleteClient() {
+  if (!_editClientId) return;
+  if (!confirm('Delete this client? This cannot be undone.')) return;
+  cache.clients = (cache.clients||[]).filter(x=>x.id!==_editClientId);
+  clSave(); clRender();
+  closeClientModal();
+  toast('Client deleted.', 'info');
+}
+
+// ── Email Compose Modal ─────────────────────────────
+let _emailRecipients = []; // [{name, email}]
+let _emailMassType   = ''; // '' | 'clients' | 'professionals'
+
+function openEmailModal(clientId) {
+  const c = (cache.clients||[]).find(x=>x.id===clientId);
+  if (!c || !c.email) { toast('This client has no email address.', 'warn'); return; }
+  _emailMassType   = '';
+  _emailRecipients = [{ name: c.name, email: c.email }];
+  _showEmailModal();
+}
+
+function openMassEmailModal(type) {
+  _emailMassType = type;
+  if (type === 'clients') {
+    const filtered = (cache.clients||[]).filter(c => c.email && (clStageFilter ? c.stage === clStageFilter : true));
+    _emailRecipients = filtered.map(c => ({ name: c.name, email: c.email }));
+  } else {
+    _emailRecipients = (cache.contactDir||[]).filter(c => c.email).map(c => ({ name: c.name, email: c.email }));
+  }
+  if (!_emailRecipients.length) { toast('No email addresses in this group.', 'warn'); return; }
+  _showEmailModal();
+}
+
+function _showEmailModal() {
+  let m = document.getElementById('emailModal');
+  if (!m) { _buildEmailModal(); return _showEmailModal(); }
+  const fromEmail = USER_EMAILS[currentUser] || currentUser;
+  document.getElementById('em_from').textContent = currentUser + ' <' + fromEmail + '>';
+  document.getElementById('em_subject').value = '';
+  document.getElementById('em_body').value = '';
+  _emRenderChips();
+  m.style.display = 'flex';
+}
+
+function _buildEmailModal() {
+  const div = document.createElement('div');
+  div.id = 'emailModal';
+  div.className = 'email-modal-wrap';
+  div.style.display = 'none';
+  div.innerHTML = `<div class="email-modal">
+    <div class="modal-header">
+      <div class="modal-title">Compose Email</div>
+      <button class="modal-close" onclick="_closeEmailModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div class="em-field">
+        <span class="em-label">From</span>
+        <span class="em-from" id="em_from"></span>
+      </div>
+      <div class="em-field" style="flex-wrap:wrap;gap:4px;align-items:flex-start;padding:8px 16px">
+        <span class="em-label" style="padding-top:4px">To</span>
+        <div class="em-chips" id="em_chips"></div>
+        <button class="btn btn-outline btn-sm" onclick="_emAddRecip()" style="font-size:11px;padding:2px 8px">＋ Add</button>
+      </div>
+      <div class="em-field">
+        <span class="em-label">Subject</span>
+        <input class="em-input" id="em_subject" placeholder="Subject…" type="text">
+      </div>
+      <div style="padding:4px 16px 2px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--slate-light);padding-top:4px">Insert:</span>
+        <button class="em-merge-tag" onclick="_emInsert('{{FirstName}}')">First Name</button>
+        <button class="em-merge-tag" onclick="_emInsert('{{FullName}}')">Full Name</button>
+        <button class="em-merge-tag" onclick="_emInsert('{{LoanAmount}}')">Loan Amount</button>
+        <button class="em-merge-tag" onclick="_emInsert('{{Stage}}')">Stage</button>
+        <button class="em-merge-tag" onclick="_emInsert('{{SenderName}}')">My Name</button>
+        <button class="em-merge-tag" onclick="_emInsert('{{SenderEmail}}')">My Email</button>
+      </div>
+      <div class="em-field" style="flex-direction:column;padding:8px 16px 0">
+        <textarea class="em-textarea" id="em_body" rows="10" placeholder="Write your message here…&#10;&#10;Use merge tags above to personalize each email."></textarea>
+      </div>
+      <div id="em_progress" style="display:none;padding:8px 16px;font-size:12px;color:var(--slate)"></div>
+    </div>
+    <div class="modal-footer" style="gap:8px">
+      <span id="em_recip_count" style="font-size:12px;color:var(--slate-light);margin-right:auto"></span>
+      <button class="btn btn-outline" onclick="_closeEmailModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="_emSend()" id="em_sendBtn">Send</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+}
+
+function _emRenderChips() {
+  const chips = document.getElementById('em_chips');
+  const count = document.getElementById('em_recip_count');
+  if (chips) chips.innerHTML = _emailRecipients.map((r,i) =>
+    `<span class="em-chip">${escHtml(r.name||r.email)} <span class="em-chip-x" onclick="_emRemoveRecip(${i})">×</span></span>`
+  ).join('');
+  if (count) count.textContent = _emailRecipients.length + ' recipient' + (_emailRecipients.length===1?'':'s');
+}
+
+function _emRemoveRecip(i) {
+  _emailRecipients.splice(i,1);
+  _emRenderChips();
+}
+
+function _emAddRecip() {
+  const addr = prompt('Enter email address:');
+  if (!addr || !addr.includes('@')) return;
+  _emailRecipients.push({ name: addr, email: addr.trim() });
+  _emRenderChips();
+}
+
+function _emInsert(tag) {
+  const ta = document.getElementById('em_body');
+  if (!ta) return;
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.slice(0,s) + tag + ta.value.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + tag.length;
+  ta.focus();
+}
+
+function _closeEmailModal() {
+  const m = document.getElementById('emailModal');
+  if (m) m.style.display = 'none';
+}
+
+async function _emSend() {
+  if (!_emailRecipients.length) { toast('No recipients.','warn'); return; }
+  const subject = document.getElementById('em_subject').value.trim();
+  const bodyTpl = document.getElementById('em_body').value;
+  if (!subject) { toast('Subject is required.','warn'); return; }
+  if (!bodyTpl)  { toast('Message body is required.','warn'); return; }
+
+  const token = olGetToken(currentUser);
+  if (!token) {
+    toast('Connect your Outlook in Settings first.','warn');
+    return;
+  }
+
+  const btn  = document.getElementById('em_sendBtn');
+  const prog = document.getElementById('em_progress');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  if (prog) { prog.style.display = 'block'; prog.textContent = 'Preparing…'; }
+
+  const senderEmail = USER_EMAILS[currentUser] || '';
+  let sent = 0, failed = 0;
+
+  for (let i = 0; i < _emailRecipients.length; i++) {
+    const r = _emailRecipients[i];
+    if (prog) prog.textContent = 'Sending ' + (i+1) + ' of ' + _emailRecipients.length + '…';
+    // Merge tag substitution
+    const client = (cache.clients||[]).find(c=>c.email===r.email) || {};
+    const firstName = (r.name||'').split(' ')[0];
+    const merged = bodyTpl
+      .replace(/\{\{FirstName\}\}/g,   firstName)
+      .replace(/\{\{FullName\}\}/g,    r.name||'')
+      .replace(/\{\{LoanAmount\}\}/g,  client.loanAmt ? '$'+Number(client.loanAmt).toLocaleString() : '')
+      .replace(/\{\{Stage\}\}/g,       CL_STAGE_LABEL[client.stage]||'')
+      .replace(/\{\{SenderName\}\}/g,  currentUser)
+      .replace(/\{\{SenderEmail\}\}/g, senderEmail);
+
+    const ok = await _graphSendMail(token, r.email, subject, merged);
+    if (ok) sent++; else failed++;
+    // Small delay to avoid throttling on mass sends
+    if (i < _emailRecipients.length - 1) await new Promise(res => setTimeout(res, 300));
+  }
+
+  btn.disabled = false; btn.textContent = 'Send';
+  if (prog) prog.style.display = 'none';
+  if (failed === 0) {
+    toast('✓ ' + sent + ' email' + (sent===1?'':'s') + ' sent!', 'success');
+    _closeEmailModal();
+  } else {
+    toast(sent + ' sent, ' + failed + ' failed. Check Outlook connection.', 'warn');
+  }
+}
+
+async function _graphSendMail(token, toEmail, subject, body) {
+  try {
+    const r = await fetch(OL_GRAPH + '/me/sendMail', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: {
+          subject,
+          body: { contentType: 'Text', content: body },
+          toRecipients: [{ emailAddress: { address: toEmail } }]
+        },
+        saveToSentItems: true
+      })
+    });
+    return r.status === 202 || r.status === 200 || r.ok;
+  } catch(e) {
+    console.warn('Graph sendMail failed:', e);
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PIPELINE INFO TAB (per-file) + PIPELINE MASTER LIST
+// ═══════════════════════════════════════════════════════════════
+
+// Field definitions for the in-file Pipeline Info panel
+const PL_GROUPS = [
+  {
+    key: 'entry',
+    label: '① Entry Info',
+    sub: 'Fill when file opens',
+    color: '#1a3155',
+    fields: [
+      { key: 'pl_appDate',      label: 'Application Date',      type: 'date' },
+      { key: 'pl_submitDate',   label: 'Date Submitted',        type: 'date' },
+      { key: 'pl_loanAmt',      label: 'Loan Amount',           type: 'text', placeholder: '$000,000' },
+      { key: 'pl_lo',           label: 'Loan Officer',          type: 'text', placeholder: 'Name' },
+      { key: 'pl_lender',       label: 'Lender',                type: 'text', placeholder: 'Lender name' },
+      { key: 'pl_loanNum',      label: 'Loan #',                type: 'text', placeholder: 'Lender loan number' },
+      { key: 'pl_propType',     label: 'Property Type',         type: 'select', opts: ['','SFR','Condo','2-4 Unit','Townhome','PUD','Commercial','Land','Other'] },
+      { key: 'pl_txType',       label: 'Purchase / Refi',       type: 'select', opts: ['','Purchase','Rate/Term Refi','Cash-Out Refi'] },
+      { key: 'pl_loanType',     label: 'Conv / FHA / VA / Other', type: 'select', opts: ['','Conventional','FHA','VA','USDA','Jumbo','Non-QM','Bridge','HELOC','Other'] },
+      { key: 'pl_occupancy',    label: 'Occupancy',             type: 'select', opts: ['','Primary','Second Home','Investment'] },
+      { key: 'pl_creditAmt',    label: 'Credit Report $',       type: 'text', placeholder: '$0.00' },
+      { key: 'pl_creditCo',     label: 'Credit Company',        type: 'text', placeholder: 'Company name' },
+      { key: 'pl_creditAddr',   label: 'Credit Company Address',type: 'text', placeholder: 'Address' },
+    ]
+  },
+  {
+    key: 'appraisal',
+    label: '② Appraisal',
+    sub: 'Fill when appraisal ordered',
+    color: '#5b21b6',
+    fields: [
+      { key: 'pl_aprDir',       label: 'APR / Director',        type: 'text', placeholder: 'Name' },
+      { key: 'pl_aprFee',       label: 'Appraisal Fee',         type: 'text', placeholder: '$0.00' },
+      { key: 'pl_amc',          label: 'AMC',                   type: 'text', placeholder: 'AMC name' },
+      { key: 'pl_appraiserCo',  label: 'Appraiser Company',     type: 'text', placeholder: 'Company' },
+      { key: 'pl_appraiserAddr',label: 'Appraiser Address',     type: 'text', placeholder: 'Address' },
+    ]
+  },
+  {
+    key: 'closing',
+    label: '③ Closing',
+    sub: 'Fill at Clear to Close',
+    color: '#065f46',
+    fields: [
+      { key: 'pl_closingAtty',  label: 'Closing Attorney Company',   type: 'text', placeholder: 'Company' },
+      { key: 'pl_closingAttyPerson', label: 'Closing Attorney',      type: 'text', placeholder: 'Person name' },
+      { key: 'pl_titleCo',      label: 'Title Company',              type: 'text', placeholder: 'Company' },
+      { key: 'pl_lenderPaid',   label: 'Lender Paid',                type: 'text', placeholder: '$0.00' },
+      { key: 'pl_refSrc',       label: 'Referral Source',            type: 'text', placeholder: 'Source name' },
+      { key: 'pl_refAddr',      label: 'Referral Address',           type: 'text', placeholder: 'Address' },
+    ]
+  },
+  {
+    key: 'closed',
+    label: '④ Closed File',
+    sub: 'Fill at funding',
+    color: '#92400e',
+    gold: true,
+    fields: [
+      { key: 'pl_closeDate',    label: 'Date Closed',           type: 'date' },
+      { key: 'pl_closedAmt',    label: 'Loan Amount Closed',    type: 'text', placeholder: '$000,000' },
+      { key: 'pl_finalRate',    label: 'Final Rate %',          type: 'text', placeholder: '0.000%' },
+      { key: 'pl_brokerFeePct', label: 'Broker Fee %',          type: 'text', placeholder: '0.00%' },
+      { key: 'pl_brokerFeeAmt', label: 'Broker Fee $',          type: 'text', placeholder: '$0.00' },
+      { key: 'pl_fileResult',   label: 'File Result',           type: 'select', opts: ['','Funded','Withdrawn','Denied','Cancelled','Suspended'] },
+    ]
+  }
+];
+
+// Flat list of all pipeline field keys for quick lookup
+const PL_ALL_KEYS = PL_GROUPS.flatMap(g => g.fields.map(f => f.key));
+
+function plInfoRender() {
+  const f = cache.files.find(x => x.id === currentFileId);
+  if (!f) return;
+  const pl = f.pipeline || {};
+  const el = document.getElementById('plInfoPanel');
+  if (!el) return;
+
+  let html = '<div style="padding:4px 0 16px">';
+  html += '<div class="pl-save-bar"><button class="btn btn-gold btn-sm" onclick="plInfoSave()">💾 Save Pipeline Info</button></div>';
+
+  PL_GROUPS.forEach(g => {
+    const isGold = g.gold;
+    html += `<div class="pl-group${isGold ? ' pl-closed' : ''}">`;
+    html += `<div class="pl-group-hdr" style="${isGold ? '' : 'border-left:4px solid ' + g.color}">`;
+    html += `<div class="pl-group-title" style="${isGold ? '' : 'color:' + g.color}">${esc(g.label)}</div>`;
+    html += `<div class="pl-group-sub">${esc(g.sub)}</div>`;
+    html += '</div>';
+    html += '<div class="pl-grid">';
+    g.fields.forEach(field => {
+      const val = pl[field.key] || '';
+      html += '<div class="pl-field">';
+      html += `<div class="pl-label">${esc(field.label)}</div>`;
+      if (field.type === 'select') {
+        html += `<select class="pl-select" id="pli_${field.key}">`;
+        (field.opts || []).forEach(opt => {
+          html += `<option value="${esc(opt)}" ${val === opt ? 'selected' : ''}>${esc(opt) || '— Select —'}</option>`;
+        });
+        html += '</select>';
+      } else {
+        html += `<input class="pl-input" type="${field.type === 'date' ? 'date' : 'text'}" id="pli_${field.key}" value="${esc(val)}" placeholder="${esc(field.placeholder || '')}">`;
+      }
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+async function plInfoSave() {
+  const f = cache.files.find(x => x.id === currentFileId);
+  if (!f) return;
+  if (!f.pipeline) f.pipeline = {};
+  PL_ALL_KEYS.forEach(key => {
+    const el = document.getElementById('pli_' + key);
+    if (el) f.pipeline[key] = el.value;
+  });
+  await syncToCloud();
+  toast('Pipeline info saved ✓', 'success');
+}
+
+// ── Pipeline Master List ──────────────────────────────────────
+
+// Columns shown in the master list table (label, data accessor)
+const PL_COLS = [
+  { label: 'Borrower',          get: f => [f.b1, f.b2].filter(Boolean).join(' & ') },
+  { label: 'Stage',             get: f => f.fileStatus || 'active', render: v => `<span class="pl-chip pl-chip-${(v||'active').replace(/\s/g,'-').toLowerCase()}">${esc(plStageLabel(v))}</span>` },
+  { label: 'Property',          get: f => f.prop || '' },
+  { label: 'App Date',          get: f => (f.pipeline||{}).pl_appDate || '' },
+  { label: 'Submit Date',       get: f => (f.pipeline||{}).pl_submitDate || '' },
+  { label: 'Loan Amount',       get: f => (f.pipeline||{}).pl_loanAmt || (f.la ? fmtCur(f.la) : '') },
+  { label: 'Loan Officer',      get: f => (f.pipeline||{}).pl_lo || '' },
+  { label: 'Lender',            get: f => (f.pipeline||{}).pl_lender || f.bank || '' },
+  { label: 'Loan #',            get: f => (f.pipeline||{}).pl_loanNum || '' },
+  { label: 'Property Type',     get: f => (f.pipeline||{}).pl_propType || '' },
+  { label: 'Purch / Refi',      get: f => (f.pipeline||{}).pl_txType || f.loanPurpose || '' },
+  { label: 'Loan Type',         get: f => (f.pipeline||{}).pl_loanType || f.loanType || '' },
+  { label: 'Occupancy',         get: f => (f.pipeline||{}).pl_occupancy || f.occupancy || '' },
+  { label: 'Credit $',          get: f => (f.pipeline||{}).pl_creditAmt || '' },
+  { label: 'Credit Company',    get: f => (f.pipeline||{}).pl_creditCo || '' },
+  { label: 'Credit Address',    get: f => (f.pipeline||{}).pl_creditAddr || '' },
+  { label: 'APR / Director',    get: f => (f.pipeline||{}).pl_aprDir || '' },
+  { label: 'Appraisal Fee',     get: f => (f.pipeline||{}).pl_aprFee || '' },
+  { label: 'AMC',               get: f => (f.pipeline||{}).pl_amc || '' },
+  { label: 'Appraiser Company', get: f => (f.pipeline||{}).pl_appraiserCo || '' },
+  { label: 'Appraiser Address', get: f => (f.pipeline||{}).pl_appraiserAddr || '' },
+  { label: 'Closing Atty Co',   get: f => (f.pipeline||{}).pl_closingAtty || '' },
+  { label: 'Closing Atty',      get: f => (f.pipeline||{}).pl_closingAttyPerson || '' },
+  { label: 'Title Company',     get: f => (f.pipeline||{}).pl_titleCo || '' },
+  { label: 'Lender Paid',       get: f => (f.pipeline||{}).pl_lenderPaid || '' },
+  { label: 'Referral Source',   get: f => (f.pipeline||{}).pl_refSrc || '' },
+  { label: 'Referral Address',  get: f => (f.pipeline||{}).pl_refAddr || '' },
+  { label: 'Date Closed',       get: f => (f.pipeline||{}).pl_closeDate || '' },
+  { label: 'Closed Amt',        get: f => (f.pipeline||{}).pl_closedAmt || '' },
+  { label: 'Final Rate %',      get: f => (f.pipeline||{}).pl_finalRate || '' },
+  { label: 'Broker Fee %',      get: f => (f.pipeline||{}).pl_brokerFeePct || '' },
+  { label: 'Broker Fee $',      get: f => (f.pipeline||{}).pl_brokerFeeAmt || '' },
+  { label: 'File Result',       get: f => (f.pipeline||{}).pl_fileResult || '' },
+];
+
+function plStageLabel(s) {
+  const map = { active:'In Process', presubmission:'Pre-Submission', closed:'Closed', cancelled:'Cancelled', lead:'Lead', closing:'Closing' };
+  return map[s] || s || 'In Process';
+}
+
+let _plStageFilter = 'all';
+
+function plMasterRender() {
+  // Init filter chips once
+  const chipWrap = document.getElementById('plFilterChips');
+  if (chipWrap && !chipWrap.dataset.init) {
+    chipWrap.dataset.init = '1';
+    const stages = [
+      { key:'all',          label:'All Files' },
+      { key:'active',       label:'In Process' },
+      { key:'presubmission',label:'Pre-Submission' },
+      { key:'closing',      label:'Closing' },
+      { key:'closed',       label:'Closed' },
+      { key:'cancelled',    label:'Cancelled' },
+    ];
+    chipWrap.innerHTML = stages.map(s =>
+      `<button class="pl-filter-chip${_plStageFilter===s.key?' on':''}" onclick="plSetStage('${s.key}',this)">${esc(s.label)}</button>`
+    ).join('');
+  }
+
+  // Gather filters
+  const fromVal = document.getElementById('plDateFrom')?.value || '';
+  const toVal   = document.getElementById('plDateTo')?.value || '';
+  const search  = (document.getElementById('plSearch')?.value || '').toLowerCase();
+  const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+  const toDate   = toVal   ? new Date(toVal   + 'T23:59:59') : null;
+
+  // All files (active, closed, cancelled, pre-sub)
+  let files = (cache.files || []).slice().reverse();
+
+  // Stage filter
+  if (_plStageFilter !== 'all') {
+    files = files.filter(f => {
+      const s = f.fileStatus || 'active';
+      return s === _plStageFilter;
+    });
+  }
+
+  // App Date range filter
+  if (fromDate || toDate) {
+    files = files.filter(f => {
+      const appDateStr = (f.pipeline || {}).pl_appDate;
+      if (!appDateStr) return false;
+      const d = new Date(appDateStr + 'T12:00:00');
+      if (fromDate && d < fromDate) return false;
+      if (toDate   && d > toDate)   return false;
+      return true;
+    });
+  }
+
+  // Text search
+  if (search) {
+    files = files.filter(f => {
+      const pl = f.pipeline || {};
+      const hay = ([f.b1, f.b2, f.prop, f.bank].join(' ') + ' ' + PL_ALL_KEYS.map(k => pl[k]||'').join(' ')).toLowerCase();
+      return hay.includes(search);
+    });
+  }
+
+  // Summary tiles
+  const totalFiles = files.length;
+  const inProcess  = files.filter(f => (!f.fileStatus || f.fileStatus === 'active')).length;
+  const closedCnt  = files.filter(f => f.fileStatus === 'closed').length;
+  const totalAmt   = files.reduce((sum, f) => {
+    const raw = ((f.pipeline||{}).pl_loanAmt || '').replace(/[$,]/g,'');
+    const n = parseFloat(raw);
+    return sum + (isNaN(n) ? (parseFloat(f.la)||0) : n);
+  }, 0);
+
+  const tilesEl = document.getElementById('plSummaryTiles');
+  if (tilesEl) tilesEl.innerHTML = [
+    { label:'Files Shown',  val: totalFiles },
+    { label:'In Process',   val: inProcess },
+    { label:'Closed',       val: closedCnt },
+    { label:'Total Volume', val: totalAmt >= 1000000
+        ? '$' + (totalAmt/1000000).toFixed(2) + 'M'
+        : totalAmt > 0 ? '$' + Math.round(totalAmt).toLocaleString() : '—' },
+  ].map(t => `<div class="pl-tile"><div class="pl-tile-label">${esc(t.label)}</div><div class="pl-tile-val">${esc(String(t.val))}</div></div>`).join('');
+
+  // Build table header
+  const thead = document.getElementById('plThead');
+  if (thead) thead.innerHTML = '<tr>' + PL_COLS.map(c => `<th>${esc(c.label)}</th>`).join('') + '</tr>';
+
+  // Build table body
+  const tbody = document.getElementById('plTbody');
+  if (!tbody) return;
+  if (!files.length) {
+    tbody.innerHTML = `<tr><td colspan="${PL_COLS.length}" style="text-align:center;padding:32px;color:var(--slate-light)">No files match the current filters.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = files.map(f => {
+    const cols = PL_COLS.map((col, i) => {
+      const val = col.get(f);
+      const display = col.render ? col.render(val) : esc(val || '—');
+      if (i === 0) return `<td onclick="showPage('filedetail','${esc(f.id)}')" style="cursor:pointer;color:var(--navy)">${display}</td>`;
+      return `<td>${display || '<span style="color:var(--border-strong)">—</span>'}</td>`;
+    }).join('');
+    return `<tr>${cols}</tr>`;
+  }).join('');
+}
+
+function plSetStage(key, btn) {
+  _plStageFilter = key;
+  document.querySelectorAll('.pl-filter-chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  plMasterRender();
+}
+
+function plExportCSV() {
+  // Get current filtered data — re-run same logic
+  const fromVal  = document.getElementById('plDateFrom')?.value || '';
+  const toVal    = document.getElementById('plDateTo')?.value || '';
+  const search   = (document.getElementById('plSearch')?.value || '').toLowerCase();
+  const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+  const toDate   = toVal   ? new Date(toVal   + 'T23:59:59') : null;
+
+  let files = (cache.files || []).slice().reverse();
+  if (_plStageFilter !== 'all') files = files.filter(f => (f.fileStatus||'active') === _plStageFilter);
+  if (fromDate || toDate) {
+    files = files.filter(f => {
+      const d = new Date(((f.pipeline||{}).pl_appDate||'') + 'T12:00:00');
+      if (isNaN(d)) return false;
+      if (fromDate && d < fromDate) return false;
+      if (toDate   && d > toDate)   return false;
+      return true;
+    });
+  }
+  if (search) {
+    files = files.filter(f => {
+      const pl = f.pipeline || {};
+      return ([f.b1,f.b2,f.prop,f.bank].join(' ')+' '+PL_ALL_KEYS.map(k=>pl[k]||'').join(' ')).toLowerCase().includes(search);
+    });
+  }
+
+  const headers = PL_COLS.map(c => '"' + c.label.replace(/"/g,'""') + '"').join(',');
+  const rows = files.map(f =>
+    PL_COLS.map(c => {
+      const v = c.get(f) || '';
+      return '"' + String(v).replace(/"/g,'""') + '"';
+    }).join(',')
+  );
+  const csv = [headers, ...rows].join('\n');
+
+  // Download
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  const today = new Date().toISOString().slice(0,10);
+  a.download = 'ZaphireCapital_Pipeline_' + today + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+
+// ── Boot: handle OAuth callback on page load ─────────
+// The OAuth redirect brings back a #code= fragment.
+// We call olHandleCallback() once the user is logged in (or immediately if already logged in).
+(function() {
+  if (!location.hash || !location.hash.includes('code=')) return;
+  // Poll for currentUser being set (login happens async after page load)
+  let attempts = 0;
+  const check = setInterval(function() {
+    attempts++;
+    if (typeof currentUser !== 'undefined' && currentUser) {
+      clearInterval(check);
+      olHandleCallback();
+    } else if (attempts > 60) { // 6 seconds max
+      clearInterval(check);
+      // Try anyway
+      olHandleCallback();
+    }
+  }, 100);
+})();
+</script>
 
 </body>
 </html>
