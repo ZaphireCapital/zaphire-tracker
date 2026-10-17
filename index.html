@@ -1251,14 +1251,16 @@ input[type=file]{display:none}
       <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon"></span>Dashboard<span class="nav-badge" id="navBadge">0</span></button>
       <div class="nav-section-label" style="margin-top:12px">Pipeline</div>
       <button class="nav-item" onclick="showPage('presubmission')"><span class="nav-icon"></span>Pre-Submission<span class="nav-badge" id="preBadge" style="background:rgba(139,92,246,.2);color:#c4b5fd">0</span></button>
-      <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"></span>Files in Process</button>
+      <button class="nav-item" onclick="showPage('files')"><span class="nav-icon"></span>Files in Process<span class="nav-badge" id="filesBadge" style="background:rgba(59,130,246,.2);color:#93c5fd">0</span></button>
       <button class="nav-item" onclick="showPage('closedfiles')"><span class="nav-icon"></span>Closed Files<span class="nav-badge" id="closedBadge" style="background:rgba(201,168,76,.15);color:var(--gold-light)">0</span></button>
-      <div class="nav-section-label" style="margin-top:12px">Admin</div>
-      <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"></span>Settings</button>
-      <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
-      <button class="nav-item" onclick="showPage('contacts')"><span class="nav-icon"></span>Contacts</button>
+      <div class="nav-section-label" style="margin-top:12px">Reports</div>
       <button class="nav-item" onclick="showPage('pipeline')"><span class="nav-icon"></span>Pipeline Master List</button>
       <button class="nav-item" onclick="showPage('mcr')"><span class="nav-icon"></span>NMLS MCR Report</button>
+      <div class="nav-section-label" style="margin-top:12px">Directory</div>
+      <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
+      <button class="nav-item" onclick="showPage('contacts')"><span class="nav-icon"></span>Contacts</button>
+      <div class="nav-section-label" style="margin-top:12px">Admin</div>
+      <button class="nav-item" onclick="showPage('settings')"><span class="nav-icon"></span>Settings</button>
       <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon"></span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon"></span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
@@ -2725,6 +2727,7 @@ function renderDashboard() {
   updateDatesBadge();
   updatePreBadge();
   updateClosedBadge();
+  updateFilesBadge();
   const tbody = document.getElementById('dashTbody');
   // Only show files in process (not pre-submission or closed) in recent files
   const files = [...cache.files].reverse().filter(f=>!f.fileStatus||f.fileStatus==='active').slice(0,10);
@@ -7113,6 +7116,12 @@ let preFilter = 'all';
 function updatePreBadge() {
   const count = (cache.files||[]).filter(f=>f.fileStatus==='presubmission').length;
   const el = document.getElementById('preBadge');
+  if (el) el.textContent = count;
+}
+
+function updateFilesBadge() {
+  const count = (cache.files||[]).filter(f=>!f.fileStatus||f.fileStatus==='active').length;
+  const el = document.getElementById('filesBadge');
   if (el) el.textContent = count;
 }
 
