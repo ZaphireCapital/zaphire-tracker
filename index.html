@@ -1258,6 +1258,7 @@ input[type=file]{display:none}
       <button class="nav-item" onclick="showPage('lenders')"><span class="nav-icon"></span>Lenders</button>
       <button class="nav-item" onclick="showPage('contacts')"><span class="nav-icon"></span>Contacts</button>
       <button class="nav-item" onclick="showPage('pipeline')"><span class="nav-icon"></span>Pipeline Master List</button>
+      <button class="nav-item" onclick="showPage('mcr')"><span class="nav-icon"></span>NMLS MCR Report</button>
       <button class="nav-item" onclick="showPage('dates')"><span class="nav-icon"></span>Important Dates<span class="nav-badge" id="datesBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
       <button class="nav-item" onclick="showPage('trash')"><span class="nav-icon"></span>Trash<span class="nav-badge" id="trashBadge" style="background:rgba(239,68,68,.2);color:#fca5a5">0</span></button>
     </div>
@@ -1718,20 +1719,22 @@ input[type=file]{display:none}
         </div>
       </div>
       <div class="divider"></div>
-      <div class="section-header"><div class="section-title">Loan Officer Contact Info</div></div>
-      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Appears in the top-right corner of every printed Mortgage Comparison Worksheet. Fill in once and it updates all printouts automatically.</p>
-      <div style="background:var(--white);border:1.5px solid var(--gold);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);max-width:680px">
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">Officer Name</label><input class="form-input" type="text" id="lo_name" placeholder="Deric Zaphire"></div>
-          <div class="form-group"><label class="form-label">Individual NMLS #</label><input class="form-input" type="text" id="lo_nmls" placeholder="124512"></div>
-          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="lo_phone" placeholder="(917) 796-5022"></div>
-          <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="text" id="lo_email" placeholder="dericz@zaphirecapital.com"></div>
-          <div class="form-group"><label class="form-label">Title / Role <span style="font-size:10px;color:var(--slate-light);font-weight:400;text-transform:none">(optional)</span></label><input class="form-input" type="text" id="lo_title" placeholder="Mortgage Broker"></div>
+      <div class="section-header"><div class="section-title">Loan Officers</div><button class="btn btn-gold btn-sm" onclick="loAddNew()">+ Add Officer</button></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Loan officer info is used on printed Mortgage Comparison Worksheets and in NMLS MCR quarterly reports. Each officer's NMLS number is required for MCR reporting.</p>
+      <div id="loList" style="display:flex;flex-direction:column;gap:12px;max-width:680px"></div>
+      <div class="divider"></div>
+      <div class="section-header"><div class="section-title">MCR Report Settings</div></div>
+      <p style="color:var(--slate-light);font-size:13.5px;margin-bottom:16px;line-height:1.6">Configure which property types and occupancy types are excluded from NMLS Mortgage Call Report calculations. Cooperatives and investment properties are excluded by default per NMLS guidelines.</p>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow);max-width:680px">
+        <div style="margin-bottom:16px">
+          <div class="form-label" style="margin-bottom:8px">Exclude these Property Types from MCR</div>
+          <div id="mcrExcludePropTypes" style="display:flex;flex-wrap:wrap;gap:8px"></div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:14px;align-items:center">
-          <button class="btn btn-gold" onclick="saveLoanOfficer()">Save Officer Info</button>
-          <span style="font-size:12px;color:var(--slate-light)">Saved info appears on Worksheet Preview and printed PDFs automatically.</span>
+        <div style="margin-bottom:16px">
+          <div class="form-label" style="margin-bottom:8px">Exclude these Occupancy Types from MCR</div>
+          <div id="mcrExcludeOcc" style="display:flex;flex-wrap:wrap;gap:8px"></div>
         </div>
+        <button class="btn btn-gold" onclick="saveMcrSettings()">Save MCR Settings</button>
       </div>
       <div class="divider"></div>
       <div class="section-header"><div class="section-title">File Stages</div></div>
@@ -2024,6 +2027,9 @@ input[type=file]{display:none}
           <tbody id="trashTableBody"></tbody>
         </table>
       </div>
+    </div>
+    <div class="page" id="page-mcr" style="padding:0;overflow:hidden">
+      <div id="mcrContainer" style="height:100%;overflow-y:auto;padding:24px 28px;box-sizing:border-box"></div>
     </div>
   </main>
 </div>
@@ -2475,6 +2481,9 @@ async function kvList(prefix) { return lsList(prefix); }
 const DEFAULTS = {
   loanTypes: ['Conventional','DSCR','FHA','HELOC','VA','Jumbo','Non-QM'],
   occupancyTypes: ['Primary Residence','Investment','2nd Home'],
+  paTransactionTypes: ['Purchase','Refinance','Cash-Out Refinance'],
+  paOccupancyTypes: ['Primary Residence','Second Home','Investment'],
+  paPropTypes: ['Single Family Residence','Condominium','2-4 Unit','Townhouse','Cooperative','Manufactured','Commercial','Land'],
   conditionCategories: ['Prior to Close','At Closing','Internal to Lender'],
   conditionTypes: ['Appraisal','Asset','Closing Disclosure','Disclosures','Title','Credit','Insurance','Employment','Income','Legal','Flood','HOA','Survey','Other'],
   users: ['Deric','Stephan','Jules'],
@@ -2509,6 +2518,11 @@ const DEFAULTS = {
     phone: '',
     email: '',
     title: ''
+  },
+  loanOfficers: [],   // array of {name,nmls,phone,email,title} — multi-LO support
+  mcrSettings: {
+    excludedPropTypes: ['Cooperative'],
+    excludedOccupancies: ['Investment']
   },
   contactRoles: [],   // custom roles beyond the 7 defaults
   contactRoleLabels: {}, // editable labels for the 7 default roles
@@ -2622,10 +2636,10 @@ function showPage(page, fid) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory',contacts:'Contact Directory',pipeline:'Pipeline Master List'};
+  const titles = {dashboard:'Dashboard',presubmission:'Pre-Submission',files:'Files in Process',closedfiles:'Closed Files',filedetail:'File Detail',settings:'Settings',customfields:'Settings',trash:'Trash',dates:'Important Dates',lenders:'Lender Directory',contacts:'Contact Directory',pipeline:'Pipeline Master List',mcr:'NMLS MCR Quarterly Report'};
   document.getElementById('topbarTitle').textContent = titles[page] || page;
   const navItems = document.querySelectorAll('.nav-item');
-  const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:4,lenders:5,contacts:6,pipeline:7,dates:8,trash:9};
+  const nm = {dashboard:0,presubmission:1,files:2,closedfiles:3,settings:4,customfields:4,lenders:5,contacts:6,pipeline:7,mcr:8,dates:9,trash:10};
   if (nm[page] !== undefined) navItems[nm[page]].classList.add('active');
   if (page === 'lenders') {
     document.getElementById('topbarActions').innerHTML = '<button class="btn btn-outline btn-sm" onclick="openSpecialtiesModal()" style="margin-right:6px">⚙ Manage Specialties</button><button class="btn btn-gold" onclick="openLenderModal()">+ Add Lender</button>';
@@ -2660,10 +2674,12 @@ function showPage(page, fid) {
   if (page === 'lenders') renderLenderList();
   if (page === 'contacts') { crmRenderAll(); olRenderBanner(); }
   if (page === 'pipeline') plMasterRender();
+  if (page === 'mcr') renderMCR();
   // Topbar action button
   const actions = document.getElementById('topbarActions');
   if (page === 'contacts') actions.innerHTML = '';
   else if (page === 'pipeline') actions.innerHTML = '<button class="btn btn-outline btn-sm" onclick="plExportCSV()" style="margin-right:6px">⬇ Export CSV</button><button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Print</button>';
+  else if (page === 'mcr') actions.innerHTML = '<button class="btn btn-outline btn-sm" onclick="mcrPrint()" style="margin-right:6px">🖨 Print Report</button>';
   else if (page !== 'filedetail') actions.innerHTML = '<button class="btn btn-gold" onclick="openNewFileModal()">+ New File</button>';
 }
 
@@ -3512,7 +3528,7 @@ async function deleteCF(cfid) {
 //  SETTINGS
 //                                        
 function renderSettings() {
-  const defs = [{key:'loanTypes',label:'Loan Types',sub:'Available loan type options'},{key:'occupancyTypes',label:'Occupancy Types',sub:'Occupancy classification options'},{key:'conditionCategories',label:'Condition Categories',sub:'e.g. Prior to Close, At Closing'},{key:'conditionTypes',label:'Condition Types',sub:'e.g. Appraisal, Asset, Title'},{key:'requiredBy',label:'Required By (Important Dates)',sub:'e.g. NMLS, NYSDFS, DFS, CFPB'}];
+  const defs = [{key:'loanTypes',label:'Loan Types',sub:'Available loan type options — shown in new file form'},{key:'occupancyTypes',label:'Occupancy Types (File Form)',sub:'Options in the new/edit file occupancy dropdown'},{key:'paTransactionTypes',label:'Transaction Types (Pre-Approval)',sub:'Purchase, Refinance, etc. — shown in pre-approval letter'},{key:'paOccupancyTypes',label:'Occupancy Types (Pre-Approval)',sub:'Options in the pre-approval occupancy dropdown'},{key:'paPropTypes',label:'Property Types (Pre-Approval)',sub:'Options in the pre-approval property type dropdown'},{key:'conditionCategories',label:'Condition Categories',sub:'e.g. Prior to Close, At Closing'},{key:'conditionTypes',label:'Condition Types',sub:'e.g. Appraisal, Asset, Title'},{key:'requiredBy',label:'Required By (Important Dates)',sub:'e.g. NMLS, NYSDFS, DFS, CFPB'}];
   document.getElementById('settingsGrid').innerHTML = defs.map(s=>`<div class="settings-card"><div class="settings-card-title">${s.label}</div><div class="settings-card-sub">${s.sub}</div><div class="tag-list" id="tags-${s.key}"></div><div class="tag-add-row"><input class="form-input" type="text" id="addInput-${s.key}" placeholder="Add new option..." onkeydown="if(event.key==='Enter')addSetting('${s.key}')"><button class="btn btn-outline btn-sm" onclick="addSetting('${s.key}')">Add</button></div></div>`).join('');
   renderAllTags();
   renderUserTags();
@@ -3983,21 +3999,107 @@ async function cdRemoveCustomRole(idx) {
 }
 
 function loadLoanOfficerToForm() {
-  const lo = cache.settings.loanOfficer || {};
-  ['name','nmls','phone','email','title'].forEach(k => {
-    const el = document.getElementById('lo_'+k);
-    if (el) el.value = lo[k] || '';
-  });
+  // Legacy single-LO compat: renders multi-LO list instead
+  renderLoList();
+  renderMcrSettingsUI();
+}
+
+function renderLoList() {
+  const el = document.getElementById('loList'); if (!el) return;
+  // Migrate legacy loanOfficer if loanOfficers is empty
+  if (!cache.settings.loanOfficers || !cache.settings.loanOfficers.length) {
+    const legacy = cache.settings.loanOfficer || {};
+    if (legacy.name) {
+      cache.settings.loanOfficers = [{ name: legacy.name, nmls: legacy.nmls||'', phone: legacy.phone||'', email: legacy.email||'', title: legacy.title||'' }];
+    } else {
+      cache.settings.loanOfficers = [];
+    }
+  }
+  const los = cache.settings.loanOfficers;
+  if (!los.length) {
+    el.innerHTML = '<div style="color:var(--slate-light);font-size:13.5px;padding:16px 0">No loan officers added yet. Click “+ Add Officer” to get started.</div>';
+    return;
+  }
+  el.innerHTML = los.map((lo, i) => `
+    <div style="background:var(--white);border:1.5px solid var(--gold);border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-weight:600;font-size:14px;color:var(--fg)">${lo.name ? lo.name : 'Unnamed Officer'}</div>
+        <button class="btn btn-danger btn-sm" onclick="loRemove(${i})" style="padding:4px 10px;font-size:12px">Remove</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">Officer Name</label><input class="form-input" type="text" id="lo_name_${i}" value="${lo.name||''}" placeholder="Full Name" oninput="loUpdate(${i},'name',this.value)"></div>
+        <div class="form-group"><label class="form-label">Individual NMLS #</label><input class="form-input" type="text" id="lo_nmls_${i}" value="${lo.nmls||''}" placeholder="e.g. 124512" oninput="loUpdate(${i},'nmls',this.value)"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="text" id="lo_phone_${i}" value="${lo.phone||''}" placeholder="(917) 796-5022" oninput="loUpdate(${i},'phone',this.value)"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="text" id="lo_email_${i}" value="${lo.email||''}" placeholder="email@example.com" oninput="loUpdate(${i},'email',this.value)"></div>
+        <div class="form-group"><label class="form-label">Title / Role</label><input class="form-input" type="text" id="lo_title_${i}" value="${lo.title||''}" placeholder="Mortgage Broker" oninput="loUpdate(${i},'title',this.value)"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loUpdate(idx, field, val) {
+  if (!cache.settings.loanOfficers) cache.settings.loanOfficers = [];
+  if (!cache.settings.loanOfficers[idx]) cache.settings.loanOfficers[idx] = {};
+  cache.settings.loanOfficers[idx][field] = val;
+}
+
+function loAddNew() {
+  if (!cache.settings.loanOfficers) cache.settings.loanOfficers = [];
+  cache.settings.loanOfficers.push({ name:'', nmls:'', phone:'', email:'', title:'' });
+  renderLoList();
+}
+
+async function loRemove(idx) {
+  if (!cache.settings.loanOfficers) return;
+  cache.settings.loanOfficers.splice(idx, 1);
+  renderLoList();
+  await saveSettings();
+  toast('Loan officer removed');
 }
 
 async function saveLoanOfficer() {
-  if (!cache.settings.loanOfficer) cache.settings.loanOfficer = {};
-  ['name','nmls','phone','email','title'].forEach(k => {
-    const el = document.getElementById('lo_'+k);
-    if (el) cache.settings.loanOfficer[k] = el.value.trim();
-  });
+  // Now saves the loanOfficers array (oninput keeps them in sync already)
+  if (!cache.settings.loanOfficers) cache.settings.loanOfficers = [];
+  // Also keep legacy loanOfficer for worksheet compat
+  if (cache.settings.loanOfficers.length > 0) {
+    cache.settings.loanOfficer = { ...cache.settings.loanOfficers[0] };
+  }
   await saveSettings();
   toast('Loan officer info saved');
+}
+
+function renderMcrSettingsUI() {
+  const propTypes = ['SFR','Condo','2-4 Unit','Townhome','PUD','Cooperative','Commercial','Land','Other'];
+  const occs = ['Primary','Second Home','Investment'];
+  const excPT = (cache.settings.mcrSettings || {}).excludedPropTypes || ['Cooperative'];
+  const excOcc = (cache.settings.mcrSettings || {}).excludedOccupancies || ['Investment'];
+  const ptEl = document.getElementById('mcrExcludePropTypes');
+  const occEl = document.getElementById('mcrExcludeOcc');
+  if (ptEl) ptEl.innerHTML = propTypes.map(pt => {
+    const checked = excPT.includes(pt);
+    return `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:${checked?'rgba(201,168,76,.12)':'transparent'};transition:all .15s" onclick="mcrToggleExclusion('propType','${pt}',this)"><input type="checkbox" ${checked?'checked':''} style="pointer-events:none"> ${pt}</label>`;
+  }).join('');
+  if (occEl) occEl.innerHTML = occs.map(occ => {
+    const checked = excOcc.includes(occ);
+    return `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:${checked?'rgba(201,168,76,.12)':'transparent'};transition:all .15s" onclick="mcrToggleExclusion('occ','${occ}',this)"><input type="checkbox" ${checked?'checked':''} style="pointer-events:none"> ${occ}</label>`;
+  }).join('');
+}
+
+function mcrToggleExclusion(type, val, labelEl) {
+  if (!cache.settings.mcrSettings) cache.settings.mcrSettings = { excludedPropTypes:['Cooperative'], excludedOccupancies:['Investment'] };
+  const key = type === 'propType' ? 'excludedPropTypes' : 'excludedOccupancies';
+  const arr = cache.settings.mcrSettings[key] || [];
+  const idx = arr.indexOf(val);
+  if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
+  cache.settings.mcrSettings[key] = arr;
+  const checked = arr.includes(val);
+  labelEl.style.background = checked ? 'rgba(201,168,76,.12)' : 'transparent';
+  labelEl.querySelector('input').checked = checked;
+}
+
+async function saveMcrSettings() {
+  await saveSettings();
+  toast('MCR settings saved');
 }
 
 function renderAllTags() {
@@ -5429,11 +5531,12 @@ function paRenderEditor() {
       <div class="pa-section-body" style="display:flex;flex-direction:column;gap:10px">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
           <div class="form-group"><label class="form-label">Letter Date</label><input class="form-input" type="date" id="pa_date" value="${esc(l.date||'')}" onchange="paField('date',this.value)"></div>
-          <div class="form-group"><label class="form-label">Transaction</label><select class="form-input" id="pa_tx" onchange="paField('transaction',this.value)"><option${l.transaction==='Purchase'?' selected':''}>Purchase</option><option${l.transaction==='Refinance'?' selected':''}>Refinance</option><option${l.transaction==='Cash-Out Refinance'?' selected':''}>Cash-Out Refinance</option></select></div>
-          <div class="form-group"><label class="form-label">Occupancy</label><select class="form-input" id="pa_occ" onchange="paField('occupancy',this.value)"><option${l.occupancy==='Primary Residence'?' selected':''}>Primary Residence</option><option${l.occupancy==='Second Home'?' selected':''}>Second Home</option><option${l.occupancy==='Investment'?' selected':''}>Investment</option></select></div>
-          <div class="form-group"><label class="form-label">Property Type</label><select class="form-input" id="pa_pt" onchange="paField('propType',this.value)"><option${l.propType==='Single Family Residence'?' selected':''}>Single Family Residence</option><option${l.propType==='Condominium'?' selected':''}>Condominium</option><option${l.propType==='2-4 Unit'?' selected':''}>2-4 Unit</option><option${l.propType==='Townhouse'?' selected':''}>Townhouse</option><option${l.propType==='Manufactured'?' selected':''}>Manufactured</option></select></div>
+          <div class="form-group"><label class="form-label">Transaction</label><select class="form-input" id="pa_tx" onchange="paField('transaction',this.value)">${(cache.settings.paTransactionTypes||['Purchase','Refinance','Cash-Out Refinance']).map(v=>`<option${l.transaction===v?' selected':''}>${esc(v)}<\/option>`).join('')}</select></div>
+          <div class="form-group"><label class="form-label">Occupancy</label><select class="form-input" id="pa_occ" onchange="paField('occupancy',this.value)">${(cache.settings.paOccupancyTypes||['Primary Residence','Second Home','Investment']).map(v=>`<option${l.occupancy===v?' selected':''}>${esc(v)}<\/option>`).join('')}</select></div>
+          <div class="form-group"><label class="form-label">Property Type</label><select class="form-input" id="pa_pt" onchange="paField('propType',this.value)">${(cache.settings.paPropTypes||['Single Family Residence','Condominium','2-4 Unit','Townhouse','Manufactured']).map(v=>`<option${l.propType===v?' selected':''}>${esc(v)}<\/option>`).join('')}</select></div>
         </div>
         <div class="form-group"><label class="form-label">Property Address <span style="font-size:9.5px;color:var(--slate-light);font-weight:400;text-transform:none">(leave blank for TBD)</span></label><input class="form-input" id="pa_prop" value="${esc(l.propAddr||'')}" oninput="paField('propAddr',this.value)" placeholder="Leave blank for TBD"></div>
+        <div class="form-group" style="max-width:340px"><label class="form-label">Signing Loan Officer</label><select class="form-input" id="pa_lo" onchange="paField('loName',this.value);paRenderPreview()">${(()=>{ const los=cache.settings.loanOfficers||[]; const loList=los.filter(o=>o.name); if(!loList.length&&cache.settings.loanOfficer&&cache.settings.loanOfficer.name) loList.push(cache.settings.loanOfficer); const sel=l.loName||(loList[0]&&loList[0].name)||''; return loList.length?loList.map(o=>`<option value="${esc(o.name)}"${sel===o.name?' selected':''}>${esc(o.name)}<\/option>`).join(''):'<option value="">No loan officers configured<\/option>'; })()}</select><div style="font-size:11px;color:var(--slate-light);margin-top:4px">Name &amp; NMLS# from this officer appear on the letter. Add officers in <a href="#" onclick="showPage('settings');return false" style="color:var(--gold)">Settings → Loan Officers</a>.</div></div>
       </div>
     </div>
     <div class="pa-section">
@@ -5536,11 +5639,19 @@ function paResetBody() {
   l.body = {...PA_DEFAULT_BODY}; paSave(); paRenderEditor(); paRenderPreview();
 }
 
+function paGetLetterLO(l) {
+  const los = (cache.settings.loanOfficers || []).filter(o => o.name);
+  const name = l && l.loName;
+  if (name && los.length) { const m = los.find(o => o.name === name); if (m) return m; }
+  if (los.length) return los[0];
+  return cache.settings.loanOfficer || {};
+}
+
 function paRenderPreview() {
   const el = document.getElementById('paLetterHtml'); if (!el) return;
   const l = paGetActive();
   if (!l) { el.innerHTML = ''; return; }
-  const lo = cache.settings?.loanOfficer || {};
+  const lo = paGetLetterLO(l);
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
@@ -5722,7 +5833,7 @@ function paPrint() {
 }
 
 function paPrintWithLogo(l, ZC_LOGO) {
-  const lo = cache.settings?.loanOfficer || {};
+  const lo = paGetLetterLO(l);
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
@@ -10046,13 +10157,14 @@ const PL_GROUPS = [
       { key: 'pl_lender',       label: 'Lender',                type: 'text', placeholder: 'Lender name' },
       { key: 'pl_loanNum',      label: 'Loan # (Zaphire Capital)', type: 'text', placeholder: 'Your internal loan number' },
       { key: 'pl_lenderLoanNum', label: 'Lender Loan #',          type: 'text', placeholder: 'Lender\'s loan number' },
-      { key: 'pl_propType',     label: 'Property Type',         type: 'select', opts: ['','SFR','Condo','2-4 Unit','Townhome','PUD','Commercial','Land','Other'] },
+      { key: 'pl_propType',     label: 'Property Type',         type: 'select', opts: ['','SFR','Condo','2-4 Unit','Townhome','PUD','Cooperative','Commercial','Land','Other'] },
       { key: 'pl_txType',       label: 'Purchase / Refi',       type: 'select', opts: ['','Purchase','Rate/Term Refi','Cash-Out Refi'] },
       { key: 'pl_loanType',     label: 'Conv / FHA / VA / Other', type: 'select', opts: ['','Conventional','FHA','VA','USDA','Jumbo','Non-QM','Bridge','HELOC','Other'] },
       { key: 'pl_occupancy',    label: 'Occupancy',             type: 'select', opts: ['','Primary','Second Home','Investment'] },
       { key: 'pl_creditAmt',    label: 'Credit Report $',       type: 'text', placeholder: '$0.00' },
       { key: 'pl_creditCo',     label: 'Credit Company',        type: 'contact-picker', role: 'creditCompany', placeholder: 'Search contacts…' },
       { key: 'pl_creditAddr',   label: 'Credit Company Address',type: 'text', placeholder: 'Address' },
+      { key: 'pl_propState',   label: 'Subject Property State', type: 'select', opts: ['','CT','NY','NJ','MA','FL','TX','CA','PA','OH','GA','NC','VA','IL','AZ','CO','WA','Other'] },
     ]
   },
   {
@@ -10124,7 +10236,7 @@ function plInfoRender() {
   }
 
   // LO options from settings
-  const loUsers = (cache.settings && cache.settings.users) || [];
+  const loUsers = (() => { const los = (cache.settings && cache.settings.loanOfficers) || []; if (los.length) return los.map(l => l.name).filter(Boolean); return (cache.settings && cache.settings.users) || []; })();
 
   // Contact directory contacts filtered by role
   const allContacts = (typeof cdGetAll === 'function') ? cdGetAll() : [];
@@ -10446,8 +10558,9 @@ const PL_COLS = [
   { label: 'Loan #',            get: f => (f.pipeline||{}).pl_loanNum || '' },
   { label: 'Property Type',     get: f => (f.pipeline||{}).pl_propType || '' },
   { label: 'Purch / Refi',      get: f => (f.pipeline||{}).pl_txType || f.loanPurpose || '' },
-  { label: 'Loan Type',         get: f => (f.pipeline||{}).pl_loanType || f.loanType || '' },
+  { label: 'Conv/FHA/VA',       get: f => (f.pipeline||{}).pl_loanType || f.loanType || '' },
   { label: 'Occupancy',         get: f => (f.pipeline||{}).pl_occupancy || f.occupancy || '' },
+  { label: 'Prop State',         get: f => (f.pipeline||{}).pl_propState || '' },
   { label: 'Credit $',          get: f => (f.pipeline||{}).pl_creditAmt || '' },
   { label: 'Credit Company',    get: f => (f.pipeline||{}).pl_creditCo || '' },
   { label: 'Credit Address',    get: f => (f.pipeline||{}).pl_creditAddr || '' },
@@ -10464,9 +10577,9 @@ const PL_COLS = [
   { label: 'Referral Address',  get: f => (f.pipeline||{}).pl_refAddr || '' },
   { label: 'Date Closed',       get: f => (f.pipeline||{}).pl_closeDate || '', render: v => v ? (d => `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`)(new Date(v+'T12:00:00')) : '—' },
   { label: 'Closed Amt',        get: f => { const v = (f.pipeline||{}).pl_closedAmt; return v ? fmtCur(v) : ''; } },
-  { label: 'Final Rate %',      get: f => (f.pipeline||{}).pl_finalRate || '' },
-  { label: 'Broker Fee %',      get: f => (f.pipeline||{}).pl_brokerFeePct || '' },
-  { label: 'Broker Fee $',      get: f => (f.pipeline||{}).pl_brokerFeeAmt || '' },
+  { label: 'Final Rate %',      get: f => (f.pipeline||{}).pl_finalRate || '', render: v => v ? v + '%' : '—' },
+  { label: 'Broker Fee %',      get: f => (f.pipeline||{}).pl_brokerFeePct || '', render: v => v ? v + '%' : '—' },
+  { label: 'Broker Fee $',      get: f => { const v = (f.pipeline||{}).pl_brokerFeeAmt; return v ? fmtCur(v) : ''; } },
   { label: 'File Result',       get: f => (f.pipeline||{}).pl_fileResult || '' },
 ];
 
@@ -10486,6 +10599,7 @@ const PL_FILTER_FIELDS = [
   // ── Core file fields ──
   { key: '_borrower',    label: 'Borrower Name',        type: 'text',   get: f => [f.b1,f.b2].filter(Boolean).join(' & ') },
   { key: '_property',   label: 'Property Address',     type: 'text',   get: f => f.prop || '' },
+  { key: '_propState',  label: 'Property State',       type: 'select', get: f => (f.pipeline||{}).pl_propState || '', opts: ['CT','NY','NJ','MA','FL','TX','CA','PA','OH','GA','NC','VA','IL','AZ','CO','WA','Other'] },
   { key: '_stage',      label: 'Stage',                type: 'select', get: f => f.fileStatus || 'active',
     opts: ['active','presubmission','closing','closed','cancelled'],
     optLabels: { active:'In Process', presubmission:'Pre-Submission', closing:'Closing', closed:'Closed', cancelled:'Cancelled' } },
@@ -10523,7 +10637,7 @@ const PL_FILTER_FIELDS = [
   // ── Closed ──
   { key: 'pl_closeDate',    label: 'Date Closed',          type: 'date',   get: f => (f.pipeline||{}).pl_closeDate || '' },
   { key: 'pl_closedAmt',    label: 'Closed Loan Amount',   type: 'text',   get: f => (f.pipeline||{}).pl_closedAmt || '' },
-  { key: 'pl_finalRate',    label: 'Final Rate %',         type: 'text',   get: f => (f.pipeline||{}).pl_finalRate || '' },
+  { key: 'pl_finalRate',    label: 'Final Rate %',         type: 'range',  get: f => (f.pipeline||{}).pl_finalRate || '' },
   { key: 'pl_brokerFeePct', label: 'Broker Fee %',         type: 'text',   get: f => (f.pipeline||{}).pl_brokerFeePct || '' },
   { key: 'pl_brokerFeeAmt', label: 'Broker Fee $',         type: 'text',   get: f => (f.pipeline||{}).pl_brokerFeeAmt || '' },
   { key: 'pl_fileResult',   label: 'File Result',          type: 'select', get: f => (f.pipeline||{}).pl_fileResult || '',
@@ -10593,10 +10707,19 @@ function plRenderActiveFilters() {
           html += `<option value="${esc(opt)}"${flt.value === opt ? ' selected' : ''}>${esc(displayOpt)}</option>`;
         });
         html += `</select></div>`;
+      } else if (fd.type === 'range') {
+        html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+        html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">Min</label>`;
+        html += `<input type="number" step="0.001" class="pl-input" id="plfrom_${i}" value="${esc(flt.valueFrom)}" placeholder="e.g. 6" style="font-size:12px;padding:4px 8px;width:90px" onchange="plFilterValChange(${i},'from',this.value)">`;
+        html += `</div>`;
+        html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+        html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">Max</label>`;
+        html += `<input type="number" step="0.001" class="pl-input" id="plto_${i}" value="${esc(flt.valueTo)}" placeholder="e.g. 7.5" style="font-size:12px;padding:4px 8px;width:90px" onchange="plFilterValChange(${i},'to',this.value)">`;
+        html += `</div>`;
       } else {
         html += `<div style="display:flex;flex-direction:column;gap:3px">`;
         html += `<label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-light)">Contains</label>`;
-        html += `<input type="text" class="pl-input" id="plval_${i}" value="${esc(flt.value)}" placeholder="type to filter…" style="font-size:12px;padding:4px 8px;min-width:160px" oninput="plFilterValChange(${i},'val',this.value)">`;
+        html += `<input type="text" class="pl-input" id="plval_${i}" value="${esc(flt.value)}" placeholder="type to filter…" style="font-size:12px;padding:4px 8px;min-width:150px" onchange="plFilterValChange(${i},'val',this.value)">`;
         html += `</div>`;
       }
     }
@@ -10659,6 +10782,17 @@ function plApplyFilters(files) {
     } else if (fd.type === 'select') {
       if (!flt.value) return;
       files = files.filter(f => fd.get(f) === flt.value);
+    } else if (fd.type === 'range') {
+      const minV = flt.valueFrom !== '' ? parseFloat(flt.valueFrom) : null;
+      const maxV = flt.valueTo   !== '' ? parseFloat(flt.valueTo)   : null;
+      if (minV === null && maxV === null) return;
+      files = files.filter(f => {
+        const raw = parseFloat(String(fd.get(f)).replace(/[^0-9.]/g,''));
+        if (isNaN(raw)) return false;
+        if (minV !== null && raw < minV) return false;
+        if (maxV !== null && raw > maxV) return false;
+        return true;
+      });
     } else {
       const needle = flt.value.toLowerCase().trim();
       if (!needle) return;
@@ -10676,6 +10810,355 @@ function plApplyFilters(files) {
   }
 
   return files;
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// NMLS MCR QUARTERLY REPORT
+// ═══════════════════════════════════════════════════════════════
+
+let mcrState = {
+  state: 'CT',
+  year: new Date().getFullYear(),
+  quarter: Math.ceil((new Date().getMonth()+1)/3),
+  detailLine: null
+};
+
+const MCR_AC_LINES = [
+  // Section I: Applications
+  { code:'AC010', label:'Applications Received', section:'apps',
+    desc:'All applications received during the quarter for the selected state.' },
+  { code:'AC020', label:'Applications Approved but Not Accepted', section:'apps',
+    desc:'Applications that received a credit approval but the borrower did not proceed.' },
+  { code:'AC030', label:'Applications Denied', section:'apps',
+    desc:'Applications that were denied by the lender.' },
+  { code:'AC040', label:'Applications Withdrawn', section:'apps',
+    desc:'Applications withdrawn by the applicant prior to a credit decision.' },
+  { code:'AC050', label:'Files Closed for Incompleteness', section:'apps',
+    desc:'Applications closed because the applicant did not provide required documentation.' },
+  { code:'AC060', label:'Loans Originated', section:'apps',
+    desc:'Loans that were fully originated and funded during the quarter.' },
+  { code:'AC070', label:'Applications Approved, Not Yet Accepted or Denied', section:'apps',
+    desc:'Applications with a credit approval still pending acceptance.' },
+  { code:'AC080', label:'Pre-Approvals Denied', section:'apps',
+    desc:'Pre-approval requests that were denied.' },
+  { code:'AC090', label:'Net Pipeline Result (Auto-Calculated)', section:'apps', auto:true,
+    desc:'AC010 minus (AC030 + AC040 + AC050 + AC060) = Applications still in pipeline.' },
+  { code:'AC100', label:'Applications Received — Refinance', section:'refi',
+    desc:'Refinance applications received during the quarter.' },
+  { code:'AC110', label:'Refinances Originated', section:'refi',
+    desc:'Refinance loans that were originated during the quarter.' },
+];
+
+// Map fileStatus → AC codes the file contributes to
+function mcrStatusToAC(status) {
+  const map = {
+    'active':        ['AC010','AC070'],
+    'approved':      ['AC010','AC020','AC070'],
+    'closed':        ['AC010','AC060'],
+    'denied':        ['AC010','AC030'],
+    'withdrawn':     ['AC010','AC040'],
+  };
+  return map[status] || [];
+}
+
+function mcrIsEligible(f) {
+  // Exclude pre-submission
+  if (f.fileStatus === 'presubmission') return false;
+  // Exclude based on MCR settings
+  const mcrs = cache.settings.mcrSettings || { excludedPropTypes:['Cooperative'], excludedOccupancies:['Investment'] };
+  const pt = (f.pipeline && f.pipeline.pl_propType) || '';
+  const occ = (f.pipeline && f.pipeline.pl_occupancy) || f.occupancy || '';
+  if (pt && (mcrs.excludedPropTypes||[]).includes(pt)) return false;
+  if (occ && (mcrs.excludedOccupancies||[]).includes(occ)) return false;
+  return true;
+}
+
+function mcrGetQuarterDates(year, quarter) {
+  const starts = [[1,1],[4,1],[7,1],[10,1]];
+  const ends   = [[3,31],[6,30],[9,30],[12,31]];
+  const s = starts[quarter-1], e = ends[quarter-1];
+  return {
+    start: new Date(year, s[0]-1, s[1], 0,0,0,0),
+    end:   new Date(year, e[0]-1, e[1], 23,59,59,999)
+  };
+}
+
+function mcrFileInQuarter(f, start, end) {
+  // Use submission date or file creation date
+  const sub = f.pipeline && f.pipeline.pl_subDate;
+  const raw = sub || f.created || f.id || '';
+  if (!raw) return false;
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return false;
+  return d >= start && d <= end;
+}
+
+function mcrGetFilesForLine(acCode, stateFilter, year, quarter) {
+  const { start, end } = mcrGetQuarterDates(year, quarter);
+  return (cache.files || []).filter(f => {
+    if (!mcrIsEligible(f)) return false;
+    // State filter via pl_propState
+    const fState = (f.pipeline && f.pipeline.pl_propState) || '';
+    if (stateFilter && fState && fState !== stateFilter) return false;
+    if (stateFilter && !fState) return false; // must have state to be counted
+    const acLine = mcrStatusToAC(f.fileStatus || '');
+    if (!acLine.includes(acCode)) return false;
+    // For AC090 we handle separately
+    if (!mcrFileInQuarter(f, start, end)) return false;
+    return true;
+  });
+}
+
+function mcrGetAC090Files(stateFilter, year, quarter) {
+  // AC090 = apps received minus (closed + denied + withdrawn + closed-incomplete)
+  // = files still in pipeline: active + approved
+  const { start, end } = mcrGetQuarterDates(year, quarter);
+  return (cache.files || []).filter(f => {
+    if (!mcrIsEligible(f)) return false;
+    const fState = (f.pipeline && f.pipeline.pl_propState) || '';
+    if (stateFilter && fState && fState !== stateFilter) return false;
+    if (stateFilter && !fState) return false;
+    if (!['active','approved'].includes(f.fileStatus || '')) return false;
+    if (!mcrFileInQuarter(f, start, end)) return false;
+    return true;
+  });
+}
+
+function mcrBorrowerChip(f) {
+  const b1 = f.borrower1 || f.b1 || '';
+  const b2 = f.borrower2 || f.b2 || '';
+  const name = b2 ? b1 + ' & ' + b2 : b1 || 'Unknown';
+  const la = f.loanAmount || f.la || '';
+  const laStr = la ? ' · $' + Number(la).toLocaleString() : '';
+  return `<span class="mcr-chip" onclick="mcrShowDetail('${f.id||''}','${f.fileStatus||''}')" title="Click for details" style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:12px;padding:3px 10px;font-size:11.5px;cursor:pointer;white-space:nowrap;color:var(--fg)">${escHtml(name)}${laStr}</span>`;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderMCR() {
+  const el = document.getElementById('mcrContainer');
+  if (!el) return;
+
+  const { state, year, quarter, detailLine } = mcrState;
+  const los = (cache.settings.loanOfficers || []).filter(l => l.name);
+  const co = cache.settings || {};
+  const qLabel = `Q${quarter} ${year}`;
+
+  // Build AC line data
+  const lineData = MCR_AC_LINES.map(line => {
+    let files;
+    if (line.code === 'AC090') {
+      files = mcrGetAC090Files(state, year, quarter);
+    } else {
+      files = mcrGetFilesForLine(line.code, state, year, quarter);
+    }
+    return { ...line, files, count: files.length };
+  });
+
+  // MLO breakdown
+  const mloRows = los.map(lo => {
+    const loFiles = (cache.files || []).filter(f => {
+      if (!mcrIsEligible(f)) return false;
+      const fState = (f.pipeline && f.pipeline.pl_propState) || '';
+      if (state && fState && fState !== state) return false;
+      if (state && !fState) return false;
+      const loName = (f.pipeline && f.pipeline.pl_lo) || '';
+      return loName === lo.name && f.fileStatus !== 'presubmission';
+    });
+    const { start, end } = mcrGetQuarterDates(year, quarter);
+    const qFiles = loFiles.filter(f => mcrFileInQuarter(f, start, end));
+    return { lo, count: qFiles.length, files: qFiles };
+  });
+
+  el.innerHTML = `
+    <style>
+      .mcr-toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+      .mcr-state-btn { padding:7px 18px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--fg); font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; }
+      .mcr-state-btn.active { background:var(--gold); border-color:var(--gold); color:#1a0e00; }
+      .mcr-select { padding:6px 10px; border:1px solid var(--border); border-radius:8px; background:var(--white); color:var(--fg); font-size:13px; }
+      .mcr-section-title { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--slate-light); margin:0 0 10px; padding-top:4px; }
+      .mcr-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+      .mcr-table th { text-align:left; padding:8px 12px; background:var(--bg); color:var(--slate-light); font-size:11.5px; font-weight:600; letter-spacing:.04em; border-bottom:2px solid var(--border); }
+      .mcr-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+      .mcr-table tr:hover td { background:rgba(201,168,76,.04); }
+      .mcr-code { font-family:monospace; font-size:12px; color:var(--slate-light); }
+      .mcr-count { font-size:18px; font-weight:700; color:var(--gold); min-width:28px; text-align:center; }
+      .mcr-auto-badge { font-size:10px; background:rgba(201,168,76,.15); color:var(--gold); padding:2px 7px; border-radius:10px; margin-left:6px; }
+      .mcr-files-cell { max-width:480px; }
+      .mcr-chips-wrap { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+      .mcr-empty { color:var(--slate-light); font-size:12px; font-style:italic; }
+      .mcr-panel { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 22px; box-shadow:var(--shadow); margin-top:24px; }
+      .mcr-panel-title { font-size:14px; font-weight:600; color:var(--fg); margin-bottom:12px; }
+      .mcr-mlo-row { display:grid; grid-template-columns:1fr 60px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); }
+      .mcr-mlo-row:last-child { border-bottom:none; }
+      .mcr-mlo-name { font-weight:500; font-size:13.5px; }
+      .mcr-mlo-nmls { font-size:11.5px; color:var(--slate-light); margin-top:2px; }
+      .mcr-header-box { background:var(--white); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 20px; box-shadow:var(--shadow); margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+      .mcr-header-co { font-size:16px; font-weight:700; color:var(--fg); }
+      .mcr-header-meta { font-size:12.5px; color:var(--slate-light); margin-top:3px; }
+      .mcr-detail-panel { position:fixed; right:0; top:0; bottom:0; width:380px; background:var(--white); box-shadow:-4px 0 24px rgba(0,0,0,.12); z-index:900; overflow-y:auto; padding:24px; border-left:1px solid var(--border); transform:translateX(${detailLine?'0':'100%'}); transition:transform .25s; }
+    </style>
+
+    <!-- Toolbar -->
+    <div class="mcr-toolbar">
+      <button class="mcr-state-btn ${state==='CT'?'active':''}" onclick="mcrSetState('CT')">Connecticut</button>
+      <button class="mcr-state-btn ${state==='NY'?'active':''}" onclick="mcrSetState('NY')">New York</button>
+      <select class="mcr-select" onchange="mcrSetYear(+this.value)">
+        ${[year-1,year,year+1].map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('')}
+      </select>
+      <select class="mcr-select" onchange="mcrSetQuarter(+this.value)">
+        ${[1,2,3,4].map(q=>`<option value="${q}" ${q===quarter?'selected':''}>Q${q}</option>`).join('')}
+      </select>
+      <span style="font-size:13px;color:var(--slate-light);margin-left:4px">${qLabel} &bull; ${state}</span>
+      <button class="btn btn-outline btn-sm" onclick="mcrPrint()" style="margin-left:auto">🖨 Print</button>
+    </div>
+
+    <!-- Header -->
+    <div class="mcr-header-box">
+      <div>
+        <div class="mcr-header-co">${escHtml(co.companyName||'Zaphire Capital')}</div>
+        <div class="mcr-header-meta">NMLS# ${escHtml(co.nmls||'')} &bull; ${escHtml(co.address||'')} &bull; ${state} &bull; ${qLabel}</div>
+      </div>
+      <div style="text-align:right;font-size:12px;color:var(--slate-light)">
+        NMLS Mortgage Call Report<br>Section I — Residential Mortgage Activity
+      </div>
+    </div>
+
+    <!-- Section I: Applications -->
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:rgba(201,168,76,.06)">
+        <div class="mcr-section-title">Section I &mdash; Residential Mortgage Applications</div>
+      </div>
+      <table class="mcr-table">
+        <thead>
+          <tr>
+            <th style="width:80px">Line</th>
+            <th>Description</th>
+            <th style="width:70px;text-align:center">Count</th>
+            <th>Files Included</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lineData.map(line => `
+            <tr>
+              <td class="mcr-code">${escHtml(line.code)}</td>
+              <td>
+                <div style="font-weight:500;color:var(--fg)">${escHtml(line.label)}${line.auto?'<span class="mcr-auto-badge">Auto</span>':''}</div>
+                <div style="font-size:11.5px;color:var(--slate-light);margin-top:2px">${escHtml(line.desc)}</div>
+              </td>
+              <td style="text-align:center"><span class="mcr-count">${line.count}</span></td>
+              <td class="mcr-files-cell">
+                <div class="mcr-chips-wrap">
+                  ${line.files.length ? line.files.map(f => mcrBorrowerChip(f)).join('') : '<span class="mcr-empty">None</span>'}
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MLO Breakdown -->
+    <div class="mcr-panel">
+      <div class="mcr-panel-title">MLO Activity Breakdown &mdash; ${qLabel}</div>
+      ${mloRows.length === 0 ? `<div style="color:var(--slate-light);font-size:13px">No loan officers configured. Go to Settings to add loan officers with their NMLS numbers.</div>` : `
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="display:grid;grid-template-columns:1fr 60px;padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--border)">
+          <div style="font-size:11.5px;font-weight:600;color:var(--slate-light);letter-spacing:.04em">LOAN OFFICER</div>
+          <div style="font-size:11.5px;font-weight:600;color:var(--slate-light);letter-spacing:.04em;text-align:center">FILES</div>
+        </div>
+        ${mloRows.map(row => `
+          <div class="mcr-mlo-row">
+            <div>
+              <div class="mcr-mlo-name">${escHtml(row.lo.name)}</div>
+              <div class="mcr-mlo-nmls">NMLS# ${escHtml(row.lo.nmls)||'—'}</div>
+            </div>
+            <div style="text-align:center;font-size:18px;font-weight:700;color:var(--gold)">${row.count}</div>
+          </div>
+        `).join('')}
+      </div>
+      `}
+    </div>
+
+    <!-- Certification note -->
+    <div style="margin-top:20px;padding:14px 18px;background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:var(--radius-lg);font-size:12.5px;color:var(--slate-light);line-height:1.6">
+      <strong style="color:var(--fg)">Note:</strong> This report is generated from your Pipeline Master List data. Review all line items before submitting to NMLS. Pre-submission files, Cooperative property types, and Investment occupancy are excluded per your MCR settings. Verify submission dates are recorded in each file's Pipeline Info tab.
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="mcr-detail-panel" id="mcrDetailPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-weight:700;font-size:15px;color:var(--fg)" id="mcrDetailTitle">File Detail</div>
+        <button onclick="mcrCloseDetail()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--slate-light)">&times;</button>
+      </div>
+      <div id="mcrDetailBody"></div>
+    </div>
+  `;
+}
+
+function mcrSetState(s) { mcrState.state = s; renderMCR(); }
+function mcrSetYear(y) { mcrState.year = y; renderMCR(); }
+function mcrSetQuarter(q) { mcrState.quarter = q; renderMCR(); }
+
+function mcrShowDetail(fid, status) {
+  const f = (cache.files || []).find(x => x.id === fid);
+  const panel = document.getElementById('mcrDetailPanel');
+  const body  = document.getElementById('mcrDetailBody');
+  const title = document.getElementById('mcrDetailTitle');
+  if (!panel || !body || !f) return;
+  const b1 = f.borrower1 || f.b1 || '—';
+  const b2 = f.borrower2 || f.b2 || '';
+  const prop = f.property || f.prop || '—';
+  const la = f.loanAmount || f.la || '';
+  const laStr = la ? '$' + Number(la).toLocaleString() : '—';
+  const pt = (f.pipeline && f.pipeline.pl_propType) || f.propType || '—';
+  const occ = (f.pipeline && f.pipeline.pl_occupancy) || f.occupancy || '—';
+  const lo = (f.pipeline && f.pipeline.pl_lo) || '—';
+  const loObj = (cache.settings.loanOfficers || []).find(l => l.name === lo) || {};
+  title.textContent = b1 + (b2 ? ' & ' + b2 : '');
+  body.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="padding:12px 14px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-light);margin-bottom:8px">Borrower</div>
+        <div style="font-weight:600;font-size:14px">${escHtml(b1)}${b2?'<br>'+escHtml(b2):''}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+          <div style="font-size:10.5px;color:var(--slate-light);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Loan Amount</div>
+          <div style="font-weight:600;font-size:15px;color:var(--gold);margin-top:4px">${escHtml(laStr)}</div>
+        </div>
+        <div style="padding:10px 12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+          <div style="font-size:10.5px;color:var(--slate-light);font-weight:600;text-transform:uppercase;letter-spacing:.05em">Status</div>
+          <div style="font-weight:600;font-size:13.5px;margin-top:4px;text-transform:capitalize">${escHtml(status||f.fileStatus||'—')}</div>
+        </div>
+      </div>
+      <div style="padding:12px 14px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-light);margin-bottom:8px">Property</div>
+        <div style="font-size:13.5px">${escHtml(prop)}</div>
+        <div style="font-size:12px;color:var(--slate-light);margin-top:4px">${escHtml(pt)} &bull; ${escHtml(occ)}</div>
+      </div>
+      <div style="padding:12px 14px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--slate-light);margin-bottom:8px">Loan Officer</div>
+        <div style="font-size:13.5px;font-weight:500">${escHtml(lo)}</div>
+        ${loObj.nmls ? `<div style="font-size:11.5px;color:var(--slate-light);margin-top:2px">NMLS# ${escHtml(loObj.nmls)}</div>` : ''}
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="mcrCloseDetail();showPage('filedetail','${escHtml(fid)}')" style="width:100%;margin-top:4px">Open Full File &rarr;</button>
+    </div>
+  `;
+  panel.style.transform = 'translateX(0)';
+}
+
+function mcrCloseDetail() {
+  const panel = document.getElementById('mcrDetailPanel');
+  if (panel) panel.style.transform = 'translateX(100%)';
+}
+
+function mcrPrint() {
+  window.print();
 }
 
 function plMasterRender() {
