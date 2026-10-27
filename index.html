@@ -1366,6 +1366,10 @@ input[type=file]{display:none}
             <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
             <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
           </div>
+          <!-- FORMS TAB -->
+          <div class="tab-content" id="tab-forms">
+            <div id="formsTabBody"></div>
+          </div>
           <!-- PIPELINE INFO TAB -->
           <div class="tab-content" id="tab-plinfo">
             <div id="plInfoPanel"></div>
@@ -2698,6 +2702,7 @@ function switchTab(tab, btn) {
   if (tab === 'contacts') tpcInit();
   if (tab === 'preapproval') paInit();
   if (tab === 'plinfo') plInfoRender();
+  if (tab === 'forms') renderFormsTab();
 }
 
 //                                        
@@ -2869,6 +2874,7 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+         <button class="tab-btn" onclick="switchTab('forms',this)">📄 Forms</button>
          <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
@@ -2878,6 +2884,7 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
+         <button class="tab-btn" onclick="switchTab('forms',this)">📄 Forms</button>
          <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>`;
   }
   // Restore the correct active tab — if user was on worksheet/ratesheet/custom, keep them there
@@ -5479,6 +5486,143 @@ function paSetDownMode(mode) {
   l.downMode = mode; paSave(); paRenderCalcFields(); paRenderPreview();
 }
 
+
+// ─── FORMS FEATURE ───────────────────────────────────────────────────────────
+const FORMS_LIST = [
+  { id:'requestForTitle', name:'Request for Title', sub:'Title order · LendingPad Form 252', icon:'📄', render:renderRequestForTitle }
+];
+let activeFormId = null;
+let formsEdits = {};
+
+function formsInit() {
+  const f = cache.files.find(x => x.id === currentFileId);
+  if (!f) return;
+  const listEl = document.getElementById('formsListBody');
+  if (listEl) {
+    listEl.innerHTML = FORMS_LIST.map((form,i) => `
+      <div class="form-list-item${activeFormId === form.id ? ' active' : ''}" onclick="formsSelectForm('${form.id}')">
+        <span class="form-icon">${form.icon}</span>
+        <div class="form-info">
+          <div class="form-name">${form.name}</div>
+          <div class="form-sub">${form.sub}</div>
+        </div>
+        <span class="form-arrow">›</span>
+      </div>`).join('');
+  }
+  if (activeFormId) formsSelectForm(activeFormId);
+  else {
+    const preview = document.getElementById('formsPreviewArea');
+    if (preview) preview.innerHTML = '<div class="forms-empty">Select a form from the list to preview and print.</div>';
+  }
+}
+
+function formsSelectForm(id) {
+  activeFormId = id;
+  formsEdits = {};
+  formsInit();
+  const form = FORMS_LIST.find(x => x.id === id);
+  if (!form) return;
+  const f = cache.files.find(x => x.id === currentFileId);
+  const preview = document.getElementById('formsPreviewArea');
+  if (preview && form.render) {
+    preview.innerHTML = form.render(f);
+    formsEditFields(f);
+  }
+}
+
+function formsEditFields(f) {
+  document.querySelectorAll('[data-forms-field]').forEach(el => {
+    el.addEventListener('input', () => { formsEdits[el.dataset.formsField] = el.value; });
+    if (formsEdits[el.dataset.formsField] !== undefined) el.value = formsEdits[el.dataset.formsField];
+  });
+}
+
+function formsPrint() {
+  const form = FORMS_LIST.find(x => x.id === activeFormId);
+  if (!form) { toast('Select a form first', 'error'); return; }
+  const f = cache.files.find(x => x.id === currentFileId);
+  let html = form.render ? form.render(f) : '';
+  // Apply any manual edits
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  Object.entries(formsEdits).forEach(([k, v]) => {
+    const el = tmp.querySelector(`[data-forms-field="${k}"]`);
+    if (el) el.value = v;
+  });
+  const w = window.open('', '_blank');
+  if (w) {
+    const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${form.name}<\/title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:10pt;margin:0;padding:0;color:#000}
+  @media print{@page{size:letter;margin:0.5in}}
+  .form-print-wrap{max-width:8.5in;margin:0 auto;padding:0.5in}
+  input[type=text],textarea{border:none;border-bottom:1px solid #000;background:transparent;font-family:inherit;font-size:inherit;width:100%;box-sizing:border-box;outline:none}
+  .field-row{display:flex;gap:12px;margin-bottom:6px}
+  .field-group{flex:1}
+  .field-label{font-size:8pt;font-weight:bold;text-transform:uppercase;margin-bottom:2px;color:#333}
+</style></head><body>${tmp.innerHTML}<\/body><\/html>`;
+    w.document.open(); w.document.write(fullHtml); w.document.close();
+  } else toast('Allow pop-ups to print forms', 'error');
+}
+
+function renderRequestForTitle(f) {
+  if (!f) return '<div class="forms-empty">No file loaded.</div>';
+  const lo = paGetLetterLO(f);
+  const esc = v => (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const val = v => `value="${esc(v)}"`;
+  const lender = cache.lenders?.find(l => l.id === f.lenderId) || {};
+  const borrowers = (f.borrowers || [f.borrower]).filter(Boolean).join(' & ');
+  const propAddr = [f.propertyAddress, f.city, f.state, f.zip].filter(Boolean).join(', ');
+  const mailingAddr = f.mailingAddress || propAddr;
+  const loanAmt = f.loanAmount ? '$' + Number(f.loanAmount).toLocaleString() : '';
+  const today = new Date().toLocaleDateString('en-US');
+  const county = f.county || '';
+  const lenderCaseNum = f.lenderCaseNum || '';
+  const mortgageeClause = lender.mortgageeClause || '';
+
+  return `
+<div class="form-print-wrap">
+  <div style="text-align:center;margin-bottom:16px">
+    <div style="font-size:13pt;font-weight:bold">ZAPHIRE CAPITAL</div>
+    <div style="font-size:9pt">73 Weed Hill Ave, Stamford, CT 06907 · 914-509-8066 · www.zaphirecapital.com · NMLS# 2511614</div>
+    <div style="font-size:11pt;font-weight:bold;margin-top:8px;text-decoration:underline">REQUEST FOR TITLE</div>
+    <div style="font-size:8pt">LendingPad Form No. 252</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+    <span style="font-size:9pt"><b>Date:</b> ${today}</span>
+    <span style="font-size:9pt"><b>Loan Officer:</b> ${esc(lo.name||'')} &nbsp; NMLS# ${esc(lo.nmls||'')}</span>
+  </div>
+  <hr style="margin:8px 0">
+  <div style="font-weight:bold;margin-bottom:6px;font-size:10pt">BORROWER INFORMATION</div>
+  <div class="field-row">
+    <div class="field-group"><div class="field-label">Borrower(s)</div><input type="text" data-forms-field="borrowers" ${val(borrowers)}></div>
+    <div class="field-group" style="max-width:200px"><div class="field-label">Date</div><input type="text" data-forms-field="date" ${val(today)}></div>
+  </div>
+  <div class="field-row">
+    <div class="field-group"><div class="field-label">Mailing / Home Address</div><input type="text" data-forms-field="mailingAddr" ${val(mailingAddr)}></div>
+  </div>
+  <hr style="margin:8px 0">
+  <div style="font-weight:bold;margin-bottom:6px;font-size:10pt">SUBJECT PROPERTY</div>
+  <div class="field-row">
+    <div class="field-group"><div class="field-label">Property Address</div><input type="text" data-forms-field="propAddr" ${val(propAddr)}></div>
+    <div class="field-group" style="max-width:160px"><div class="field-label">County</div><input type="text" data-forms-field="county" ${val(county)}></div>
+  </div>
+  <div class="field-row">
+    <div class="field-group" style="max-width:160px"><div class="field-label">Loan Amount</div><input type="text" data-forms-field="loanAmt" ${val(loanAmt)}></div>
+    <div class="field-group" style="max-width:220px"><div class="field-label">Loan Type</div><input type="text" data-forms-field="loanType" ${val(f.loanType||'')}></div>
+    <div class="field-group" style="max-width:220px"><div class="field-label">Lender Case #</div><input type="text" data-forms-field="lenderCase" ${val(lenderCaseNum)}></div>
+  </div>
+  <hr style="margin:8px 0">
+  <div style="font-weight:bold;margin-bottom:6px;font-size:10pt">LENDER / MORTGAGEE</div>
+  <div class="field-row">
+    <div class="field-group"><div class="field-label">Lender Name</div><input type="text" data-forms-field="lenderName" ${val(lender.name||f.bank||'')}></div>
+  </div>
+  <div class="field-group" style="margin-bottom:6px"><div class="field-label">Mortgagee Clause</div><textarea data-forms-field="mortgageeClause" rows="3" style="border:1px solid #ccc;width:100%;box-sizing:border-box;font-family:inherit;font-size:inherit;padding:4px">${esc(mortgageeClause)}</textarea></div>
+  <hr style="margin:8px 0">
+  <div style="font-size:8pt;color:#555;margin-top:12px">Please process the title search and provide the commitment at your earliest convenience. Contact the loan officer above with any questions.</div>
+</div>`;
+}
+
 function paInit() {
   const letters = paGetLetters();
   if (paActiveId === null || !letters.find(l => l.id === paActiveId)) {
@@ -5648,6 +5792,11 @@ function paGetLetterLO(l) {
   if (name && los.length) { const m = los.find(o => o.name === name); if (m) return m; }
   if (los.length) return los[0];
   return cache.settings.loanOfficer || {};
+}
+
+function rsGetFileLO() {
+  const f = cache.files?.find(x => x.id === currentFileId);
+  return paGetLetterLO(f);
 }
 
 function paRenderPreview() {
@@ -8159,7 +8308,7 @@ function rsRenderPreviewTab(c) {
   const logoHtml = logoSrc
     ? `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6px">`
     : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:28px;font-weight:700;color:#c9a84c">Z</div>`;
-  const lo = cache.settings.loanOfficer || {};
+  const lo = rsGetFileLO();
   const oName = lo.name || (cache.settings.users?.[0]) || 'Zaphire Capital';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
   const oPhone = lo.phone || '';
@@ -8325,8 +8474,8 @@ function rsPrint() {
     ?`<img src="${logo}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6pt">`
     :'';
   const nmls=cache.settings?.nmls||'2511614';
-  // Officer info from loanOfficer settings
-  const lo=cache.settings.loanOfficer||{};
+  // Officer info: per-file LO (Pipeline Info) with global as fallback
+  const lo=rsGetFileLO();
   const oName=lo.name||(cache.settings.users?.[0])||'Zaphire Capital';
   const oNmls=lo.nmls||nmls;
   const oPhone=lo.phone||'';
@@ -10221,6 +10370,29 @@ const PL_GROUPS = [
 
 // Flat list of all pipeline field keys for quick lookup
 const PL_ALL_KEYS = PL_GROUPS.flatMap(g => g.fields.map(f => f.key));
+
+
+function renderFormsTab() {
+  const f = cache.files?.find(x => x.id === currentFileId);
+  const panel = document.getElementById('formsTabBody');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div style="display:flex;height:100%;min-height:520px">
+      <div style="width:260px;min-width:220px;border-right:1px solid var(--border);padding:16px 0;flex-shrink:0">
+        <div style="padding:0 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px">Available Forms</div>
+        <div id="formsListBody"></div>
+      </div>
+      <div style="flex:1;padding:20px;overflow:auto;background:var(--bg-main)">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;gap:8px">
+          <button class="btn btn-secondary" onclick="formsSelectForm(activeFormId)" style="font-size:12px;padding:5px 14px">↺ Refresh</button>
+          <button class="btn btn-primary" onclick="formsPrint()" style="font-size:12px;padding:5px 14px">🖨 Print / PDF</button>
+        </div>
+        <div id="formsPreviewArea" style="background:#fff;border:1px solid #ddd;border-radius:6px;min-height:400px;padding:8px;color:#000"></div>
+      </div>
+    </div>`;
+  activeFormId = null;
+  formsInit();
+}
 
 function plInfoRender() {
   const f = cache.files.find(x => x.id === currentFileId);
