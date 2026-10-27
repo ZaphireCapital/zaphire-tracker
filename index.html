@@ -2241,6 +2241,13 @@ input[type=file]{display:none}
         <div class="form-section-title">Loan Specialties</div>
         <div id="lnSpecGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
       </div>
+      <div class="form-section">
+        <div class="form-section-title">Mortgagee Clause</div>
+        <div class="form-group form-full">
+          <label class="form-label" for="ln_mortgagee">Mortgagee Clause (for title &amp; insurance forms)</label>
+          <textarea class="form-input" id="ln_mortgagee" rows="4" placeholder="e.g. United Wholesale Mortgage LLC&#10;Its Successors and/or Assigns&#10;P.O. Box 12345&#10;Pontiac, MI 48340" style="resize:vertical;font-family:inherit;font-size:inherit"></textarea>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('lenderModal')">Cancel</button>
@@ -5125,6 +5132,7 @@ function openLenderModal(lid) {
   document.getElementById('ln_type').value = l?.type||'';
   document.getElementById('ln_location').value = l?.location||'';
   document.getElementById('ln_active').checked = l ? l.active : true;
+  document.getElementById('ln_mortgagee').value = l?.mortgageeClause||'';
   const specs = getLenderSpecialties();
   const selectedSpecs = l?.specialties||[];
   document.getElementById('lnSpecGrid').innerHTML = specs.map(s=>`
@@ -5144,7 +5152,8 @@ async function saveLender() {
     type: document.getElementById('ln_type').value.trim(),
     location: document.getElementById('ln_location').value.trim(),
     active: document.getElementById('ln_active').checked,
-    specialties: checked
+    specialties: checked,
+    mortgageeClause: document.getElementById('ln_mortgagee').value.trim()
   };
   if (!cache.lenders) cache.lenders = [];
   if (editingLenderId) {
@@ -5587,14 +5596,16 @@ function renderRequestForTitle(f) {
   const lo = paGetLetterLO(f);
   const esc = v => (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const val = v => `value="${esc(v)}"`;
-  const lender = cache.lenders?.find(l => l.id === f.lenderId) || {};
-  const borrowers = (f.borrowers || [f.borrower]).filter(Boolean).join(' & ');
-  const propAddr = [f.propertyAddress, f.city, f.state, f.zip].filter(Boolean).join(', ');
-  const mailingAddr = f.mailingAddress || propAddr;
-  const loanAmt = f.loanAmount ? '$' + Number(f.loanAmount).toLocaleString() : '';
+  // Match lender by name (f.bank holds the lender display name)
+  const lender = (cache.lenders||[]).find(l => l.name === f.bank) || {};
+  const borrowers = [f.b1, f.b2].filter(Boolean).join(' & ');
+  const propAddr = f.prop || '';
+  const mailingAddr = propAddr;
+  const loanAmt = f.la ? '$' + Number(f.la).toLocaleString() : '';
   const today = new Date().toLocaleDateString('en-US');
   const county = f.county || '';
-  const lenderCaseNum = f.lenderCaseNum || '';
+  // Lender case # comes from Pipeline Info (pl_loanNum key)
+  const lenderCaseNum = (f.pipeline||{}).pl_loanNum || '';
   const mortgageeClause = lender.mortgageeClause || '';
 
   return `
