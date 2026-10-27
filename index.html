@@ -1208,6 +1208,20 @@ input[type=file]{display:none}
   .cond-linked-docs{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
   .cond-linked-doc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-pale);color:#7b5c12;border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 9px;font-size:11px;cursor:pointer}
   .cond-linked-doc-badge:hover{background:#f0e5c4}
+
+  /* ── Forms Tab ── */
+  .form-list-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
+  .form-list-item:hover{background:var(--bg-hover, rgba(0,0,0,.04))}
+  .form-list-item.active{background:var(--gold-light, #fdf6e3);border-left:3px solid var(--gold,#c9a84c)}
+  .form-icon{font-size:20px;flex-shrink:0}
+  .form-info{flex:1;min-width:0}
+  .form-name{font-weight:600;font-size:13px;color:var(--text)}
+  .form-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+  .form-arrow{color:var(--text-muted);font-size:16px;flex-shrink:0}
+  .forms-empty{padding:40px;text-align:center;color:var(--text-muted);font-size:14px}
+  #formsPreviewArea input[type=text]{border:none;border-bottom:1px solid #999;background:transparent;font-family:inherit;font-size:inherit;width:100%;box-sizing:border-box;outline:none;padding:1px 2px}
+  #formsPreviewArea textarea{border:1px solid #ccc;background:transparent;font-family:inherit;font-size:inherit;width:100%;box-sizing:border-box;outline:none;padding:4px;resize:vertical}
+
 </style>
 </head>
 <body>
@@ -5500,7 +5514,7 @@ function formsInit() {
   const listEl = document.getElementById('formsListBody');
   if (listEl) {
     listEl.innerHTML = FORMS_LIST.map((form,i) => `
-      <div class="form-list-item${activeFormId === form.id ? ' active' : ''}" onclick="formsSelectForm('${form.id}')">
+      <div class="form-list-item${activeFormId === form.id ? ' active' : ''}" data-form-id="${form.id}" onclick="formsSelectForm('${form.id}')">
         <span class="form-icon">${form.icon}</span>
         <div class="form-info">
           <div class="form-name">${form.name}</div>
@@ -5519,7 +5533,10 @@ function formsInit() {
 function formsSelectForm(id) {
   activeFormId = id;
   formsEdits = {};
-  formsInit();
+  // Update active state on list items
+  document.querySelectorAll('.form-list-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.formId === id);
+  });
   const form = FORMS_LIST.find(x => x.id === id);
   if (!form) return;
   const f = cache.files.find(x => x.id === currentFileId);
