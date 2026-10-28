@@ -5816,7 +5816,8 @@ function paResetBody() {
 
 function paGetLetterLO(l) {
   const los = (cache.settings.loanOfficers || []).filter(o => o.name);
-  const name = l && l.loName;
+  // Check loName (pre-approval letter field) OR pl_lo (Pipeline Info field)
+  const name = (l && l.loName) || (l && l.pipeline && l.pipeline.pl_lo) || '';
   if (name && los.length) { const m = los.find(o => o.name === name); if (m) return m; }
   if (los.length) return los[0];
   return cache.settings.loanOfficer || {};
