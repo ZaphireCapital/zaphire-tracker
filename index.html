@@ -8164,9 +8164,17 @@ function rsRenderScenariosTab(c) {
   function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt(sc){
     if(c.loanType==='heloc'){
-      // For HELOC: cash received = loan amount minus payoff (if any) minus closing costs
-      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
-      return -(calcLoan(sc)) + payoff; // negate because HELOC gives cash
+      // HELOC cash received = loan amount (borrower receives funds)
+      // For a 1st-lien HELOC that replaces an existing mortgage, subtract the balance being paid off
+      // For a 2nd-lien HELOC, the 1st mortgage is NOT paid from HELOC proceeds — ignore curBalance
+      if(c.mortgageOrder==='first'){
+        // Replacing existing mortgage: net cash = loanAmt - existingPayoff
+        const payoff = c.helocPayoff ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+        return -(calcLoan(sc)) + payoff;
+      }
+      // 2nd lien (or no position set): borrower simply receives loanAmount
+      // closingCosts and debtPayoffs are subtracted in cashToClose()
+      return -(calcLoan(sc));
     }
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
     return (c.curBalance||0)-calcLoan(sc);
