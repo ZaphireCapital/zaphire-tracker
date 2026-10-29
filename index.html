@@ -8325,8 +8325,13 @@ function rsRenderPreviewTab(c) {
   function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt2(sc){
     if(c.loanType==='heloc'){
-      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
-      return -(calcLoan(sc)) + payoff;
+      // 1st-lien HELOC replaces existing mortgage — subtract balance being paid off
+      if(c.mortgageOrder==='first'){
+        const payoff = c.helocPayoff ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+        return -(calcLoan(sc)) + payoff;
+      }
+      // 2nd-lien HELOC: borrower receives loan amount; closingCosts/debts deducted in cash2close()
+      return -(calcLoan(sc));
     }
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
     return (c.curBalance||0)-calcLoan(sc);
