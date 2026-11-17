@@ -5512,7 +5512,8 @@ function paSetDownMode(mode) {
 
 // ─── FORMS FEATURE ───────────────────────────────────────────────────────────
 const FORMS_LIST = [
-  { id:'requestForTitle', name:'Request for Title', sub:'Title order · LendingPad Form 252', icon:'📄', render:renderRequestForTitle }
+  { id:'requestForTitle', name:'Request for Title', sub:'Title order · LendingPad Form 252', icon:'📄', render:renderRequestForTitle },
+  { id:'brokerInvoice', name:'Broker Invoice & Wire Instructions', sub:'Mortgage broker compensation · Wire transfer details', icon:'🧾', render:renderBrokerInvoice }
 ];
 let activeFormId = null;
 let formsEdits = {};
@@ -5648,6 +5649,198 @@ function renderRequestForTitle(f) {
   <div class="field-group" style="margin-bottom:6px"><div class="field-label">Mortgagee Clause</div><textarea data-forms-field="mortgageeClause" rows="3" style="border:1px solid #ccc;width:100%;box-sizing:border-box;font-family:inherit;font-size:inherit;padding:4px">${esc(mortgageeClause)}</textarea></div>
   <hr style="margin:8px 0">
   <div style="font-size:8pt;color:#555;margin-top:12px">Please process the title search and provide the commitment at your earliest convenience. Contact the loan officer above with any questions.</div>
+</div>`;
+}
+
+function renderBrokerInvoice(f) {
+  if (!f) return '<div class="forms-empty">No file loaded.</div>';
+  const esc = v => (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const val = v => `value="${esc(v)}"`;
+  const pip = f.pipeline || {};
+
+  // Auto-filled fields from file data
+  const borrower   = [f.b1, f.b2].filter(Boolean).join(' & ');
+  const propAddr   = f.prop || '';
+  const lender     = f.bank || '';
+  const loanAmt    = f.la   ? '$' + Number(f.la).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+  const lenderLoan = pip.pl_lenderLoanNum || pip.pl_loanNum || '';
+  const closeDate  = pip.pl_closeDate || new Date().toLocaleDateString('en-US');
+  const closingAttyCompany = pip.pl_closingAtty || '';
+  const closingAttyPerson  = pip.pl_closingAttyPerson || '';
+
+  // Invoice number: use lender loan# or internal loan#, fallback to date-based
+  const invoiceNum = lenderLoan ? 'ZC-' + lenderLoan : 'ZC-' + Date.now().toString().slice(-10);
+  const today = new Date().toLocaleDateString('en-US');
+
+  // Broker fee from Pipeline Info (pl_brokerFeeAmt stores dollar amount)
+  const brokerFeeAmt = pip.pl_brokerFeeAmt ? '$' + Number(pip.pl_brokerFeeAmt).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+  const lenderPaid   = pip.pl_lenderPaid || 'Lender Paid';
+
+  return `
+<div class="form-print-wrap" style="font-size:10pt;line-height:1.5">
+
+  <!-- HEADER -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+    <tr>
+      <td style="width:50%;vertical-align:top">
+        <div style="font-size:15pt;font-weight:900;letter-spacing:.03em;color:#1a3155">ZAPHIRE CAPITAL</div>
+        <div style="font-size:8pt;color:#555;margin-top:2px">73 Weed Hill Avenue, Stamford, CT 06907</div>
+        <div style="font-size:8pt;color:#555">Phone: 914-509-8066 &nbsp;|&nbsp; Fax: 914-509-8126 &nbsp;|&nbsp; NMLS# 2511614</div>
+        <div style="font-size:8pt;color:#555">www.zaphirecapital.com</div>
+      </td>
+      <td style="width:50%;text-align:right;vertical-align:top">
+        <div style="font-size:14pt;font-weight:bold;color:#1a3155">INVOICE</div>
+        <div style="font-size:9pt;font-weight:600">Mortgage Broker Compensation</div>
+        <div style="font-size:8.5pt;margin-top:6px"><b>Invoice #:</b> <input type="text" data-forms-field="invoiceNum" ${val(invoiceNum)} style="border:none;border-bottom:1px solid #999;width:160px;font-weight:600"></div>
+        <div style="font-size:8.5pt"><b>Invoice Date:</b> <input type="text" data-forms-field="invoiceDate" ${val(today)} style="border:none;border-bottom:1px solid #999;width:100px"></div>
+        <div style="font-size:8.5pt"><b>Due:</b> At closing / disbursement</div>
+      </td>
+    </tr>
+  </table>
+
+  <hr style="border:none;border-top:2px solid #1a3155;margin:0 0 10px 0">
+
+  <!-- BILL TO + LOAN DETAILS -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;border:1px solid #ddd">
+    <tr>
+      <td style="width:50%;padding:10px;vertical-align:top;border-right:1px solid #ddd">
+        <div style="font-size:8.5pt;font-weight:700;text-transform:uppercase;color:#555;margin-bottom:4px">Bill To (Closing Agent)</div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Company / Attorney</div>
+          <input type="text" data-forms-field="closingAttyCompany" ${val(closingAttyCompany)} style="width:100%">
+        </div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Contact Person</div>
+          <input type="text" data-forms-field="closingAttyPerson" ${val(closingAttyPerson)} style="width:100%">
+        </div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Address</div>
+          <input type="text" data-forms-field="closingAttyAddr" value="" style="width:100%">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Phone / Email</div>
+          <input type="text" data-forms-field="closingAttyContact" value="" style="width:100%">
+        </div>
+      </td>
+      <td style="width:50%;padding:10px;vertical-align:top">
+        <div style="font-size:8.5pt;font-weight:700;text-transform:uppercase;color:#555;margin-bottom:4px">Loan Details</div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Borrower(s)</div>
+          <input type="text" data-forms-field="borrower" ${val(borrower)} style="width:100%">
+        </div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Property Address</div>
+          <input type="text" data-forms-field="propAddr" ${val(propAddr)} style="width:100%">
+        </div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Lender</div>
+          <input type="text" data-forms-field="lender" ${val(lender)} style="width:100%">
+        </div>
+        <div class="field-group" style="margin-bottom:4px">
+          <div class="field-label">Lender Loan #</div>
+          <input type="text" data-forms-field="lenderLoan" ${val(lenderLoan)} style="width:100%">
+        </div>
+        <div style="display:flex;gap:10px">
+          <div class="field-group" style="flex:1;margin-bottom:4px">
+            <div class="field-label">Loan Amount</div>
+            <input type="text" data-forms-field="loanAmt" ${val(loanAmt)} style="width:100%">
+          </div>
+          <div class="field-group" style="flex:1;margin-bottom:4px">
+            <div class="field-label">Closing / Disbursement Date</div>
+            <input type="text" data-forms-field="closeDate" ${val(closeDate)} style="width:100%">
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- COMPENSATION TABLE -->
+  <div style="font-weight:700;font-size:10pt;color:#1a3155;margin-bottom:6px">Compensation</div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9pt">
+    <thead>
+      <tr style="background:#1a3155;color:#fff">
+        <th style="padding:7px 10px;text-align:left;font-weight:600">Description</th>
+        <th style="padding:7px 10px;text-align:right;font-weight:600;width:130px">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #eee">
+        <td style="padding:8px 10px">
+          <div style="font-weight:600">Broker Compensation – Origination Fee (<input type="text" data-forms-field="compType" ${val(lenderPaid)} style="border:none;border-bottom:1px solid #999;width:120px;font-weight:600">)</div>
+          <div style="font-size:8pt;color:#666;margin-top:2px"><input type="text" data-forms-field="compDesc" value="Closing Disclosure Section A.02 – Origination Fee to Zaphire Capital" style="border:none;border-bottom:1px solid #ccc;width:100%;font-size:8pt;color:#666"></div>
+        </td>
+        <td style="padding:8px 10px;text-align:right;white-space:nowrap">
+          <input type="text" data-forms-field="originationFee" ${val(brokerFeeAmt)} style="border:none;border-bottom:1px solid #999;width:100px;text-align:right;font-weight:600">
+        </td>
+      </tr>
+      <tr style="border-bottom:1px solid #eee">
+        <td style="padding:8px 10px">
+          <div>Broker Reimbursed Fees</div>
+          <div style="font-size:8pt;color:#666"><input type="text" data-forms-field="reimburseDesc" value="Per lender funding wire breakdown" style="border:none;border-bottom:1px solid #ccc;width:100%;font-size:8pt;color:#666"></div>
+        </td>
+        <td style="padding:8px 10px;text-align:right">
+          <input type="text" data-forms-field="reimburseAmt" value="" style="border:none;border-bottom:1px solid #999;width:100px;text-align:right">
+        </td>
+      </tr>
+      <tr style="border-bottom:1px solid #eee">
+        <td style="padding:8px 10px">
+          <div>Less: Tolerance Cure / Lender Credit</div>
+          <div style="font-size:8pt;color:#666"><input type="text" data-forms-field="cureDesc" value="Closing Disclosure Section J – lender credit (if applicable)" style="border:none;border-bottom:1px solid #ccc;width:100%;font-size:8pt;color:#666"></div>
+        </td>
+        <td style="padding:8px 10px;text-align:right">
+          <input type="text" data-forms-field="cureAmt" value="" style="border:none;border-bottom:1px solid #999;width:100px;text-align:right">
+        </td>
+      </tr>
+      <tr style="background:#f0f4f8">
+        <td style="padding:9px 10px;font-weight:700;font-size:10pt">TOTAL DUE TO ZAPHIRE CAPITAL</td>
+        <td style="padding:9px 10px;text-align:right">
+          <input type="text" data-forms-field="totalDue" value="" style="border:none;border-bottom:2px solid #1a3155;width:110px;text-align:right;font-weight:700;font-size:10pt">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- WIRE INSTRUCTIONS -->
+  <div style="font-weight:700;font-size:10pt;color:#1a3155;margin-bottom:6px">Wire Instructions</div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9pt;border:1px solid #ddd">
+    <tbody>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;width:40%;font-weight:600;background:#f8f9fa">Bank Name</td><td style="padding:6px 10px;font-weight:700">M&amp;T Bank</td></tr>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Routing Number (ABA)</td><td style="padding:6px 10px;font-weight:700;letter-spacing:.05em">022000046</td></tr>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Account Number</td><td style="padding:6px 10px;font-weight:700;letter-spacing:.05em">9886806000</td></tr>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Beneficiary Name</td><td style="padding:6px 10px">Team Zaphire Incorporated DBA Zaphire Capital</td></tr>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Beneficiary Address</td><td style="padding:6px 10px">73 Weed Hill Avenue, Stamford, CT 06907</td></tr>
+      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">EIN</td><td style="padding:6px 10px">92-3434938</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Reference / Memo</td><td style="padding:6px 10px">
+        <input type="text" data-forms-field="wireRef" ${val(borrower ? borrower.split(' ')[borrower.split(' ').length-1] + (lenderLoan ? ' – ' + lender + ' Loan #' + lenderLoan : '') : '')} style="border:none;border-bottom:1px solid #999;width:100%">
+      </td></tr>
+    </tbody>
+  </table>
+
+  <!-- WIRE FRAUD WARNING -->
+  <div style="border:1.5px solid #c0392b;border-radius:4px;padding:8px 12px;background:#fff8f8;margin-bottom:14px;font-size:8.5pt">
+    <span style="font-weight:700;color:#c0392b">⚠ WIRE FRAUD WARNING</span> &nbsp;Before sending funds, confirm these wire instructions by phone with Zaphire Capital at a known number <strong>(914-509-8066)</strong>. Zaphire Capital does not change wire instructions by email.
+  </div>
+
+  <!-- SIGNATURE BLOCK -->
+  <div style="font-size:8.5pt;margin-bottom:6px">Thank you,</div>
+  <table style="width:100%;border-collapse:collapse;font-size:8.5pt">
+    <tr>
+      <td style="width:50%;padding:6px 12px 6px 0;vertical-align:top">
+        <div style="font-weight:700">Deric Zaphire</div>
+        <div>President &nbsp;|&nbsp; NMLS# 124512</div>
+        <div>917-796-5022 &nbsp;|&nbsp; deric@zaphirecapital.com</div>
+      </td>
+      <td style="width:50%;padding:6px 0 6px 12px;vertical-align:top;border-left:1px solid #eee">
+        <div style="font-weight:700">Jules Zaphire</div>
+        <div>Vice President &nbsp;|&nbsp; NMLS# 309656</div>
+        <div>914-715-1988 &nbsp;|&nbsp; jules@zaphirecapital.com</div>
+      </td>
+    </tr>
+  </table>
+  <div style="margin-top:10px;font-size:7.5pt;color:#888;border-top:1px solid #eee;padding-top:6px">
+    Registered Mortgage Broker – NYS Department of Financial Services &nbsp;|&nbsp; Licensed by the Connecticut Department of Banking
+  </div>
+
 </div>`;
 }
 
@@ -5836,6 +6029,8 @@ function paRenderPreview() {
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
+  const oPhone = lo.phone || '';
+  const oEmail = lo.email || '';
   const co = cache.settings || {};
   const nmls = co.nmls || '2511614';
   const ZC_LOGO = ZC_LOGO_B64;
@@ -5852,7 +6047,8 @@ function paRenderPreview() {
     + '<div class="pa-lb-side">'
     +   '<div class="pa-lb-logo-wrap"><img class="pa-lb-logo" src="'+ZC_LOGO+'" alt="Zaphire Capital"><\/div>'
     +   '<div class="pa-lb-div"><\/div>'
-    +   '<div class="pa-lb-contact"><strong>Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<br>914-509-8066<\/div>'
+    +   '<div class="pa-lb-contact"><strong>Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<\/div>'
+    +   (oPhone||oEmail ? '<div class="pa-lb-div"><\/div><div class="pa-lb-contact">'+(oPhone?esc(oPhone):'')+(oPhone&&oEmail?'<br>':'')+(oEmail?esc(oEmail):'')+'<\/div>' : '')
     +   '<div class="pa-lb-spacer"><\/div>'
     +   '<div class="pa-lb-nmls">NMLS&nbsp;'+esc(nmls)+'<\/div>'
     + '<\/div>'
@@ -6018,6 +6214,8 @@ function paPrintWithLogo(l, ZC_LOGO) {
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
+  const oPhone = lo.phone || '';
+  const oEmail = lo.email || '';
   const co = cache.settings || {};
   const nmls = co.nmls || '2511614';
   const names = [l.b1, l.b2].filter(Boolean).map(esc).join(' & ');
@@ -6049,7 +6247,8 @@ function paPrintWithLogo(l, ZC_LOGO) {
     + '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;width:100pt;min-width:100pt;background:#0d1728 !important;display:flex;flex-direction:column;align-items:center;padding:24pt 10pt 16pt;flex-shrink:0">'
     +   '<div style="width:72pt;margin-bottom:18pt">'+logoImg+'<\/div>'
     +   '<div style="width:28pt;height:1pt;background:rgba(255,255,255,.15);margin-bottom:14pt"><\/div>'
-    +   '<div style="font-size:7pt;color:rgba(255,255,255,.45);line-height:1.8;text-align:center;letter-spacing:.02em"><strong style="color:rgba(255,255,255,.75);font-weight:600;display:block">Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<br>914-509-8066<\/div>'
+    +   '<div style="font-size:7pt;color:rgba(255,255,255,.45);line-height:1.8;text-align:center;letter-spacing:.02em"><strong style="color:rgba(255,255,255,.75);font-weight:600;display:block">Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<\/div>'
+    +   (oPhone||oEmail ? '<div style="width:28pt;height:1pt;background:rgba(255,255,255,.12);margin:8pt auto 8pt"><\/div><div style="font-size:7pt;color:rgba(255,255,255,.45);line-height:1.8;text-align:center;letter-spacing:.02em">'+(oPhone?esc(oPhone):'')+(oPhone&&oEmail?'<br>':'')+(oEmail?'<span style=\\"word-break:break-all\\">'+esc(oEmail)+'<\/span>':'')+'<\/div>' : '')
     +   '<div style="flex:1"><\/div>'
     +   '<div style="font-size:5.5pt;color:rgba(255,255,255,.2);letter-spacing:.06em;text-transform:uppercase;text-align:center">NMLS '+esc(nmls)+'<\/div>'
     + '<\/div>'
