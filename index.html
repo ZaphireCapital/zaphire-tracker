@@ -2354,6 +2354,7 @@ input[type=file]{display:none}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 //                                        
 //  KV API   talks to the Worker backend
@@ -2381,55 +2382,94 @@ async function sbGet(key) {
   } catch(e) { return null; }
 }
 
+// ── Bandwidth-efficient sync (Nov 2026) ─────────────────────────────
+// Before: every 20s the app downloaded ALL data, and every save uploaded ALL data.
+// Now:   1) a tiny "what changed?" check (timestamps only),
+//        2) only the sections that actually changed are downloaded/uploaded,
+//        3) other open tabs are told instantly via Supabase Realtime,
+//        4) hidden/background tabs stop checking until you come back.
+const SYNC_KEYS = ['files','conditions','settings','customFields','trash','dates','lenders','contactDir','docs','clients'];
+const _sbSeen = {};      // key -> normalized updated_at we last downloaded or wrote
+const _sbSentJson = {};  // key -> JSON of the value the cloud currently holds (as far as we know)
+let _sbLoadedOnce = false;
+let _cloudChanged = false;
+
+function _normTs(t) { const n = Date.parse(t); return isNaN(n) ? String(t) : String(n); }
+
+function _cloudValueFor(key) {
+  switch (key) {
+    case 'dates': return cache.dates || [];
+    case 'lenders': return cache.lenders || [];
+    case 'contactDir': return cache.contactDir || [];
+    case 'docs': return cache.docs || {};
+    case 'clients': return cache.clients || [];
+    default: return cache[key];
+  }
+}
+
+function _applyCloudKey(key, value) {
+  if (!value) return;
+  if (key === 'settings') {
+    cache.settings = { ...DEFAULTS, ...value, requiredBy: (value.requiredBy && value.requiredBy.length) ? value.requiredBy : DEFAULTS.requiredBy };
+    if (cache.settings.conditionTypes) cache.settings.conditionTypes = [...cache.settings.conditionTypes].sort();
+  } else {
+    cache[key] = value;
+  }
+}
+
 async function sbSet(key, value) {
   try {
-    await fetch(SB_URL + '/rest/v1/zc_data', {
+    const ts = new Date().toISOString();
+    const json = JSON.stringify(value);
+    const r = await fetch(SB_URL + '/rest/v1/zc_data?select=key,updated_at', {
       method: 'POST',
-      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+      body: JSON.stringify({ key, value, updated_at: ts })
     });
-  } catch(e) { console.warn('sbSet failed:', e); }
+    if (!r.ok) { console.warn('sbSet failed:', key, r.status); return false; }
+    let stamp = ts;
+    try { const rows = await r.json(); if (rows && rows[0] && rows[0].updated_at) stamp = rows[0].updated_at; } catch(e) {}
+    _sbSeen[key] = _normTs(stamp);   // don't re-download our own save
+    _sbSentJson[key] = json;
+    return true;
+  } catch(e) { console.warn('sbSet failed:', e); return false; }
 }
 
 async function syncFromCloud() {
+  _cloudChanged = false;
   try {
-    setSync('syncing');
-    const [files, conditions, settings, customFields] = await Promise.all([
-      sbGet('files'),
-      sbGet('conditions'),
-      sbGet('settings'),
-      sbGet('customFields')
-    ]);
-    if (files) cache.files = files;
-    if (conditions) cache.conditions = conditions;
-    if (settings) {
-      cache.settings = { ...DEFAULTS, ...settings, requiredBy: (settings.requiredBy && settings.requiredBy.length) ? settings.requiredBy : DEFAULTS.requiredBy };
-      if (cache.settings.conditionTypes) cache.settings.conditionTypes = [...cache.settings.conditionTypes].sort();
+    // 1) Tiny request: just the last-changed time of each section
+    const r = await fetch(SB_URL + '/rest/v1/zc_data?select=key,updated_at&key=in.(' + SYNC_KEYS.join(',') + ')', { headers: SB_HEADERS });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const stamps = await r.json();
+    const keys = stamps.filter(x => _normTs(x.updated_at) !== _sbSeen[x.key]).map(x => x.key);
+    if (keys.length) {
+      // 2) Download only the sections that changed
+      setSync('syncing');
+      const r2 = await fetch(SB_URL + '/rest/v1/zc_data?select=key,value,updated_at&key=in.(' + keys.join(',') + ')', { headers: SB_HEADERS });
+      if (!r2.ok) throw new Error('HTTP ' + r2.status);
+      const rows = await r2.json();
+      for (const row of rows) {
+        _applyCloudKey(row.key, row.value);
+        _sbSeen[row.key] = _normTs(row.updated_at);
+        _sbSentJson[row.key] = JSON.stringify(row.value);
+      }
+      if (rows.length) _cloudChanged = true;
+      lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     }
-    if (customFields) cache.customFields = customFields;
-    const trash = await sbGet('trash');
-    if (trash) cache.trash = trash;
-    const dates = await sbGet('dates');
-    if (dates) cache.dates = dates;
-    const lenders = await sbGet('lenders');
-    if (lenders) cache.lenders = lenders;
-    const contactDir = await sbGet('contactDir');
-    if (contactDir) cache.contactDir = contactDir;
-    const docs = await sbGet('docs');
-    if (docs) cache.docs = docs;
-    const clients = await sbGet('clients');
-    if (clients) cache.clients = clients;
-    lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
+    _sbLoadedOnce = true;
     setSync('ok');
     return true;
   } catch(e) {
     console.warn('Cloud sync failed, using local:', e);
-    const local = lsGet('cloud_cache');
-    if (local) {
-      if (local.files) cache.files = local.files;
-      if (local.conditions) cache.conditions = local.conditions;
-      if (local.settings) cache.settings = { ...DEFAULTS, ...local.settings };
-      if (local.customFields) cache.customFields = local.customFields;
+    if (!_sbLoadedOnce) {
+      const local = lsGet('cloud_cache');
+      if (local) {
+        if (local.files) cache.files = local.files;
+        if (local.conditions) cache.conditions = local.conditions;
+        if (local.settings) cache.settings = { ...DEFAULTS, ...local.settings };
+        if (local.customFields) cache.customFields = local.customFields;
+      }
     }
     setSync('error');
     return false;
@@ -2444,21 +2484,19 @@ async function syncToCloud() {
     cache.trash = (cache.trash||[]).filter(f => {
       return (new Date() - new Date(f.deletedAt)) < thirtyDays;
     });
-    await Promise.all([
-      sbSet('files', cache.files),
-      sbSet('conditions', cache.conditions),
-      sbSet('settings', cache.settings),
-      sbSet('customFields', cache.customFields),
-      sbSet('trash', cache.trash),
-      sbSet('dates', cache.dates || []),
-      sbSet('lenders', cache.lenders || []),
-      sbSet('contactDir', cache.contactDir || []),
-      sbSet('docs', cache.docs || {}),
-      sbSet('clients', cache.clients || [])
-      // preapprovals stored per-file inside cache.files — no separate key needed
-    ]);
+    // Upload only the sections that actually changed
+    // (preapprovals stored per-file inside cache.files — no separate key needed)
+    const dirty = SYNC_KEYS.filter(k => JSON.stringify(_cloudValueFor(k)) !== _sbSentJson[k]);
+    const results = await Promise.all(dirty.map(k => sbSet(k, _cloudValueFor(k))));
+    const saved = dirty.filter((k, i) => results[i]);
+    if (saved.length) rtAnnounce(saved);   // tell other open tabs right away
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
-    setSync('ok');
+    if (results.some(ok => !ok)) {
+      setSync('error');
+      toast('Saved locally - will sync when online', 'info');
+    } else {
+      setSync('ok');
+    }
   } catch(e) {
     console.warn('Cloud save failed:', e);
     setSync('error');
@@ -2637,23 +2675,87 @@ function setTyping(isTyping) {
   }
 }
 
+// ── Live updates + backup checking ─────────────────────────────
+const POLL_MS = 10000;           // backup check every 10s if live updates are down
+const POLL_MS_WHEN_LIVE = 60000; // light safety-net check while live updates are working
+let _rtChannel = null;
+let _rtLive = false;
+let _refreshPending = false;
+let _pollBusy = false;
+let _lastCheck = 0;
+let _rtDebounce = null;
+
+function startRealtime() {
+  try {
+    if (!window.supabase || !window.supabase.createClient) { console.warn('Realtime library not loaded — using 10s checks'); return; }
+    const client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+    _rtChannel = client.channel('zc-sync', { config: { broadcast: { self: false } } });
+    _rtChannel
+      .on('broadcast', { event: 'changed' }, () => {
+        _refreshPending = true;
+        clearTimeout(_rtDebounce);
+        _rtDebounce = setTimeout(pollOnce, 300);   // group rapid saves together
+      })
+      .subscribe(status => {
+        const wasLive = _rtLive;
+        _rtLive = (status === 'SUBSCRIBED');
+        if (_rtLive && !wasLive) { _refreshPending = true; pollOnce(); } // catch up after (re)connecting
+      });
+  } catch(e) {
+    console.warn('Realtime unavailable — using 10s checks:', e);
+    _rtLive = false;
+  }
+}
+
+function rtAnnounce(keys) {
+  try {
+    if (_rtChannel && _rtLive) {
+      const p = _rtChannel.send({ type: 'broadcast', event: 'changed', payload: { keys, by: currentUser } });
+      if (p && p.catch) p.catch(() => {});
+    }
+  } catch(e) {}
+}
+
+function _userIsBusyTyping() {
+  if (userIsTyping) return true;
+  const activeNotes = document.querySelectorAll('.note-add-inline.open textarea');
+  for (const ta of activeNotes) { if (ta.value.trim().length > 0) return true; }
+  return false;
+}
+
+async function pollOnce() {
+  if (_pollBusy) return;
+  // Hidden tab: don't download anything; catch up when it's visible again
+  if (document.hidden) { _refreshPending = true; return; }
+  // Never interrupt the user while they are typing a note
+  if (_userIsBusyTyping()) { _refreshPending = true; return; }
+  _pollBusy = true;
+  _refreshPending = false;
+  _lastCheck = Date.now();
+  try {
+    await syncFromCloud();
+    if (_cloudChanged) {
+      const page = document.querySelector('.page.active')?.id;
+      if (page === 'page-dashboard') renderDashboard();
+      else if (page === 'page-files') renderFiles();
+      else if (page === 'page-filedetail') renderFileDetail();
+      updateStats();
+    }
+  } finally {
+    _pollBusy = false;
+  }
+}
+
 function startPolling() {
   if (syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(async () => {
-    // Never interrupt the user while they are typing a note
-    if (userIsTyping) return;
-    // Also check if any note textarea has content being typed
-    const activeNotes = document.querySelectorAll('.note-add-inline.open textarea');
-    for (const ta of activeNotes) {
-      if (ta.value.trim().length > 0) return;
-    }
-    await syncFromCloud();
-    const page = document.querySelector('.page.active')?.id;
-    if (page === 'page-dashboard') renderDashboard();
-    else if (page === 'page-files') renderFiles();
-    else if (page === 'page-filedetail') renderFileDetail();
-    updateStats();
-  }, 20000);
+  startRealtime();
+  syncTimer = setInterval(() => {
+    const interval = _rtLive ? POLL_MS_WHEN_LIVE : POLL_MS;
+    if (_refreshPending || Date.now() - _lastCheck >= interval) pollOnce();
+  }, 2000);  // cheap local timer; only touches the network when a check is due
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pollOnce();   // back on the tab → refresh right away
+  });
 }
 
 //                                        
