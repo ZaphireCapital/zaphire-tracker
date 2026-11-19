@@ -8009,7 +8009,7 @@ function rsRenderScenariosTab(c) {
   function dpAmt(sc){
     if(c.loanType==='heloc'){
       // For HELOC: cash received = loan amount minus payoff (if any) minus closing costs
-      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+      const payoff = (c.mortgageOrder==='second') ? (c.helocPayoff ? (c.helocPayoffAmt||0) : 0) : (c.curBalance||0);
       return -(calcLoan(sc)) + payoff; // negate because HELOC gives cash
     }
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
@@ -8161,7 +8161,7 @@ function rsRenderPreviewTab(c) {
   function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt2(sc){
     if(c.loanType==='heloc'){
-      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+      const payoff = (c.mortgageOrder==='second') ? (c.helocPayoff ? (c.helocPayoffAmt||0) : 0) : (c.curBalance||0);
       return -(calcLoan(sc)) + payoff;
     }
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
@@ -8263,7 +8263,7 @@ function rsRenderPreviewTab(c) {
         })()}
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-ws-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-ws-cc">—</td>':''}${s.slice(0,n).map(()=>`<td style="color:#27ae60">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${(c.debtPayoffs||[]).map(it=>`<tr class="rs-ws-pre"><td>↑ ${esc(it.label||'Debt Payoff')}</td>${showCur?'<td class="rs-ws-cc">—</td>':''}${s.slice(0,n).map(()=>`<td style="color:#1e5fa8">+${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
-        ${wr(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.slice(0,n).map(sc=>{const v=cash2close(sc);return`<strong style="color:${v<=0?'#27ae60':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-ws-cash',false)}
+        ${wr(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.slice(0,n).map(sc=>{const v=cash2close(sc);const disp=v<0?'+'+rsFmt(-v):rsFmt(v);return`<strong style="color:${v<=0?'#27ae60':'#1e5fa8'}">${disp}</strong>`}),'rs-ws-cash',false)}
       </tbody>
     </table>
     ${(()=>{
