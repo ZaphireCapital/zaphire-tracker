@@ -7550,6 +7550,7 @@ function openDocsDrawer() {
 //  RATE SHEET (MortgageDesk engine — per-file)
 // ═══════════════════════════════════════════════
 let rsActiveIdx = null;
+let _rsActiveSubTab = 'rsSetup'; // tracks active rate sheet sub-tab
 
 // ── Helpers ──
 function rsFmt(n) { n = parseFloat(n)||0; return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -7686,9 +7687,17 @@ function rsRenderWorkspace() {
     <div id="rsSetup"></div>
     <div id="rsScenarios" style="display:none"></div>
     <div id="rsPreview" style="display:none"></div>`;
-  rsRenderSetupTab(c);
+  // Restore whichever sub-tab was active before the rebuild
+  if (_rsActiveSubTab && _rsActiveSubTab !== 'rsSetup') {
+    const btn = document.querySelector(`#rsSubTabs [onclick*="'${_rsActiveSubTab}'"]`);
+    if (btn) { rsSwTab(btn, _rsActiveSubTab); }
+    else { rsRenderSetupTab(c); }
+  } else {
+    rsRenderSetupTab(c);
+  }
 }
 function rsSwTab(btn, id) {
+  _rsActiveSubTab = id; // remember for restore after re-render
   document.querySelectorAll('#rsSubTabs .rs-sub-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   ['rsSetup','rsScenarios','rsPreview'].forEach(tid=>{ const el=document.getElementById(tid); if(el)el.style.display='none'; });
