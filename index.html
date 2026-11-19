@@ -1208,20 +1208,6 @@ input[type=file]{display:none}
   .cond-linked-docs{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
   .cond-linked-doc-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-pale);color:#7b5c12;border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 9px;font-size:11px;cursor:pointer}
   .cond-linked-doc-badge:hover{background:#f0e5c4}
-
-  /* ── Forms Tab ── */
-  .form-list-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
-  .form-list-item:hover{background:var(--bg-hover, rgba(0,0,0,.04))}
-  .form-list-item.active{background:var(--gold-light, #fdf6e3);border-left:3px solid var(--gold,#c9a84c)}
-  .form-icon{font-size:20px;flex-shrink:0}
-  .form-info{flex:1;min-width:0}
-  .form-name{font-weight:600;font-size:13px;color:var(--text)}
-  .form-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
-  .form-arrow{color:var(--text-muted);font-size:16px;flex-shrink:0}
-  .forms-empty{padding:40px;text-align:center;color:var(--text-muted);font-size:14px}
-  #formsPreviewArea input[type=text]{border:none;border-bottom:1px solid #999;background:transparent;font-family:inherit;font-size:inherit;width:100%;box-sizing:border-box;outline:none;padding:1px 2px}
-  #formsPreviewArea textarea{border:1px solid #ccc;background:transparent;font-family:inherit;font-size:inherit;width:100%;box-sizing:border-box;outline:none;padding:4px;resize:vertical}
-
 </style>
 </head>
 <body>
@@ -1379,10 +1365,6 @@ input[type=file]{display:none}
           <div class="tab-content" id="tab-custom">
             <div class="section-header"><div class="section-title">Additional Info</div><button class="btn btn-gold btn-sm" onclick="saveCustomValues()">Save Changes</button></div>
             <div id="customForm" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow)"></div>
-          </div>
-          <!-- FORMS TAB -->
-          <div class="tab-content" id="tab-forms">
-            <div id="formsTabBody"></div>
           </div>
           <!-- PIPELINE INFO TAB -->
           <div class="tab-content" id="tab-plinfo">
@@ -2241,13 +2223,6 @@ input[type=file]{display:none}
         <div class="form-section-title">Loan Specialties</div>
         <div id="lnSpecGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
       </div>
-      <div class="form-section">
-        <div class="form-section-title">Mortgagee Clause</div>
-        <div class="form-group form-full">
-          <label class="form-label" for="ln_mortgagee">Mortgagee Clause (for title &amp; insurance forms)</label>
-          <textarea class="form-input" id="ln_mortgagee" rows="4" placeholder="e.g. United Wholesale Mortgage LLC&#10;Its Successors and/or Assigns&#10;P.O. Box 12345&#10;Pontiac, MI 48340" style="resize:vertical;font-family:inherit;font-size:inherit"></textarea>
-        </div>
-      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('lenderModal')">Cancel</button>
@@ -2354,7 +2329,6 @@ input[type=file]{display:none}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 //                                        
 //  KV API   talks to the Worker backend
@@ -2382,94 +2356,55 @@ async function sbGet(key) {
   } catch(e) { return null; }
 }
 
-// ── Bandwidth-efficient sync (Nov 2026) ─────────────────────────────
-// Before: every 20s the app downloaded ALL data, and every save uploaded ALL data.
-// Now:   1) a tiny "what changed?" check (timestamps only),
-//        2) only the sections that actually changed are downloaded/uploaded,
-//        3) other open tabs are told instantly via Supabase Realtime,
-//        4) hidden/background tabs stop checking until you come back.
-const SYNC_KEYS = ['files','conditions','settings','customFields','trash','dates','lenders','contactDir','docs','clients'];
-const _sbSeen = {};      // key -> normalized updated_at we last downloaded or wrote
-const _sbSentJson = {};  // key -> JSON of the value the cloud currently holds (as far as we know)
-let _sbLoadedOnce = false;
-let _cloudChanged = false;
-
-function _normTs(t) { const n = Date.parse(t); return isNaN(n) ? String(t) : String(n); }
-
-function _cloudValueFor(key) {
-  switch (key) {
-    case 'dates': return cache.dates || [];
-    case 'lenders': return cache.lenders || [];
-    case 'contactDir': return cache.contactDir || [];
-    case 'docs': return cache.docs || {};
-    case 'clients': return cache.clients || [];
-    default: return cache[key];
-  }
-}
-
-function _applyCloudKey(key, value) {
-  if (!value) return;
-  if (key === 'settings') {
-    cache.settings = { ...DEFAULTS, ...value, requiredBy: (value.requiredBy && value.requiredBy.length) ? value.requiredBy : DEFAULTS.requiredBy };
-    if (cache.settings.conditionTypes) cache.settings.conditionTypes = [...cache.settings.conditionTypes].sort();
-  } else {
-    cache[key] = value;
-  }
-}
-
 async function sbSet(key, value) {
   try {
-    const ts = new Date().toISOString();
-    const json = JSON.stringify(value);
-    const r = await fetch(SB_URL + '/rest/v1/zc_data?select=key,updated_at', {
+    await fetch(SB_URL + '/rest/v1/zc_data', {
       method: 'POST',
-      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-      body: JSON.stringify({ key, value, updated_at: ts })
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ key, value, updated_at: new Date().toISOString() })
     });
-    if (!r.ok) { console.warn('sbSet failed:', key, r.status); return false; }
-    let stamp = ts;
-    try { const rows = await r.json(); if (rows && rows[0] && rows[0].updated_at) stamp = rows[0].updated_at; } catch(e) {}
-    _sbSeen[key] = _normTs(stamp);   // don't re-download our own save
-    _sbSentJson[key] = json;
-    return true;
-  } catch(e) { console.warn('sbSet failed:', e); return false; }
+  } catch(e) { console.warn('sbSet failed:', e); }
 }
 
 async function syncFromCloud() {
-  _cloudChanged = false;
   try {
-    // 1) Tiny request: just the last-changed time of each section
-    const r = await fetch(SB_URL + '/rest/v1/zc_data?select=key,updated_at&key=in.(' + SYNC_KEYS.join(',') + ')', { headers: SB_HEADERS });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const stamps = await r.json();
-    const keys = stamps.filter(x => _normTs(x.updated_at) !== _sbSeen[x.key]).map(x => x.key);
-    if (keys.length) {
-      // 2) Download only the sections that changed
-      setSync('syncing');
-      const r2 = await fetch(SB_URL + '/rest/v1/zc_data?select=key,value,updated_at&key=in.(' + keys.join(',') + ')', { headers: SB_HEADERS });
-      if (!r2.ok) throw new Error('HTTP ' + r2.status);
-      const rows = await r2.json();
-      for (const row of rows) {
-        _applyCloudKey(row.key, row.value);
-        _sbSeen[row.key] = _normTs(row.updated_at);
-        _sbSentJson[row.key] = JSON.stringify(row.value);
-      }
-      if (rows.length) _cloudChanged = true;
-      lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
+    setSync('syncing');
+    const [files, conditions, settings, customFields] = await Promise.all([
+      sbGet('files'),
+      sbGet('conditions'),
+      sbGet('settings'),
+      sbGet('customFields')
+    ]);
+    if (files) cache.files = files;
+    if (conditions) cache.conditions = conditions;
+    if (settings) {
+      cache.settings = { ...DEFAULTS, ...settings, requiredBy: (settings.requiredBy && settings.requiredBy.length) ? settings.requiredBy : DEFAULTS.requiredBy };
+      if (cache.settings.conditionTypes) cache.settings.conditionTypes = [...cache.settings.conditionTypes].sort();
     }
-    _sbLoadedOnce = true;
+    if (customFields) cache.customFields = customFields;
+    const trash = await sbGet('trash');
+    if (trash) cache.trash = trash;
+    const dates = await sbGet('dates');
+    if (dates) cache.dates = dates;
+    const lenders = await sbGet('lenders');
+    if (lenders) cache.lenders = lenders;
+    const contactDir = await sbGet('contactDir');
+    if (contactDir) cache.contactDir = contactDir;
+    const docs = await sbGet('docs');
+    if (docs) cache.docs = docs;
+    const clients = await sbGet('clients');
+    if (clients) cache.clients = clients;
+    lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
     setSync('ok');
     return true;
   } catch(e) {
     console.warn('Cloud sync failed, using local:', e);
-    if (!_sbLoadedOnce) {
-      const local = lsGet('cloud_cache');
-      if (local) {
-        if (local.files) cache.files = local.files;
-        if (local.conditions) cache.conditions = local.conditions;
-        if (local.settings) cache.settings = { ...DEFAULTS, ...local.settings };
-        if (local.customFields) cache.customFields = local.customFields;
-      }
+    const local = lsGet('cloud_cache');
+    if (local) {
+      if (local.files) cache.files = local.files;
+      if (local.conditions) cache.conditions = local.conditions;
+      if (local.settings) cache.settings = { ...DEFAULTS, ...local.settings };
+      if (local.customFields) cache.customFields = local.customFields;
     }
     setSync('error');
     return false;
@@ -2484,19 +2419,21 @@ async function syncToCloud() {
     cache.trash = (cache.trash||[]).filter(f => {
       return (new Date() - new Date(f.deletedAt)) < thirtyDays;
     });
-    // Upload only the sections that actually changed
-    // (preapprovals stored per-file inside cache.files — no separate key needed)
-    const dirty = SYNC_KEYS.filter(k => JSON.stringify(_cloudValueFor(k)) !== _sbSentJson[k]);
-    const results = await Promise.all(dirty.map(k => sbSet(k, _cloudValueFor(k))));
-    const saved = dirty.filter((k, i) => results[i]);
-    if (saved.length) rtAnnounce(saved);   // tell other open tabs right away
+    await Promise.all([
+      sbSet('files', cache.files),
+      sbSet('conditions', cache.conditions),
+      sbSet('settings', cache.settings),
+      sbSet('customFields', cache.customFields),
+      sbSet('trash', cache.trash),
+      sbSet('dates', cache.dates || []),
+      sbSet('lenders', cache.lenders || []),
+      sbSet('contactDir', cache.contactDir || []),
+      sbSet('docs', cache.docs || {}),
+      sbSet('clients', cache.clients || [])
+      // preapprovals stored per-file inside cache.files — no separate key needed
+    ]);
     lsSet('cloud_cache', { files: cache.files, conditions: cache.conditions, settings: cache.settings, customFields: cache.customFields });
-    if (results.some(ok => !ok)) {
-      setSync('error');
-      toast('Saved locally - will sync when online', 'info');
-    } else {
-      setSync('ok');
-    }
+    setSync('ok');
   } catch(e) {
     console.warn('Cloud save failed:', e);
     setSync('error');
@@ -2601,6 +2538,7 @@ let cache = {
 };
 
 let currentFileId = null;
+let fileChanging = false; // true when navigating to a different file
 let editingFileId = null;
 let editingCondId = null;
 let editingCFId = null;
@@ -2675,87 +2613,23 @@ function setTyping(isTyping) {
   }
 }
 
-// ── Live updates + backup checking ─────────────────────────────
-const POLL_MS = 10000;           // backup check every 10s if live updates are down
-const POLL_MS_WHEN_LIVE = 60000; // light safety-net check while live updates are working
-let _rtChannel = null;
-let _rtLive = false;
-let _refreshPending = false;
-let _pollBusy = false;
-let _lastCheck = 0;
-let _rtDebounce = null;
-
-function startRealtime() {
-  try {
-    if (!window.supabase || !window.supabase.createClient) { console.warn('Realtime library not loaded — using 10s checks'); return; }
-    const client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-    _rtChannel = client.channel('zc-sync', { config: { broadcast: { self: false } } });
-    _rtChannel
-      .on('broadcast', { event: 'changed' }, () => {
-        _refreshPending = true;
-        clearTimeout(_rtDebounce);
-        _rtDebounce = setTimeout(pollOnce, 300);   // group rapid saves together
-      })
-      .subscribe(status => {
-        const wasLive = _rtLive;
-        _rtLive = (status === 'SUBSCRIBED');
-        if (_rtLive && !wasLive) { _refreshPending = true; pollOnce(); } // catch up after (re)connecting
-      });
-  } catch(e) {
-    console.warn('Realtime unavailable — using 10s checks:', e);
-    _rtLive = false;
-  }
-}
-
-function rtAnnounce(keys) {
-  try {
-    if (_rtChannel && _rtLive) {
-      const p = _rtChannel.send({ type: 'broadcast', event: 'changed', payload: { keys, by: currentUser } });
-      if (p && p.catch) p.catch(() => {});
-    }
-  } catch(e) {}
-}
-
-function _userIsBusyTyping() {
-  if (userIsTyping) return true;
-  const activeNotes = document.querySelectorAll('.note-add-inline.open textarea');
-  for (const ta of activeNotes) { if (ta.value.trim().length > 0) return true; }
-  return false;
-}
-
-async function pollOnce() {
-  if (_pollBusy) return;
-  // Hidden tab: don't download anything; catch up when it's visible again
-  if (document.hidden) { _refreshPending = true; return; }
-  // Never interrupt the user while they are typing a note
-  if (_userIsBusyTyping()) { _refreshPending = true; return; }
-  _pollBusy = true;
-  _refreshPending = false;
-  _lastCheck = Date.now();
-  try {
-    await syncFromCloud();
-    if (_cloudChanged) {
-      const page = document.querySelector('.page.active')?.id;
-      if (page === 'page-dashboard') renderDashboard();
-      else if (page === 'page-files') renderFiles();
-      else if (page === 'page-filedetail') renderFileDetail();
-      updateStats();
-    }
-  } finally {
-    _pollBusy = false;
-  }
-}
-
 function startPolling() {
   if (syncTimer) clearInterval(syncTimer);
-  startRealtime();
-  syncTimer = setInterval(() => {
-    const interval = _rtLive ? POLL_MS_WHEN_LIVE : POLL_MS;
-    if (_refreshPending || Date.now() - _lastCheck >= interval) pollOnce();
-  }, 2000);  // cheap local timer; only touches the network when a check is due
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) pollOnce();   // back on the tab → refresh right away
-  });
+  syncTimer = setInterval(async () => {
+    // Never interrupt the user while they are typing a note
+    if (userIsTyping) return;
+    // Also check if any note textarea has content being typed
+    const activeNotes = document.querySelectorAll('.note-add-inline.open textarea');
+    for (const ta of activeNotes) {
+      if (ta.value.trim().length > 0) return;
+    }
+    await syncFromCloud();
+    const page = document.querySelector('.page.active')?.id;
+    if (page === 'page-dashboard') renderDashboard();
+    else if (page === 'page-files') renderFiles();
+    else if (page === 'page-filedetail') renderFileDetail();
+    updateStats();
+  }, 20000);
 }
 
 //                                        
@@ -2786,7 +2660,8 @@ function showPage(page, fid) {
   if (page === 'files') renderFiles();
   if (page === 'closedfiles') renderClosedFiles();
   if (page === 'filedetail' && fid) {
-    if (fid !== currentFileId) {
+    fileChanging = (fid !== currentFileId); // track new-file navigation
+    if (fileChanging) {
       rsActiveIdx = null;  // reset rate sheet state
       wsData = { income:[], reo:[], liab:[] }; // reset worksheet state
     }
@@ -2825,7 +2700,6 @@ function switchTab(tab, btn) {
   if (tab === 'contacts') tpcInit();
   if (tab === 'preapproval') paInit();
   if (tab === 'plinfo') plInfoRender();
-  if (tab === 'forms') renderFormsTab();
 }
 
 //                                        
@@ -2997,7 +2871,6 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
-         <button class="tab-btn" onclick="switchTab('forms',this)">📄 Forms</button>
          <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>`
       : `<button class="tab-btn active" onclick="switchTab('conditions',this)">Conditions</button>
          <button class="tab-btn" onclick="switchTab('docs',this)">Client Documents</button>
@@ -3007,12 +2880,15 @@ function renderFileDetail() {
          <button class="tab-btn" onclick="switchTab('contacts',this)">3rd Party Contacts</button>
          <button class="tab-btn" onclick="switchTab('preapproval',this)">Pre-Approval</button>
          <button class="tab-btn" onclick="switchTab('custom',this)">Additional Info</button>
-         <button class="tab-btn" onclick="switchTab('forms',this)">📄 Forms</button>
          <button class="tab-btn" onclick="switchTab('plinfo',this)">📋 Pipeline Info</button>`;
   }
-  // Restore the correct active tab — if user was on worksheet/ratesheet/custom, keep them there
+  // Determine which tab to show:
+  //   - New file navigation  -> always reset to default first tab
+  //   - Same file re-render  -> restore whatever tab was active
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  const tabToRestore = currentActiveTab || (isPreSub ? 'tab-docs' : 'tab-conditions');
+  const defaultTab = isPreSub ? 'tab-docs' : 'tab-conditions';
+  const tabToRestore = fileChanging ? defaultTab : (currentActiveTab || defaultTab);
+  fileChanging = false; // reset flag
   const restoreEl = document.getElementById(tabToRestore);
   if (restoreEl) restoreEl.classList.add('active');
   // Update the tab button highlight to match
@@ -3020,13 +2896,20 @@ function renderFileDetail() {
   document.querySelectorAll('#fileTabBar .tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('onclick')?.includes("'"+tabName+"'"));
   });
-  // Re-render content for tabs that need it on refresh (not worksheet/ratesheet — they are live)
-  if (tabToRestore === 'tab-conditions' || !currentActiveTab) {
+  // Re-render the active tab's content -- covers ALL tabs so data is always fresh
+  if (tabName === 'conditions') {
     if (!isPreSub) renderConditions(f);
-    else { document.getElementById('tab-docs').classList.add('active'); renderDocTab(); }
-  } else if (tabToRestore === 'tab-docs') {
-    renderDocTab();
-  }
+    else { document.getElementById('tab-docs').classList.add('active');
+           document.querySelectorAll('#fileTabBar .tab-btn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick')?.includes("'docs'")));
+           renderDocTab(); }
+  } else if (tabName === 'docs')       { renderDocTab(); }
+  else if (tabName === 'plinfo')       { plInfoRender(); }
+  else if (tabName === 'ratesheet')    { rsInit(); }
+  else if (tabName === 'worksheet')    { wsInit(); }
+  else if (tabName === 'income')       { incInit(); }
+  else if (tabName === 'contacts')     { tpcInit(); }
+  else if (tabName === 'preapproval')  { paInit(); }
+  else if (tabName === 'custom')       { loadCustomValues(); }
 }
 
 //                                        
@@ -5234,7 +5117,6 @@ function openLenderModal(lid) {
   document.getElementById('ln_type').value = l?.type||'';
   document.getElementById('ln_location').value = l?.location||'';
   document.getElementById('ln_active').checked = l ? l.active : true;
-  document.getElementById('ln_mortgagee').value = l?.mortgageeClause||'';
   const specs = getLenderSpecialties();
   const selectedSpecs = l?.specialties||[];
   document.getElementById('lnSpecGrid').innerHTML = specs.map(s=>`
@@ -5254,8 +5136,7 @@ async function saveLender() {
     type: document.getElementById('ln_type').value.trim(),
     location: document.getElementById('ln_location').value.trim(),
     active: document.getElementById('ln_active').checked,
-    specialties: checked,
-    mortgageeClause: document.getElementById('ln_mortgagee').value.trim()
+    specialties: checked
   };
   if (!cache.lenders) cache.lenders = [];
   if (editingLenderId) {
@@ -5611,341 +5492,6 @@ function paSetDownMode(mode) {
   l.downMode = mode; paSave(); paRenderCalcFields(); paRenderPreview();
 }
 
-
-// ─── FORMS FEATURE ───────────────────────────────────────────────────────────
-const FORMS_LIST = [
-  { id:'requestForTitle', name:'Request for Title', sub:'Title order · LendingPad Form 252', icon:'📄', render:renderRequestForTitle },
-  { id:'brokerInvoice', name:'Broker Invoice & Wire Instructions', sub:'Mortgage broker compensation · Wire transfer details', icon:'🧾', render:renderBrokerInvoice }
-];
-let activeFormId = null;
-let formsEdits = {};
-
-function formsInit() {
-  const f = cache.files.find(x => x.id === currentFileId);
-  if (!f) return;
-  const listEl = document.getElementById('formsListBody');
-  if (listEl) {
-    listEl.innerHTML = FORMS_LIST.map((form,i) => `
-      <div class="form-list-item${activeFormId === form.id ? ' active' : ''}" data-form-id="${form.id}" onclick="formsSelectForm('${form.id}')">
-        <span class="form-icon">${form.icon}</span>
-        <div class="form-info">
-          <div class="form-name">${form.name}</div>
-          <div class="form-sub">${form.sub}</div>
-        </div>
-        <span class="form-arrow">›</span>
-      </div>`).join('');
-  }
-  if (activeFormId) formsSelectForm(activeFormId);
-  else {
-    const preview = document.getElementById('formsPreviewArea');
-    if (preview) preview.innerHTML = '<div class="forms-empty">Select a form from the list to preview and print.</div>';
-  }
-}
-
-function formsSelectForm(id) {
-  activeFormId = id;
-  formsEdits = {};
-  // Update active state on list items
-  document.querySelectorAll('.form-list-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.formId === id);
-  });
-  const form = FORMS_LIST.find(x => x.id === id);
-  if (!form) return;
-  const f = cache.files.find(x => x.id === currentFileId);
-  const preview = document.getElementById('formsPreviewArea');
-  if (preview && form.render) {
-    preview.innerHTML = form.render(f);
-    formsEditFields(f);
-  }
-}
-
-function formsEditFields(f) {
-  document.querySelectorAll('[data-forms-field]').forEach(el => {
-    el.addEventListener('input', () => { formsEdits[el.dataset.formsField] = el.value; });
-    if (formsEdits[el.dataset.formsField] !== undefined) el.value = formsEdits[el.dataset.formsField];
-  });
-}
-
-function formsPrint() {
-  const form = FORMS_LIST.find(x => x.id === activeFormId);
-  if (!form) { toast('Select a form first', 'error'); return; }
-  const f = cache.files.find(x => x.id === currentFileId);
-  let html = form.render ? form.render(f) : '';
-  // Apply any manual edits
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  Object.entries(formsEdits).forEach(([k, v]) => {
-    const el = tmp.querySelector(`[data-forms-field="${k}"]`);
-    if (el) el.value = v;
-  });
-  const w = window.open('', '_blank');
-  if (w) {
-    const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${form.name}<\/title>
-<style>
-  body{font-family:Arial,sans-serif;font-size:10pt;margin:0;padding:0;color:#000}
-  @media print{@page{size:letter;margin:0.5in}}
-  .form-print-wrap{max-width:8.5in;margin:0 auto;padding:0.5in}
-  input[type=text],textarea{border:none;border-bottom:1px solid #000;background:transparent;font-family:inherit;font-size:inherit;width:100%;box-sizing:border-box;outline:none}
-  .field-row{display:flex;gap:12px;margin-bottom:6px}
-  .field-group{flex:1}
-  .field-label{font-size:8pt;font-weight:bold;text-transform:uppercase;margin-bottom:2px;color:#333}
-</style></head><body>${tmp.innerHTML}<\/body><\/html>`;
-    w.document.open(); w.document.write(fullHtml); w.document.close();
-  } else toast('Allow pop-ups to print forms', 'error');
-}
-
-function renderRequestForTitle(f) {
-  if (!f) return '<div class="forms-empty">No file loaded.</div>';
-  const lo = paGetLetterLO(f);
-  const esc = v => (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const val = v => `value="${esc(v)}"`;
-  // Match lender by name (f.bank holds the lender display name)
-  const lender = (cache.lenders||[]).find(l => l.name === f.bank) || {};
-  const borrowers = [f.b1, f.b2].filter(Boolean).join(' & ');
-  const propAddr = f.prop || '';
-  const mailingAddr = propAddr;
-  const loanAmt = f.la ? '$' + Number(f.la).toLocaleString() : '';
-  const today = new Date().toLocaleDateString('en-US');
-  const county = f.county || '';
-  // Lender case # comes from Pipeline Info (pl_loanNum key)
-  const lenderCaseNum = (f.pipeline||{}).pl_loanNum || '';
-  const mortgageeClause = lender.mortgageeClause || '';
-
-  return `
-<div class="form-print-wrap">
-  <div style="text-align:center;margin-bottom:16px">
-    <div style="font-size:13pt;font-weight:bold">ZAPHIRE CAPITAL</div>
-    <div style="font-size:9pt">73 Weed Hill Ave, Stamford, CT 06907 · 914-509-8066 · www.zaphirecapital.com · NMLS# 2511614</div>
-    <div style="font-size:11pt;font-weight:bold;margin-top:8px;text-decoration:underline">REQUEST FOR TITLE</div>
-    <div style="font-size:8pt">LendingPad Form No. 252</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-    <span style="font-size:9pt"><b>Date:</b> ${today}</span>
-    <span style="font-size:9pt"><b>Loan Officer:</b> ${esc(lo.name||'')} &nbsp; NMLS# ${esc(lo.nmls||'')}</span>
-  </div>
-  <hr style="margin:8px 0">
-  <div style="font-weight:bold;margin-bottom:6px;font-size:10pt">BORROWER INFORMATION</div>
-  <div class="field-row">
-    <div class="field-group"><div class="field-label">Borrower(s)</div><input type="text" data-forms-field="borrowers" ${val(borrowers)}></div>
-    <div class="field-group" style="max-width:200px"><div class="field-label">Date</div><input type="text" data-forms-field="date" ${val(today)}></div>
-  </div>
-  <div class="field-row">
-    <div class="field-group"><div class="field-label">Mailing / Home Address</div><input type="text" data-forms-field="mailingAddr" ${val(mailingAddr)}></div>
-  </div>
-  <hr style="margin:8px 0">
-  <div style="font-weight:bold;margin-bottom:6px;font-size:10pt">SUBJECT PROPERTY</div>
-  <div class="field-row">
-    <div class="field-group"><div class="field-label">Property Address</div><input type="text" data-forms-field="propAddr" ${val(propAddr)}></div>
-    <div class="field-group" style="max-width:160px"><div class="field-label">County</div><input type="text" data-forms-field="county" ${val(county)}></div>
-  </div>
-  <div class="field-row">
-    <div class="field-group" style="max-width:160px"><div class="field-label">Loan Amount</div><input type="text" data-forms-field="loanAmt" ${val(loanAmt)}></div>
-    <div class="field-group" style="max-width:220px"><div class="field-label">Loan Type</div><input type="text" data-forms-field="loanType" ${val(f.loanType||'')}></div>
-    <div class="field-group" style="max-width:220px"><div class="field-label">Lender Case #</div><input type="text" data-forms-field="lenderCase" ${val(lenderCaseNum)}></div>
-  </div>
-  <hr style="margin:8px 0">
-  <div style="font-weight:bold;margin-bottom:6px;font-size:10pt">LENDER / MORTGAGEE</div>
-  <div class="field-row">
-    <div class="field-group"><div class="field-label">Lender Name</div><input type="text" data-forms-field="lenderName" ${val(lender.name||f.bank||'')}></div>
-  </div>
-  <div class="field-group" style="margin-bottom:6px"><div class="field-label">Mortgagee Clause</div><textarea data-forms-field="mortgageeClause" rows="3" style="border:1px solid #ccc;width:100%;box-sizing:border-box;font-family:inherit;font-size:inherit;padding:4px">${esc(mortgageeClause)}</textarea></div>
-  <hr style="margin:8px 0">
-  <div style="font-size:8pt;color:#555;margin-top:12px">Please process the title search and provide the commitment at your earliest convenience. Contact the loan officer above with any questions.</div>
-</div>`;
-}
-
-function renderBrokerInvoice(f) {
-  if (!f) return '<div class="forms-empty">No file loaded.</div>';
-  const esc = v => (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const val = v => `value="${esc(v)}"`;
-  const pip = f.pipeline || {};
-
-  // Auto-filled fields from file data
-  const borrower   = [f.b1, f.b2].filter(Boolean).join(' & ');
-  const propAddr   = f.prop || '';
-  const lender     = f.bank || '';
-  const loanAmt    = f.la   ? '$' + Number(f.la).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
-  const lenderLoan = pip.pl_lenderLoanNum || pip.pl_loanNum || '';
-  const closeDate  = pip.pl_closeDate || new Date().toLocaleDateString('en-US');
-  const closingAttyCompany = pip.pl_closingAtty || '';
-  const closingAttyPerson  = pip.pl_closingAttyPerson || '';
-
-  // Invoice number: use lender loan# or internal loan#, fallback to date-based
-  const invoiceNum = lenderLoan ? 'ZC-' + lenderLoan : 'ZC-' + Date.now().toString().slice(-10);
-  const today = new Date().toLocaleDateString('en-US');
-
-  // Broker fee from Pipeline Info (pl_brokerFeeAmt stores dollar amount)
-  const brokerFeeAmt = pip.pl_brokerFeeAmt ? '$' + Number(pip.pl_brokerFeeAmt).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
-  const lenderPaid   = pip.pl_lenderPaid || 'Lender Paid';
-
-  return `
-<div class="form-print-wrap" style="font-size:10pt;line-height:1.5">
-
-  <!-- HEADER -->
-  <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
-    <tr>
-      <td style="width:50%;vertical-align:top">
-        <div style="font-size:15pt;font-weight:900;letter-spacing:.03em;color:#1a3155">ZAPHIRE CAPITAL</div>
-        <div style="font-size:8pt;color:#555;margin-top:2px">73 Weed Hill Avenue, Stamford, CT 06907</div>
-        <div style="font-size:8pt;color:#555">Phone: 914-509-8066 &nbsp;|&nbsp; Fax: 914-509-8126 &nbsp;|&nbsp; NMLS# 2511614</div>
-        <div style="font-size:8pt;color:#555">www.zaphirecapital.com</div>
-      </td>
-      <td style="width:50%;text-align:right;vertical-align:top">
-        <div style="font-size:14pt;font-weight:bold;color:#1a3155">INVOICE</div>
-        <div style="font-size:9pt;font-weight:600">Mortgage Broker Compensation</div>
-        <div style="font-size:8.5pt;margin-top:6px"><b>Invoice #:</b> <input type="text" data-forms-field="invoiceNum" ${val(invoiceNum)} style="border:none;border-bottom:1px solid #999;width:160px;font-weight:600"></div>
-        <div style="font-size:8.5pt"><b>Invoice Date:</b> <input type="text" data-forms-field="invoiceDate" ${val(today)} style="border:none;border-bottom:1px solid #999;width:100px"></div>
-        <div style="font-size:8.5pt"><b>Due:</b> At closing / disbursement</div>
-      </td>
-    </tr>
-  </table>
-
-  <hr style="border:none;border-top:2px solid #1a3155;margin:0 0 10px 0">
-
-  <!-- BILL TO + LOAN DETAILS -->
-  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;border:1px solid #ddd">
-    <tr>
-      <td style="width:50%;padding:10px;vertical-align:top;border-right:1px solid #ddd">
-        <div style="font-size:8.5pt;font-weight:700;text-transform:uppercase;color:#555;margin-bottom:4px">Bill To (Closing Agent)</div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Company / Attorney</div>
-          <input type="text" data-forms-field="closingAttyCompany" ${val(closingAttyCompany)} style="width:100%">
-        </div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Contact Person</div>
-          <input type="text" data-forms-field="closingAttyPerson" ${val(closingAttyPerson)} style="width:100%">
-        </div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Address</div>
-          <input type="text" data-forms-field="closingAttyAddr" value="" style="width:100%">
-        </div>
-        <div class="field-group">
-          <div class="field-label">Phone / Email</div>
-          <input type="text" data-forms-field="closingAttyContact" value="" style="width:100%">
-        </div>
-      </td>
-      <td style="width:50%;padding:10px;vertical-align:top">
-        <div style="font-size:8.5pt;font-weight:700;text-transform:uppercase;color:#555;margin-bottom:4px">Loan Details</div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Borrower(s)</div>
-          <input type="text" data-forms-field="borrower" ${val(borrower)} style="width:100%">
-        </div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Property Address</div>
-          <input type="text" data-forms-field="propAddr" ${val(propAddr)} style="width:100%">
-        </div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Lender</div>
-          <input type="text" data-forms-field="lender" ${val(lender)} style="width:100%">
-        </div>
-        <div class="field-group" style="margin-bottom:4px">
-          <div class="field-label">Lender Loan #</div>
-          <input type="text" data-forms-field="lenderLoan" ${val(lenderLoan)} style="width:100%">
-        </div>
-        <div style="display:flex;gap:10px">
-          <div class="field-group" style="flex:1;margin-bottom:4px">
-            <div class="field-label">Loan Amount</div>
-            <input type="text" data-forms-field="loanAmt" ${val(loanAmt)} style="width:100%">
-          </div>
-          <div class="field-group" style="flex:1;margin-bottom:4px">
-            <div class="field-label">Closing / Disbursement Date</div>
-            <input type="text" data-forms-field="closeDate" ${val(closeDate)} style="width:100%">
-          </div>
-        </div>
-      </td>
-    </tr>
-  </table>
-
-  <!-- COMPENSATION TABLE -->
-  <div style="font-weight:700;font-size:10pt;color:#1a3155;margin-bottom:6px">Compensation</div>
-  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9pt">
-    <thead>
-      <tr style="background:#1a3155;color:#fff">
-        <th style="padding:7px 10px;text-align:left;font-weight:600">Description</th>
-        <th style="padding:7px 10px;text-align:right;font-weight:600;width:130px">Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr style="border-bottom:1px solid #eee">
-        <td style="padding:8px 10px">
-          <div style="font-weight:600">Broker Compensation – Origination Fee (<input type="text" data-forms-field="compType" ${val(lenderPaid)} style="border:none;border-bottom:1px solid #999;width:120px;font-weight:600">)</div>
-          <div style="font-size:8pt;color:#666;margin-top:2px"><input type="text" data-forms-field="compDesc" value="Closing Disclosure Section A.02 – Origination Fee to Zaphire Capital" style="border:none;border-bottom:1px solid #ccc;width:100%;font-size:8pt;color:#666"></div>
-        </td>
-        <td style="padding:8px 10px;text-align:right;white-space:nowrap">
-          <input type="text" data-forms-field="originationFee" ${val(brokerFeeAmt)} style="border:none;border-bottom:1px solid #999;width:100px;text-align:right;font-weight:600">
-        </td>
-      </tr>
-      <tr style="border-bottom:1px solid #eee">
-        <td style="padding:8px 10px">
-          <div>Broker Reimbursed Fees</div>
-          <div style="font-size:8pt;color:#666"><input type="text" data-forms-field="reimburseDesc" value="Per lender funding wire breakdown" style="border:none;border-bottom:1px solid #ccc;width:100%;font-size:8pt;color:#666"></div>
-        </td>
-        <td style="padding:8px 10px;text-align:right">
-          <input type="text" data-forms-field="reimburseAmt" value="" style="border:none;border-bottom:1px solid #999;width:100px;text-align:right">
-        </td>
-      </tr>
-      <tr style="border-bottom:1px solid #eee">
-        <td style="padding:8px 10px">
-          <div>Less: Tolerance Cure / Lender Credit</div>
-          <div style="font-size:8pt;color:#666"><input type="text" data-forms-field="cureDesc" value="Closing Disclosure Section J – lender credit (if applicable)" style="border:none;border-bottom:1px solid #ccc;width:100%;font-size:8pt;color:#666"></div>
-        </td>
-        <td style="padding:8px 10px;text-align:right">
-          <input type="text" data-forms-field="cureAmt" value="" style="border:none;border-bottom:1px solid #999;width:100px;text-align:right">
-        </td>
-      </tr>
-      <tr style="background:#f0f4f8">
-        <td style="padding:9px 10px;font-weight:700;font-size:10pt">TOTAL DUE TO ZAPHIRE CAPITAL</td>
-        <td style="padding:9px 10px;text-align:right">
-          <input type="text" data-forms-field="totalDue" value="" style="border:none;border-bottom:2px solid #1a3155;width:110px;text-align:right;font-weight:700;font-size:10pt">
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <!-- WIRE INSTRUCTIONS -->
-  <div style="font-weight:700;font-size:10pt;color:#1a3155;margin-bottom:6px">Wire Instructions</div>
-  <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:9pt;border:1px solid #ddd">
-    <tbody>
-      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;width:40%;font-weight:600;background:#f8f9fa">Bank Name</td><td style="padding:6px 10px;font-weight:700">M&amp;T Bank</td></tr>
-      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Routing Number (ABA)</td><td style="padding:6px 10px;font-weight:700;letter-spacing:.05em">022000046</td></tr>
-      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Account Number</td><td style="padding:6px 10px;font-weight:700;letter-spacing:.05em">9886806000</td></tr>
-      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Beneficiary Name</td><td style="padding:6px 10px">Team Zaphire Incorporated DBA Zaphire Capital</td></tr>
-      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Beneficiary Address</td><td style="padding:6px 10px">73 Weed Hill Avenue, Stamford, CT 06907</td></tr>
-      <tr style="border-bottom:1px solid #eee"><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">EIN</td><td style="padding:6px 10px">92-3434938</td></tr>
-      <tr><td style="padding:6px 10px;font-weight:600;background:#f8f9fa">Reference / Memo</td><td style="padding:6px 10px">
-        <input type="text" data-forms-field="wireRef" ${val(borrower ? borrower.split(' ')[borrower.split(' ').length-1] + (lenderLoan ? ' – ' + lender + ' Loan #' + lenderLoan : '') : '')} style="border:none;border-bottom:1px solid #999;width:100%">
-      </td></tr>
-    </tbody>
-  </table>
-
-  <!-- WIRE FRAUD WARNING -->
-  <div style="border:1.5px solid #c0392b;border-radius:4px;padding:8px 12px;background:#fff8f8;margin-bottom:14px;font-size:8.5pt">
-    <span style="font-weight:700;color:#c0392b">⚠ WIRE FRAUD WARNING</span> &nbsp;Before sending funds, confirm these wire instructions by phone with Zaphire Capital at a known number <strong>(914-509-8066)</strong>. Zaphire Capital does not change wire instructions by email.
-  </div>
-
-  <!-- SIGNATURE BLOCK -->
-  <div style="font-size:8.5pt;margin-bottom:6px">Thank you,</div>
-  <table style="width:100%;border-collapse:collapse;font-size:8.5pt">
-    <tr>
-      <td style="width:50%;padding:6px 12px 6px 0;vertical-align:top">
-        <div style="font-weight:700">Deric Zaphire</div>
-        <div>President &nbsp;|&nbsp; NMLS# 124512</div>
-        <div>917-796-5022 &nbsp;|&nbsp; deric@zaphirecapital.com</div>
-      </td>
-      <td style="width:50%;padding:6px 0 6px 12px;vertical-align:top;border-left:1px solid #eee">
-        <div style="font-weight:700">Jules Zaphire</div>
-        <div>Vice President &nbsp;|&nbsp; NMLS# 309656</div>
-        <div>914-715-1988 &nbsp;|&nbsp; jules@zaphirecapital.com</div>
-      </td>
-    </tr>
-  </table>
-  <div style="margin-top:10px;font-size:7.5pt;color:#888;border-top:1px solid #eee;padding-top:6px">
-    Registered Mortgage Broker – NYS Department of Financial Services &nbsp;|&nbsp; Licensed by the Connecticut Department of Banking
-  </div>
-
-</div>`;
-}
-
 function paInit() {
   const letters = paGetLetters();
   if (paActiveId === null || !letters.find(l => l.id === paActiveId)) {
@@ -6111,16 +5657,10 @@ function paResetBody() {
 
 function paGetLetterLO(l) {
   const los = (cache.settings.loanOfficers || []).filter(o => o.name);
-  // Check loName (pre-approval letter field) OR pl_lo (Pipeline Info field)
-  const name = (l && l.loName) || (l && l.pipeline && l.pipeline.pl_lo) || '';
+  const name = l && l.loName;
   if (name && los.length) { const m = los.find(o => o.name === name); if (m) return m; }
   if (los.length) return los[0];
   return cache.settings.loanOfficer || {};
-}
-
-function rsGetFileLO() {
-  const f = cache.files?.find(x => x.id === currentFileId);
-  return paGetLetterLO(f);
 }
 
 function paRenderPreview() {
@@ -6131,8 +5671,6 @@ function paRenderPreview() {
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
-  const oPhone = lo.phone || '';
-  const oEmail = lo.email || '';
   const co = cache.settings || {};
   const nmls = co.nmls || '2511614';
   const ZC_LOGO = ZC_LOGO_B64;
@@ -6149,8 +5687,7 @@ function paRenderPreview() {
     + '<div class="pa-lb-side">'
     +   '<div class="pa-lb-logo-wrap"><img class="pa-lb-logo" src="'+ZC_LOGO+'" alt="Zaphire Capital"><\/div>'
     +   '<div class="pa-lb-div"><\/div>'
-    +   '<div class="pa-lb-contact"><strong>Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<\/div>'
-    +   (oPhone||oEmail ? '<div class="pa-lb-div"><\/div><div class="pa-lb-contact">'+(oPhone?esc(oPhone):'')+(oPhone&&oEmail?'<br>':'')+(oEmail?esc(oEmail):'')+'<\/div>' : '')
+    +   '<div class="pa-lb-contact"><strong>Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<br>914-509-8066<\/div>'
     +   '<div class="pa-lb-spacer"><\/div>'
     +   '<div class="pa-lb-nmls">NMLS&nbsp;'+esc(nmls)+'<\/div>'
     + '<\/div>'
@@ -6316,8 +5853,6 @@ function paPrintWithLogo(l, ZC_LOGO) {
   const oName = lo.name || 'Deric Zaphire';
   const oTitle = lo.title || 'Loan Officer';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
-  const oPhone = lo.phone || '';
-  const oEmail = lo.email || '';
   const co = cache.settings || {};
   const nmls = co.nmls || '2511614';
   const names = [l.b1, l.b2].filter(Boolean).map(esc).join(' & ');
@@ -6349,8 +5884,7 @@ function paPrintWithLogo(l, ZC_LOGO) {
     + '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;width:100pt;min-width:100pt;background:#0d1728 !important;display:flex;flex-direction:column;align-items:center;padding:24pt 10pt 16pt;flex-shrink:0">'
     +   '<div style="width:72pt;margin-bottom:18pt">'+logoImg+'<\/div>'
     +   '<div style="width:28pt;height:1pt;background:rgba(255,255,255,.15);margin-bottom:14pt"><\/div>'
-    +   '<div style="font-size:7pt;color:rgba(255,255,255,.45);line-height:1.8;text-align:center;letter-spacing:.02em"><strong style="color:rgba(255,255,255,.75);font-weight:600;display:block">Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<\/div>'
-    +   (oPhone||oEmail ? '<div style="width:28pt;height:1pt;background:rgba(255,255,255,.12);margin:8pt auto 8pt"><\/div><div style="font-size:7pt;color:rgba(255,255,255,.45);line-height:1.8;text-align:center;letter-spacing:.02em">'+(oPhone?esc(oPhone):'')+(oPhone&&oEmail?'<br>':'')+(oEmail?'<span style=\\"word-break:break-all\\">'+esc(oEmail)+'<\/span>':'')+'<\/div>' : '')
+    +   '<div style="font-size:7pt;color:rgba(255,255,255,.45);line-height:1.8;text-align:center;letter-spacing:.02em"><strong style="color:rgba(255,255,255,.75);font-weight:600;display:block">Zaphire Capital<\/strong>73 Weed Hill Ave<br>Stamford, CT 06907<br>914-509-8066<\/div>'
     +   '<div style="flex:1"><\/div>'
     +   '<div style="font-size:5.5pt;color:rgba(255,255,255,.2);letter-spacing:.06em;text-transform:uppercase;text-align:center">NMLS '+esc(nmls)+'<\/div>'
     + '<\/div>'
@@ -8465,17 +7999,9 @@ function rsRenderScenariosTab(c) {
   function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt(sc){
     if(c.loanType==='heloc'){
-      // HELOC cash received = loan amount (borrower receives funds)
-      // For a 1st-lien HELOC that replaces an existing mortgage, subtract the balance being paid off
-      // For a 2nd-lien HELOC, the 1st mortgage is NOT paid from HELOC proceeds — ignore curBalance
-      if(c.mortgageOrder==='first'){
-        // Replacing existing mortgage: net cash = loanAmt - existingPayoff
-        const payoff = c.helocPayoff ? (c.helocPayoffAmt||0) : (c.curBalance||0);
-        return -(calcLoan(sc)) + payoff;
-      }
-      // 2nd lien (or no position set): borrower simply receives loanAmount
-      // closingCosts and debtPayoffs are subtracted in cashToClose()
-      return -(calcLoan(sc));
+      // For HELOC: cash received = loan amount minus payoff (if any) minus closing costs
+      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+      return -(calcLoan(sc)) + payoff; // negate because HELOC gives cash
     }
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
     return (c.curBalance||0)-calcLoan(sc);
@@ -8551,7 +8077,7 @@ function rsRenderScenariosTab(c) {
         })()}
         ${(c.prepaidClosingItems||[]).map(it=>`<tr class="rs-pre"><td>✓ ${esc(it.label||'Pre-paid')}</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(()=>`<td style="color:var(--success)">−${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
         ${(c.debtPayoffs||[]).map(it=>`<tr class="rs-pre"><td>↑ ${esc(it.label||'Debt Payoff')}</td>${showCur?'<td class="rs-cc">—</td>':''}${s.map(()=>`<td style="color:#1e5fa8">+${rsFmt(it.amount||0)}</td>`).join('')}</tr>`).join('')}
-        ${row(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.map(sc=>{const v=cashToClose(sc);return`<strong style="color:${v<=0?'var(--success)':'#1e5fa8'}">${rsFmt(v)}</strong>`}),'rs-cash',false)}
+        ${row(`<strong>${c.loanType==='heloc'?'Cash Received / Due at Closing':'Cash to Close / Due Borrower'}</strong>`,'—',s.map(sc=>{const v=cashToClose(sc);const disp=v<0?'+'+rsFmt(-v):rsFmt(v);return`<strong style="color:${v<=0?'var(--success)':'#1e5fa8'}">${disp}</strong>`}),'rs-cash',false)}
       </tbody>
     </table></div>${corSection}
   <div class="rs-card" style="margin-top:14px;border:1.5px solid #ffd0d0">
@@ -8626,13 +8152,8 @@ function rsRenderPreviewTab(c) {
   function debtPayoffsTotal(){return(c.debtPayoffs||[]).reduce((a,x)=>a+(x.amount||0),0);}
   function dpAmt2(sc){
     if(c.loanType==='heloc'){
-      // 1st-lien HELOC replaces existing mortgage — subtract balance being paid off
-      if(c.mortgageOrder==='first'){
-        const payoff = c.helocPayoff ? (c.helocPayoffAmt||0) : (c.curBalance||0);
-        return -(calcLoan(sc)) + payoff;
-      }
-      // 2nd-lien HELOC: borrower receives loan amount; closingCosts/debts deducted in cash2close()
-      return -(calcLoan(sc));
+      const payoff = (c.helocPayoff && c.mortgageOrder==='second') ? (c.helocPayoffAmt||0) : (c.curBalance||0);
+      return -(calcLoan(sc)) + payoff;
     }
     if(c.loanType==='purchase')return (c.appraisal||0)*((c.dpPct!=null?c.dpPct:20)/100);
     return (c.curBalance||0)-calcLoan(sc);
@@ -8651,7 +8172,7 @@ function rsRenderPreviewTab(c) {
   const logoHtml = logoSrc
     ? `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6px">`
     : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:28px;font-weight:700;color:#c9a84c">Z</div>`;
-  const lo = rsGetFileLO();
+  const lo = cache.settings.loanOfficer || {};
   const oName = lo.name || (cache.settings.users?.[0]) || 'Zaphire Capital';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
   const oPhone = lo.phone || '';
@@ -8817,8 +8338,8 @@ function rsPrint() {
     ?`<img src="${logo}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6pt">`
     :'';
   const nmls=cache.settings?.nmls||'2511614';
-  // Officer info: per-file LO (Pipeline Info) with global as fallback
-  const lo=rsGetFileLO();
+  // Officer info from loanOfficer settings
+  const lo=cache.settings.loanOfficer||{};
   const oName=lo.name||(cache.settings.users?.[0])||'Zaphire Capital';
   const oNmls=lo.nmls||nmls;
   const oPhone=lo.phone||'';
@@ -10713,29 +10234,6 @@ const PL_GROUPS = [
 
 // Flat list of all pipeline field keys for quick lookup
 const PL_ALL_KEYS = PL_GROUPS.flatMap(g => g.fields.map(f => f.key));
-
-
-function renderFormsTab() {
-  const f = cache.files?.find(x => x.id === currentFileId);
-  const panel = document.getElementById('formsTabBody');
-  if (!panel) return;
-  panel.innerHTML = `
-    <div style="display:flex;height:100%;min-height:520px">
-      <div style="width:260px;min-width:220px;border-right:1px solid var(--border);padding:16px 0;flex-shrink:0">
-        <div style="padding:0 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px">Available Forms</div>
-        <div id="formsListBody"></div>
-      </div>
-      <div style="flex:1;padding:20px;overflow:auto;background:var(--bg-main)">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;gap:8px">
-          <button class="btn btn-secondary" onclick="formsSelectForm(activeFormId)" style="font-size:12px;padding:5px 14px">↺ Refresh</button>
-          <button class="btn btn-primary" onclick="formsPrint()" style="font-size:12px;padding:5px 14px">🖨 Print / PDF</button>
-        </div>
-        <div id="formsPreviewArea" style="background:#fff;border:1px solid #ddd;border-radius:6px;min-height:400px;padding:8px;color:#000"></div>
-      </div>
-    </div>`;
-  activeFormId = null;
-  formsInit();
-}
 
 function plInfoRender() {
   const f = cache.files.find(x => x.id === currentFileId);
