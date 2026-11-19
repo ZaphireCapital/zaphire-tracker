@@ -8141,6 +8141,18 @@ function rsRemoveScenario() {
 }
 
 // ── Preview Tab ──
+// Loan officer for worksheet: use the file's Pipeline Info LO, matched to Settings
+function rsGetFileLO() {
+  const f = (cache.files || []).find(x => x.id === currentFileId);
+  const name = ((f && f.pipeline && f.pipeline.pl_lo) || '').trim();
+  const los = (cache.settings.loanOfficers || []).filter(o => o.name);
+  if (name) {
+    const m = los.find(o => o.name.trim().toLowerCase() === name.toLowerCase());
+    if (m) return m;
+    return { name: name }; // name not in Settings: show name, company NMLS
+  }
+  return cache.settings.loanOfficer || {};
+}
 function rsRenderPreviewTab(c) {
   const panel=document.getElementById('rsPreview'); if(!panel)return;
   if(!c){panel.innerHTML='';return;}
@@ -8181,7 +8193,7 @@ function rsRenderPreviewTab(c) {
   const logoHtml = logoSrc
     ? `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:5px;background:#fff;padding:6px">`
     : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:28px;font-weight:700;color:#c9a84c">Z</div>`;
-  const lo = cache.settings.loanOfficer || {};
+  const lo = rsGetFileLO();
   const oName = lo.name || (cache.settings.users?.[0]) || 'Zaphire Capital';
   const oNmls = lo.nmls || cache.settings?.nmls || '2511614';
   const oPhone = lo.phone || '';
@@ -8348,7 +8360,7 @@ function rsPrint() {
     :'';
   const nmls=cache.settings?.nmls||'2511614';
   // Officer info from loanOfficer settings
-  const lo=cache.settings.loanOfficer||{};
+  const lo=rsGetFileLO();
   const oName=lo.name||(cache.settings.users?.[0])||'Zaphire Capital';
   const oNmls=lo.nmls||nmls;
   const oPhone=lo.phone||'';
